@@ -1,35 +1,66 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
-import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 
-function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const server = net.createServer();
-    server.listen(port, () => {
-      server.close(() => resolve(true));
-    });
-    server.on("error", () => resolve(false));
-  });
+function parseAllowedOrigins(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
 }
 
-async function findAvailablePort(startPort: number = 3000): Promise<number> {
-  for (let port = startPort; port < startPort + 20; port++) {
-    if (await isPortAvailable(port)) {
-      return port;
+function buildAllowedOrigins() {
+  const envOrigins = parseAllowedOrigins(process.env.CORS_ALLOWED_ORIGINS);
+  const frontendOrigin = process.env.FRONTEND_ORIGIN?.trim();
+  const defaults =
+    process.env.NODE_ENV === "development"
+      ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+      : [];
+  const combined = [
+    ...envOrigins,
+    ...(frontendOrigin ? [frontendOrigin] : []),
+    ...defaults,
+  ];
+  return Array.from(new Set(combined));
+}
+
+function createCorsMiddleware() {
+  const allowedOrigins = buildAllowedOrigins();
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const origin = req.headers.origin;
+
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header("Access-Control-Allow-Origin", origin);
+      res.header("Access-Control-Allow-Credentials", "true");
+      res.header("Vary", "Origin");
     }
-  }
-  throw new Error(`No available port found starting from ${startPort}`);
+
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With");
+
+    if (req.method === "OPTIONS") {
+      res.sendStatus(204);
+      return;
+    }
+
+    next();
+  };
 }
 
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  app.set("trust proxy", 1);
+  app.use(createCorsMiddleware());
+  app.get("/healthz", (_req, res) => {
+    res.status(200).json({ ok: true });
+  });
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -50,16 +81,14 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
-
-  if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
-  }
+  const port = parseInt(process.env.PORT || "3000");
 
   server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+    console.log(`Server running on port ${port}`);
   });
 }
 
-startServer().catch(console.error);
+startServer().catch((error) => {
+  console.error("[server] startup failed", error);
+  process.exit(1);
+});

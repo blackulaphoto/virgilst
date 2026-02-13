@@ -10,7 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "db:setup": "pnpm run db:push && pnpm run db:import:snapshot:safe",
     "index-knowledge": "tsx server/scripts/indexKnowledge.ts",
     "db:export:snapshot": "tsx scripts/export-db-snapshot.ts",
