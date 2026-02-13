@@ -50,6 +50,71 @@ import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+const SEARCH_STOPWORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "at",
+  "be",
+  "can",
+  "do",
+  "for",
+  "from",
+  "get",
+  "help",
+  "i",
+  "in",
+  "is",
+  "it",
+  "know",
+  "me",
+  "my",
+  "near",
+  "need",
+  "of",
+  "on",
+  "or",
+  "the",
+  "to",
+  "we",
+  "what",
+  "where",
+  "with",
+  "you",
+]);
+
+function tokenizeSearchTerms(query: string): string[] {
+  const base = query
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .split(/[\s-]+/)
+    .map(t => t.trim())
+    .filter(t => t.length >= 2 && !SEARCH_STOPWORDS.has(t));
+
+  const terms = new Set(base);
+  const compact = query.toLowerCase().replace(/\s+/g, " ");
+
+  if (compact.includes("medi-cal") || compact.includes("medi cal") || compact.includes("medicaid")) {
+    terms.add("medi");
+    terms.add("cal");
+    terms.add("medicaid");
+  }
+
+  if (compact.includes("la") || compact.includes("los angeles")) {
+    terms.add("los");
+    terms.add("angeles");
+  }
+
+  if (compact.includes("koreatown")) {
+    terms.add("koreatown");
+    terms.add("los");
+    terms.add("angeles");
+  }
+
+  return Array.from(terms);
+}
+
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -500,8 +565,17 @@ export async function createConversation(conversation: InsertChatConversation) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(chatConversations).values(conversation);
-  return result;
+  const result = await db
+    .insert(chatConversations)
+    .values(conversation)
+    .returning({ id: chatConversations.id });
+
+  const id = Number(result[0]?.id);
+  if (!Number.isFinite(id)) {
+    throw new Error("Failed to create conversation: invalid insert id");
+  }
+
+  return { insertId: id };
 }
 
 export async function getConversationMessages(conversationId: number) {
@@ -1115,20 +1189,85 @@ export async function searchTreatmentCenters(query: string): Promise<TreatmentCe
   const db = await getDb();
   if (!db) return [];
 
+  const terms = tokenizeSearchTerms(query);
+  const wantsMediCal = /\bmedi[-\s]?cal\b|\bmedicaid\b/i.test(query);
+
+  const tokenConditions = terms.map(term =>
+    or(
+      like(treatmentCenters.name, `%${term}%`),
+      like(treatmentCenters.description, `%${term}%`),
+      like(treatmentCenters.city, `%${term}%`),
+      like(treatmentCenters.address, `%${term}%`),
+      like(treatmentCenters.type, `%${term}%`),
+      like(treatmentCenters.servicesOffered, `%${term}%`)
+    )
+  );
+
+  const textMatcher =
+    tokenConditions.length > 0
+      ? or(
+          like(treatmentCenters.name, `%${query}%`),
+          like(treatmentCenters.description, `%${query}%`),
+          like(treatmentCenters.city, `%${query}%`),
+          like(treatmentCenters.address, `%${query}%`),
+          ...tokenConditions
+        )
+      : or(
+          like(treatmentCenters.name, `%${query}%`),
+          like(treatmentCenters.description, `%${query}%`),
+          like(treatmentCenters.city, `%${query}%`),
+          like(treatmentCenters.address, `%${query}%`)
+        );
+
+  const conditions = [eq(treatmentCenters.isPublished, 1), textMatcher];
+  if (wantsMediCal) {
+    conditions.push(eq(treatmentCenters.acceptsMediCal, 1));
+  }
+
   const results = await db
     .select()
     .from(treatmentCenters)
-    .where(
-      and(
-        eq(treatmentCenters.isPublished, 1),
-        or(
-          like(treatmentCenters.name, `%${query}%`),
-          like(treatmentCenters.description, `%${query}%`),
-          like(treatmentCenters.city, `%${query}%`)
-        )
-      )
-    )
+    .where(and(...conditions))
     .orderBy(desc(treatmentCenters.createdAt));
+
+  return results;
+}
+
+export async function searchResources(query: string, limit: number = 50): Promise<Resource[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const terms = tokenizeSearchTerms(query);
+  const tokenConditions = terms.map(term =>
+    or(
+      like(resources.name, `%${term}%`),
+      like(resources.description, `%${term}%`),
+      like(resources.type, `%${term}%`),
+      like(resources.address, `%${term}%`),
+      like(resources.filters, `%${term}%`)
+    )
+  );
+
+  const textMatcher =
+    tokenConditions.length > 0
+      ? or(
+          like(resources.name, `%${query}%`),
+          like(resources.description, `%${query}%`),
+          like(resources.address, `%${query}%`),
+          ...tokenConditions
+        )
+      : or(
+          like(resources.name, `%${query}%`),
+          like(resources.description, `%${query}%`),
+          like(resources.address, `%${query}%`)
+        );
+
+  const results = await db
+    .select()
+    .from(resources)
+    .where(textMatcher)
+    .orderBy(desc(resources.isVerified), desc(resources.updatedAt))
+    .limit(limit);
 
   return results;
 }
@@ -1199,18 +1338,39 @@ export async function searchMediCalProviders(
   const db = await getDb();
   if (!db) return [];
 
+  const terms = tokenizeSearchTerms(query);
+  const tokenConditions = terms.map(term =>
+    or(
+      like(mediCalProviders.providerName, `%${term}%`),
+      like(mediCalProviders.facilityName, `%${term}%`),
+      like(mediCalProviders.city, `%${term}%`),
+      like(mediCalProviders.specialties, `%${term}%`),
+      like(mediCalProviders.address, `%${term}%`),
+      like(mediCalProviders.zipCode, `%${term}%`),
+      like(mediCalProviders.npi, `%${term}%`)
+    )
+  );
+
+  const textMatcher =
+    tokenConditions.length > 0
+      ? or(
+          like(mediCalProviders.providerName, `%${query}%`),
+          like(mediCalProviders.facilityName, `%${query}%`),
+          like(mediCalProviders.city, `%${query}%`),
+          like(mediCalProviders.specialties, `%${query}%`),
+          ...tokenConditions
+        )
+      : or(
+          like(mediCalProviders.providerName, `%${query}%`),
+          like(mediCalProviders.facilityName, `%${query}%`),
+          like(mediCalProviders.city, `%${query}%`),
+          like(mediCalProviders.specialties, `%${query}%`)
+        );
+
   const results = await db
     .select()
     .from(mediCalProviders)
-    .where(
-      or(
-        like(mediCalProviders.providerName, `%${query}%`),
-        like(mediCalProviders.facilityName, `%${query}%`),
-        like(mediCalProviders.city, `%${query}%`),
-        like(mediCalProviders.specialties, `%${query}%`),
-        like(mediCalProviders.npi, `%${query}%`)
-      )
-    )
+    .where(textMatcher)
     .orderBy(mediCalProviders.city, mediCalProviders.providerName)
     .limit(limit)
     .offset(offset);

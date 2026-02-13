@@ -15,6 +15,182 @@ import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { ingestKnowledgeUpload, MAX_KNOWLEDGE_UPLOAD_BYTES } from "./knowledgeIngestion";
 
+const VIRGIL_SYSTEM_PROMPT = `You are Virgil, a California social-services case detective with the heart and sparkle of Penelope Garcia.
+
+Your style:
+- Cheeky, witty, warm, and encouraging.
+- Motivational, practical, and solution-obsessed.
+- Playful detective energy: you investigate options, connect dots, and uncover next steps.
+- Never cold or robotic. Never shame the user. Never lecture.
+- Keep responses human, clear, and actionable.
+
+Your mission:
+- Help people in California, especially people experiencing homelessness, navigate services and survive hard situations.
+- Give concrete, step-by-step actions for housing, food, benefits, legal issues, child/family safety, healthcare, treatment, transportation, and documentation.
+- Focus on what can work right now and what to do next.
+- If a process is bureaucratic, simplify it and offer practical workarounds that are legal and realistic.
+
+Conversation behavior:
+- Start with empathy and momentum.
+- Ask focused follow-up questions when key details are missing.
+- Offer immediate triage first (what to do in the next hour), then short-term plan (today/this week), then longer-term plan.
+- Keep the conversation open-ended and supportive. End with a useful next question or a concrete next action.
+
+Tool behavior:
+- You can use tools: search_knowledge, scrape_url, search_google.
+- Use tools proactively when they improve accuracy.
+- Cite sources whenever tool-based information is provided.
+
+Safety and tone constraints:
+- Be trauma-informed and calm.
+- No fear-based language, no moral judgment, no dismissive tone.
+- Do not invent resources. If uncertain, say so and use tools to verify.
+
+Output quality:
+- Prioritize clear bullet points and checklists for action steps.
+- Keep answers specific to California whenever possible.
+- Be the user's sharp, optimistic, ride-or-die navigator.`;
+
+const RESOURCE_QUERY_PATTERN =
+  /(treatment|rehab|detox|sober|medi-?cal|shelter|housing|food|resource|clinic|program|near|koreatown|los angeles|zip|tonight|where)/i;
+
+const shouldForceResourceSearch = (input: string) =>
+  RESOURCE_QUERY_PATTERN.test(input);
+
+type ForcedContext = {
+  context: string;
+  sources: Array<{ title: string; url?: string; category?: string }>;
+};
+
+async function buildForcedResourceContext(query: string): Promise<ForcedContext> {
+  const sources: Array<{ title: string; url?: string; category?: string }> = [];
+  const sections: string[] = [];
+  const lowerQuery = query.toLowerCase();
+  const asksMediCal = /\bmedi[-\s]?cal\b|\bmedicaid\b/i.test(query);
+  const mentionsKoreatown = lowerQuery.includes("koreatown");
+  const mentionsLosAngeles = lowerQuery.includes("los angeles") || /\bla\b/.test(lowerQuery);
+  const localityHint = mentionsKoreatown ? "Koreatown Los Angeles" : mentionsLosAngeles ? "Los Angeles" : query;
+
+  const [treatmentCenters, resources, mediCalProviders, googleResults] =
+    await Promise.all([
+      db.searchTreatmentCenters(query),
+      db.searchResources(query, 40),
+      db.searchMediCalProviders(query, 40, 0),
+      searchGoogle(`${localityHint} California`, 5),
+    ]);
+
+  if (treatmentCenters.length > 0) {
+    const top = treatmentCenters.slice(0, 12);
+    sections.push(
+      "Internal treatment centers:\n" +
+        top
+          .map(
+            c =>
+              `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.type ? ` | type: ${c.type}` : ""}${c.acceptsMediCal ? " | accepts Medi-Cal" : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(c => ({
+        title: c.name,
+        category: "treatment_center",
+      }))
+    );
+  }
+
+  if (resources.length > 0) {
+    const top = resources.slice(0, 12);
+    sections.push(
+      "Internal resources:\n" +
+        top
+          .map(
+            r =>
+              `- ${r.name}${r.type ? ` (${r.type})` : ""}${r.address ? ` | ${r.address}` : ""}${r.phone ? ` | ${r.phone}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(r => ({
+        title: r.name,
+        category: "resource",
+      }))
+    );
+  }
+
+  if (mediCalProviders.length > 0) {
+    const top = mediCalProviders.slice(0, 12);
+    sections.push(
+      "Internal Medi-Cal providers:\n" +
+        top
+          .map(
+            p =>
+              `- ${p.providerName}${p.city ? ` (${p.city})` : ""}${p.phone ? ` | ${p.phone}` : ""}${p.specialties ? ` | specialties: ${p.specialties}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(p => ({
+        title: p.providerName,
+        category: "medi_cal_provider",
+      }))
+    );
+  }
+
+  if (googleResults.success && googleResults.results.length > 0) {
+    sections.push(
+      "Web search results:\n" +
+        googleResults.results
+          .slice(0, 5)
+          .map(r => `- ${r.title} | ${r.link}`)
+          .join("\n")
+    );
+    sources.push(
+      ...googleResults.results.slice(0, 5).map(r => ({
+        title: r.title,
+        url: r.link,
+        category: "web",
+      }))
+    );
+  } else if (!googleResults.success) {
+    sections.push(`Web search unavailable: ${googleResults.error ?? "Unknown SerpAPI error"}`);
+    console.warn("[Chat] forced_resource_context:serp_unavailable", {
+      query,
+      error: googleResults.error ?? null,
+    });
+  }
+
+  if (treatmentCenters.length === 0 && asksMediCal) {
+    const fallbackCenters = await db.getAllTreatmentCenters({
+      acceptsMediCal: true,
+      city: mentionsKoreatown || mentionsLosAngeles ? "Los Angeles" : undefined,
+    });
+
+    if (fallbackCenters.length > 0) {
+      const top = fallbackCenters.slice(0, 20);
+      sections.push(
+        "Internal Medi-Cal treatment centers (fallback):\n" +
+          top
+            .map(
+              c =>
+                `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.address ? ` | ${c.address}` : ""}${c.type ? ` | type: ${c.type}` : ""}`
+            )
+            .join("\n")
+      );
+      sources.push(
+        ...top.map(c => ({
+          title: c.name,
+          category: "treatment_center",
+        }))
+      );
+    }
+  }
+
+  return {
+    context: sections.join("\n\n"),
+    sources,
+  };
+}
+
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== 'admin') {
@@ -399,6 +575,11 @@ export const appRouter = router({
         message: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        console.log("[Chat] send:start", {
+          userId: ctx.user.id,
+          requestedConversationId: input.conversationId ?? null,
+        });
+
         let conversationId = input.conversationId;
 
         // Create new conversation if needed
@@ -407,7 +588,18 @@ export const appRouter = router({
             userId: ctx.user.id,
             title: input.message.substring(0, 100),
           });
-          conversationId = Number((result as any).insertId);
+          conversationId = result.insertId;
+          console.log("[Chat] send:conversation_created", {
+            userId: ctx.user.id,
+            conversationId,
+          });
+        }
+
+        if (!Number.isFinite(conversationId)) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create chat conversation",
+          });
         }
 
         // Save user message
@@ -421,25 +613,7 @@ export const appRouter = router({
         const messages = await db.getConversationMessages(conversationId);
 
         // Call LLM with system prompt, history, and tool calling
-        const systemPrompt = `You are Virgil, an AI case manager trained to walk people through navigating social services, homelessness, sobriety, court, and family reunification. 
-
-You have access to three tools:
-1. search_knowledge - Search the knowledge base of guides, PDFs, and documents about benefits, housing, legal issues, etc.
-2. scrape_url - Fetch and extract content from a specific URL
-3. search_google - Search Google for current information and resources
-
-Your role is to:
-- Provide clear, actionable guidance in plain English
-- Be compassionate and trauma-informed
-- Offer step-by-step instructions for complex processes
-- Explain systems like General Relief, Medi-Cal, Section 8, CPS, etc.
-- Help users understand their rights and options
-- Generate checklists, letters, and appeals when needed
-- Connect users to relevant resources
-- Use tools to find accurate, up-to-date information
-- Always cite your sources when using tools
-
-Your tone should be grounded, supportive, and no-BS. You're a street-smart guide who understands the chaos people are facing and helps them find clarity and next steps.`;
+        const systemPrompt = VIRGIL_SYSTEM_PROMPT;
 
         const tools = [
           {
@@ -498,82 +672,131 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
           },
         ];
 
-        // First LLM call - decide if tools are needed
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages.map(m => ({
-              role: m.role as "user" | "assistant",
-              content: m.content,
-            })),
-          ],
-          tools,
-          tool_choice: "auto",
-        });
-
-        const choice = response.choices[0];
         let assistantMessage = "";
         let sources: any[] = [];
-
-        // Check if LLM wants to use tools
-        if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
-          const toolResults: any[] = [];
-
-          // Execute each tool call
-          for (const toolCall of choice.message.tool_calls) {
-            const functionName = toolCall.function.name;
-            const args = JSON.parse(toolCall.function.arguments);
-
-            let result = "";
-
-            if (functionName === "search_knowledge") {
-              const searchResults = await searchKnowledge(args.query, 5);
-              result = formatKnowledgeResults(searchResults);
-              sources.push(...getCitations(searchResults));
-            } else if (functionName === "scrape_url") {
-              const scraped = await scrapeUrl(args.url);
-              if (scraped.success) {
-                result = `Title: ${scraped.title}\n\n${scraped.content.substring(0, 3000)}`;
-                sources.push({ title: scraped.title, url: scraped.url });
-              } else {
-                result = `Failed to scrape URL: ${scraped.error}`;
-              }
-            } else if (functionName === "search_google") {
-              const searchResults = await searchGoogle(args.query, 5);
-              if (searchResults.success) {
-                result = formatGoogleResults(searchResults.results);
-                sources.push(...searchResults.results.map(r => ({ title: r.title, url: r.link })));
-              } else {
-                result = `Search failed: ${searchResults.error}`;
-              }
-            }
-
-            toolResults.push({
-              tool_call_id: toolCall.id,
-              role: "tool" as const,
-              content: result,
-            });
-          }
-
-          // Second LLM call with tool results
-          const finalResponse = await invokeLLM({
+        try {
+          // First LLM call - decide if tools are needed
+          const response = await invokeLLM({
             messages: [
               { role: "system", content: systemPrompt },
               ...messages.map(m => ({
                 role: m.role as "user" | "assistant",
                 content: m.content,
               })),
-              choice.message,
-              ...toolResults,
             ],
+            tools,
+            tool_choice: "auto",
           });
 
-          const finalContent = finalResponse.choices[0]?.message?.content;
-          assistantMessage = typeof finalContent === 'string' ? finalContent : "I'm having trouble responding right now. Please try again.";
-        } else {
-          // No tools needed, use direct response
-          const content = choice.message.content;
-          assistantMessage = typeof content === 'string' ? content : "I'm having trouble responding right now. Please try again.";
+          const choice = response.choices[0];
+
+          // Check if LLM wants to use tools
+          if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+            const toolResults: any[] = [];
+
+            // Execute each tool call
+            for (const toolCall of choice.message.tool_calls) {
+              const functionName = toolCall.function.name;
+              const args = JSON.parse(toolCall.function.arguments);
+
+              let result = "";
+
+              if (functionName === "search_knowledge") {
+                const searchResults = await searchKnowledge(args.query, 5);
+                result = formatKnowledgeResults(searchResults);
+                sources.push(...getCitations(searchResults));
+              } else if (functionName === "scrape_url") {
+                const scraped = await scrapeUrl(args.url);
+                if (scraped.success) {
+                  result = `Title: ${scraped.title}\n\n${scraped.content.substring(0, 3000)}`;
+                  sources.push({ title: scraped.title, url: scraped.url });
+                } else {
+                  result = `Failed to scrape URL: ${scraped.error}`;
+                }
+              } else if (functionName === "search_google") {
+                const searchResults = await searchGoogle(args.query, 5);
+                if (searchResults.success) {
+                  result = formatGoogleResults(searchResults.results);
+                  sources.push(...searchResults.results.map(r => ({ title: r.title, url: r.link })));
+                } else {
+                  result = `Search failed: ${searchResults.error}`;
+                }
+              }
+
+              toolResults.push({
+                tool_call_id: toolCall.id,
+                role: "tool" as const,
+                content: result,
+              });
+            }
+
+            // Second LLM call with tool results
+            const finalResponse = await invokeLLM({
+              messages: [
+                { role: "system", content: systemPrompt },
+                ...messages.map(m => ({
+                  role: m.role as "user" | "assistant",
+                  content: m.content,
+                })),
+                choice.message,
+                ...toolResults,
+              ],
+            });
+
+            const finalContent = finalResponse.choices[0]?.message?.content;
+            assistantMessage = typeof finalContent === 'string' ? finalContent : "I'm having trouble responding right now. Please try again.";
+          } else {
+            // No tools needed, use direct response
+            const content = choice.message.content;
+            assistantMessage = typeof content === 'string' ? content : "";
+
+            if (shouldForceResourceSearch(input.message)) {
+              const forced = await buildForcedResourceContext(input.message);
+              if (forced.context) {
+                sources.push(...forced.sources);
+                console.log("[Chat] send:forced_resource_context", {
+                  userId: ctx.user.id,
+                  conversationId,
+                  sourcesCount: forced.sources.length,
+                });
+
+                const grounded = await invokeLLM({
+                  messages: [
+                    { role: "system", content: systemPrompt },
+                    ...messages.map(m => ({
+                      role: m.role as "user" | "assistant",
+                      content: m.content,
+                    })),
+                    {
+                      role: "user",
+                      content:
+                        `User request:\n${input.message}\n\n` +
+                        `Use the verified data below before answering. Give concrete options with names, phone numbers, and next steps.\n\n` +
+                        forced.context,
+                    },
+                  ],
+                });
+                const groundedContent = grounded.choices[0]?.message?.content;
+                assistantMessage =
+                  typeof groundedContent === "string" ? groundedContent : assistantMessage;
+              }
+            }
+
+            if (!assistantMessage.trim()) {
+              assistantMessage = "I'm having trouble responding right now. Please try again.";
+            }
+          }
+        } catch (error) {
+          console.error("[Chat] send:llm_failed", {
+            userId: ctx.user.id,
+            conversationId,
+            error: error instanceof Error ? error.message : String(error),
+          });
+          assistantMessage = "I'm having trouble responding right now. Please try again.";
+        }
+
+        if (!assistantMessage.trim()) {
+          assistantMessage = "I'm having trouble responding right now. Please try again.";
         }
 
         // Save assistant response
@@ -581,6 +804,12 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
           conversationId,
           role: "assistant",
           content: assistantMessage,
+        });
+
+        console.log("[Chat] send:success", {
+          userId: ctx.user.id,
+          conversationId,
+          sourcesCount: sources.length,
         });
 
         return {
@@ -596,6 +825,11 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
         message: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        console.log("[Chat] sendStream:start", {
+          userId: ctx.user.id,
+          requestedConversationId: input.conversationId ?? null,
+        });
+
         let conversationId = input.conversationId;
 
         // Create new conversation if needed
@@ -604,7 +838,18 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
             userId: ctx.user.id,
             title: input.message.substring(0, 100),
           });
-          conversationId = Number((result as any).insertId);
+          conversationId = result.insertId;
+          console.log("[Chat] sendStream:conversation_created", {
+            userId: ctx.user.id,
+            conversationId,
+          });
+        }
+
+        if (!Number.isFinite(conversationId)) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create chat conversation",
+          });
         }
 
         // Save user message
@@ -621,25 +866,7 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
         const { invokeLLMStream } = await import("./_core/llm");
 
         // System prompt and tools (same as non-streaming)
-        const systemPrompt = `You are Virgil, an AI case manager trained to walk people through navigating social services, homelessness, sobriety, court, and family reunification.
-
-You have access to three tools:
-1. search_knowledge - Search the knowledge base of guides, PDFs, and documents about benefits, housing, legal issues, etc.
-2. scrape_url - Fetch and extract content from a specific URL
-3. search_google - Search Google for current information and resources
-
-Your role is to:
-- Provide clear, actionable guidance in plain English
-- Be compassionate and trauma-informed
-- Offer step-by-step instructions for complex processes
-- Explain systems like General Relief, Medi-Cal, Section 8, CPS, etc.
-- Help users understand their rights and options
-- Generate checklists, letters, and appeals when needed
-- Connect users to relevant resources
-- Use tools to find accurate, up-to-date information
-- Always cite your sources when using tools
-
-Your tone should be grounded, supportive, and no-BS. You're a street-smart guide who understands the chaos people are facing and helps them find clarity and next steps.`;
+        const systemPrompt = VIRGIL_SYSTEM_PROMPT;
 
         const tools = [
           {
@@ -783,7 +1010,11 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
             }
           }
         } catch (error) {
-          console.error("[Chat Stream] Error:", error);
+          console.error("[Chat] sendStream:llm_failed", {
+            userId: ctx.user.id,
+            conversationId,
+            error: error instanceof Error ? error.message : String(error),
+          });
           assistantMessage = "I'm having trouble responding right now. Please try again.";
         }
 
@@ -796,6 +1027,12 @@ Your tone should be grounded, supportive, and no-BS. You're a street-smart guide
           conversationId,
           role: "assistant",
           content: assistantMessage,
+        });
+
+        console.log("[Chat] sendStream:success", {
+          userId: ctx.user.id,
+          conversationId,
+          sourcesCount: sources.length,
         });
 
         return {
