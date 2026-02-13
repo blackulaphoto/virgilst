@@ -93,6 +93,85 @@ Open `http://localhost:3000`.
 - `pnpm run build` - build for production
 - `pnpm start` - run production build
 
+## Railway + Vercel Deployment
+
+### Railway (Backend)
+
+1. Create a Railway project from this repo.
+2. Railway uses `railway.json` and starts with:
+   - `pnpm run db:setup && pnpm start`
+3. `db:setup` does:
+   - `pnpm run db:push`
+   - `pnpm run db:import:snapshot:safe`
+4. `db:import:snapshot:safe` behavior:
+   - Checks `SELECT COUNT(*) FROM resources`
+   - If count > 0: logs `Database already populated` and exits
+   - If count = 0: imports `data/db-snapshot.json` and logs `Snapshot imported successfully`
+   - Logs resource row count before and after import
+5. Set required backend environment variables:
+   - `NODE_ENV=production`
+   - `PORT` (Railway provides this automatically)
+   - `DATABASE_URL=file:/data/virgil_st.db`
+   - `JWT_SECRET`
+   - `OWNER_OPEN_ID`
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `BUILT_IN_FORGE_API_KEY`
+   - `SERPAPI_KEY`
+6. Configure persistent storage:
+   - Add a Railway volume
+   - Mount path: `/data`
+7. For split hosting with Vercel frontend, also set:
+   - `FRONTEND_ORIGIN=https://your-frontend.vercel.app`
+   - `CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app`
+
+### Vercel (Frontend)
+
+1. Create a Vercel project from this repo.
+2. Vercel uses `vercel.json` and builds static assets from Vite.
+3. Set frontend environment variable:
+   - `VITE_API_BASE_URL=https://your-backend.up.railway.app`
+4. Redeploy after setting env vars.
+
+### Google OAuth Redirect URIs
+
+Add the Railway callback URL in Google Cloud OAuth settings:
+- `https://your-backend.up.railway.app/api/auth/google/callback`
+
+If you also run locally, keep:
+- `http://localhost:3000/api/auth/google/callback`
+
+### Transfer Existing Local Database To Railway
+
+Use this if Railway deployed successfully but has empty tables.
+
+1. Generate a full snapshot from your local DB:
+```bash
+pnpm run db:export:snapshot
+```
+This creates `data/db-snapshot.json`.
+
+2. Commit and push snapshot + scripts:
+```bash
+git add data/db-snapshot.json scripts/export-db-snapshot.ts scripts/import-db-snapshot.ts package.json README.md
+git commit -m "Add SQLite snapshot export/import for Railway data transfer"
+git push
+```
+
+3. In Railway, ensure:
+- You mounted a persistent volume (example mount path: `/data`)
+- `DATABASE_URL=file:/data/virgil_st.db`
+
+4. In Railway service shell (or Run Command), run:
+```bash
+pnpm run db:setup
+```
+
+5. Verify import count quickly:
+```bash
+node --input-type=module -e "import { createClient } from '@libsql/client'; const c=createClient({url:process.env.DATABASE_URL}); const r=await c.execute('SELECT COUNT(*) c FROM resources'); console.log('resources=', r.rows[0].c); await c.close();"
+```
+
 ## Virgil AI Features
 
 The AI case manager (Virgil) uses **GPT-4o** and has three tools:

@@ -11,7 +11,11 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
-    "index-knowledge": "tsx server/scripts/indexKnowledge.ts"
+    "db:setup": "pnpm run db:push && pnpm run db:import:snapshot:safe",
+    "index-knowledge": "tsx server/scripts/indexKnowledge.ts",
+    "db:export:snapshot": "tsx scripts/export-db-snapshot.ts",
+    "db:import:snapshot": "tsx scripts/import-db-snapshot.ts",
+    "db:import:snapshot:safe": "tsx scripts/import-db-snapshot.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
