@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the core AI-assisted social services platform, its major components, and high-level architecture"
+  },
+  {
+    "fileName": "ai-assistant-implementation.mdc",
+    "description": "Detailed documentation of the AI assistance system including the context-aware assistant, chat implementation, and integration with knowledge base"
+  },
+  {
+    "fileName": "data-models-relationships.mdc",
+    "description": "Comprehensive documentation of data models for treatment facilities, legal cases, resources, and their relationships including verification workflows"
+  },
+  {
+    "fileName": "knowledge-base-algorithms.mdc",
+    "description": "Technical documentation of the semantic search implementation, document categorization system, and vector embedding generation for legal/social services content"
+  },
+  {
+    "fileName": "case-management-flow.mdc",
+    "description": "Detailed documentation of the legal case management system, including status workflows, milestone tracking, and document verification states"
+  }
+]
