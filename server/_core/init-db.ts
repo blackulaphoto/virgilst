@@ -72,6 +72,11 @@ async function insertTableRows(
  * Returns true if initialization was performed, false if skipped
  */
 export async function initializeDatabaseIfEmpty(): Promise<boolean> {
+  console.log("[init-db] Starting initialization check...");
+  console.log("[init-db] Working directory:", process.cwd());
+  console.log("[init-db] NODE_ENV:", process.env.NODE_ENV);
+  console.log("[init-db] DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
+
   const databaseUrl = process.env.DATABASE_URL;
 
   if (!databaseUrl) {
@@ -80,6 +85,7 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
   }
 
   const snapshotPath = path.resolve(process.cwd(), "data", "db-snapshot.json");
+  console.log("[init-db] Looking for snapshot at:", snapshotPath);
 
   try {
     // Check if snapshot file exists
