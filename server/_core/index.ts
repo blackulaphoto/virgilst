@@ -56,7 +56,8 @@ function createCorsMiddleware() {
 
 async function startServer() {
   // Initialize database with snapshot data if empty (production auto-setup)
-  if (process.env.NODE_ENV === "production") {
+  // Run if DATABASE_URL is set (production) or if explicitly enabled
+  if (process.env.DATABASE_URL && process.env.NODE_ENV !== "development") {
     await initializeDatabaseIfEmpty();
   }
 
