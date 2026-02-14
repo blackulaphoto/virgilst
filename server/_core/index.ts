@@ -6,6 +6,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { initializeDatabaseIfEmpty } from "./init-db";
 
 function parseAllowedOrigins(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -54,6 +55,11 @@ function createCorsMiddleware() {
 }
 
 async function startServer() {
+  // Initialize database with snapshot data if empty (production auto-setup)
+  if (process.env.NODE_ENV === "production") {
+    await initializeDatabaseIfEmpty();
+  }
+
   const app = express();
   const server = createServer(app);
   app.set("trust proxy", 1);
