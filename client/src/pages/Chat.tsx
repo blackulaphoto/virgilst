@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
+import { skipToken } from "@tanstack/react-query";
 import { Loader2, Send, MessageSquare, ArrowLeft } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { Link } from "wouter";
@@ -23,26 +24,27 @@ export default function Chat() {
   const [message, setMessage] = useState("");
   const [conversationId, setConversationId] = useState<number | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const utils = trpc.useUtils();
 
   const { data: conversations } = trpc.chat.conversations.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
-  const { data: messages, refetch: refetchMessages } = trpc.chat.messages.useQuery(
-    { conversationId: conversationId! },
-    { enabled: !!conversationId }
+  const { data: messages } = trpc.chat.messages.useQuery(
+    conversationId ? { conversationId } : skipToken
   );
 
   const [lastSources, setLastSources] = useState<any[]>([]);
 
   const sendMutation = trpc.chat.send.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setConversationId(data.conversationId);
       setMessage("");
       if (data.sources) {
         setLastSources(data.sources);
       }
-      refetchMessages();
+      await utils.chat.messages.invalidate({ conversationId: data.conversationId });
+      await utils.chat.conversations.invalidate();
     },
   });
 

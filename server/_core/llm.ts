@@ -30,6 +30,7 @@ export type Message = {
   content: MessageContent | MessageContent[];
   name?: string;
   tool_call_id?: string;
+  tool_calls?: ToolCall[];
 };
 
 export type Tool = {
@@ -137,7 +138,7 @@ const normalizeContentPart = (
 };
 
 const normalizeMessage = (message: Message) => {
-  const { role, name, tool_call_id } = message;
+  const { role, name, tool_call_id, tool_calls } = message;
 
   if (role === "tool" || role === "function") {
     const content = ensureArray(message.content)
@@ -160,6 +161,7 @@ const normalizeMessage = (message: Message) => {
       role,
       name,
       content: contentParts[0].text,
+      ...(role === "assistant" && tool_calls ? { tool_calls } : {}),
     };
   }
 
@@ -167,6 +169,7 @@ const normalizeMessage = (message: Message) => {
     role,
     name,
     content: contentParts,
+    ...(role === "assistant" && tool_calls ? { tool_calls } : {}),
   };
 };
 
@@ -213,6 +216,20 @@ const resolveApiUrl = () =>
   ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
     ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
     : "https://api.openai.com/v1/chat/completions";
+
+const MAX_COMPLETION_TOKENS = 16384;
+const DEFAULT_COMPLETION_TOKENS = 4096;
+
+const resolveMaxTokens = (params: InvokeParams): number => {
+  const requested = params.maxTokens ?? params.max_tokens;
+  const parsed =
+    typeof requested === "number" && Number.isFinite(requested)
+      ? Math.floor(requested)
+      : DEFAULT_COMPLETION_TOKENS;
+
+  if (parsed < 1) return 1;
+  return Math.min(parsed, MAX_COMPLETION_TOKENS);
+};
 
 const assertApiKey = () => {
   if (!ENV.forgeApiKey) {
@@ -296,10 +313,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
-  payload.thinking = {
-    "budget_tokens": 128
-  }
+  payload.max_tokens = resolveMaxTokens(params);
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -378,10 +392,7 @@ export async function* invokeLLMStream(params: InvokeParams): AsyncGenerator<Str
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768;
-  payload.thinking = {
-    "budget_tokens": 128
-  };
+  payload.max_tokens = resolveMaxTokens(params);
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,

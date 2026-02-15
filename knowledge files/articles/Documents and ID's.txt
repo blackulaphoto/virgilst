@@ -1,0 +1,602 @@
+SECTION 1: DOCUMENT RECOVERY PRIORITY ROADMAP  
+“How to get your life back on paper”
+
+When you’ve lost several key documents, the order you replace them matters because most agencies will ask for one document to issue another. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+
+### Recommended order (for most adults in California and nationwide)
+
+1. Birth certificate  
+2. Social Security card  
+3. State ID / driver’s license (ideally a Real ID)  
+4. Marriage certificate and/or divorce certificate  
+5. GED or high school diploma  
+6. College transcripts and degrees  
+7. Military discharge papers (DD‑214), professional licenses, and immigration documents  
+
+**Why this order matters**
+
+- Birth certificate is your **core** identity and citizenship document; almost every other agency accepts it as primary proof of identity or U.S. birth. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- Social Security card connects your legal name and SSN, which is needed for work, taxes, and many ID applications. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+- State ID/driver’s license is the main photo ID used for nearly everything in daily life and is required for many in‑person applications. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+- Marriage/divorce certificates prove name changes and marital status, which you may need to update SSA, DMV, or a passport. [lavote](https://www.lavote.gov)
+- Education documents and DD‑214 are usually needed for jobs, licensing, or benefits but generally require basic ID first. [archives](https://www.archives.gov/veterans/military-service-records)
+
+If you are unhoused or low‑income in California, you may be able to get a free California birth certificate and free California photo ID if a homeless service provider completes the required fee‑waiver forms with you. [housingca](https://housingca.org/resources/community/individuals/get-ca-birthcert/)
+
+***
+
+SECTION 2: GETTING A BIRTH CERTIFICATE  
+
+### What a birth certificate is and why it matters
+
+A birth certificate is an official vital record showing your full name at birth, date and place of birth, and parent information, issued by a state or local vital records office. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+Agencies use certified copies (not photocopies) to prove identity, age, and citizenship for Social Security, passports, Real ID, school, and benefits. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+
+### Finding the right office (nationwide)
+
+- If born in the U.S.:  
+  - Your record is held by the **state vital records office** (usually “Department of Health” or “Vital Records”) and often also by the **county** where you were born. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+  - To find your state office:  
+    - Go to your state’s official .gov site (for example, search: “[Your State] vital records birth certificate”).  
+- If born in California:  
+  - State level: **California Department of Public Health – Vital Records (CDPH‑VR)**. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+  - County level: County **Registrar/Recorder** or **Clerk** where you were born (e.g., Los Angeles County Registrar‑Recorder). [publichealth.lacounty](http://publichealth.lacounty.gov/dca/dcabirth.htm)
+
+Key California links:  
+- CDPH Vital Records main page: https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+- CDPH birth certificate instructions (VS 111): https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- CDPH online ordering via approved vendors: https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx)
+- VitalChek California ordering page: https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+
+### When and how to use VitalChek
+
+VitalChek is an authorized online service that contracts with many states and counties to process certified birth, death, marriage, and divorce certificate orders. [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+
+Use VitalChek when:  
+- You want to order online with a debit/credit card and can wait for mail delivery. [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+- You are out of state and cannot appear in person at a county office. [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+
+What to expect with VitalChek:  
+- You choose the state/county and type of record, answer identity questions, and upload ID if required. [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+- VitalChek charges:  
+  - State/County record fee (for California birth: typically around 31 USD at the state level; counties may vary). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records-fees.aspx)
+  - Vendor processing fee (varies by location). [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+- Processing time:  
+  - State CDPH can take weeks; some counties are faster. CDPH ships by USPS First Class Mail. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx)
+
+Official links:  
+- VitalChek main site: https://www.vitalchek.com [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+
+### California-specific steps (especially LA / OC / SD)
+
+You can order a California birth certificate from either CDPH‑VR (state) or your county. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+
+**A. Ordering through CDPH‑VR (mail or online)**
+
+1. Download and complete the Birth Certificate Application (Form VS 111). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+2. Decide whether you need:  
+   - “Certified Copy” (authorized) – usable as ID proof, requires notarized sworn statement. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+   - “Informational Copy” – cannot be used for identity. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+3. Prepare your payment:  
+   - Current state fee is about 31 USD per certified copy (check CDPH fee page to confirm latest). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Vital-Records-Obtaining-Certified-Copies-of-Birth-Records.aspx)
+   - Pay by check or money order to “CDPH – VR.” [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Vital-Records-Obtaining-Certified-Copies-of-Birth-Records.aspx)
+4. If requesting a certified copy, sign the sworn statement in front of a notary. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+5. Mail your application and payment to:  
+   - California Department of Public Health – Vital Records, MS 5103, P.O. Box 997410, Sacramento, CA 95899‑7410. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Vital-Records-Obtaining-Certified-Copies-of-Birth-Records.aspx)
+6. Wait times: CDPH warns that mailed orders can take several weeks; they mail via USPS First Class and do not track ordinary mail. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx)
+
+**B. Ordering through your county (often faster)**
+
+Los Angeles County  
+- Vital records information: http://publichealth.lacounty.gov/dca/dcabirth.htm [publichealth.lacounty](http://publichealth.lacounty.gov/dca/dcabirth.htm)
+- County Registrar‑Recorder site: https://www.lavote.gov [locator.lacounty](https://locator.lacounty.gov/lac/Location/3175505/los-angeles-county-registrar-recordercounty-clerk---beverly-hills)
+- Fees: LA County notes that, effective Jan 1, 2026, fees for certified birth records increased pursuant to AB 64; check the site for the current amount (recent notices put it around 34 USD). [lavote](https://www.lavote.gov)
+- You can request in person at Registrar‑Recorder offices (Norwalk main office or district locations) or by mail/online via VitalChek. [locator.lacounty](https://locator.lacounty.gov/lac/Location/3175505/los-angeles-county-registrar-recordercounty-clerk---beverly-hills)
+
+Orange County  
+- Look up “Orange County CA birth certificate” and go to the official ocgov.com / ochealthinfo.com vital records page; they provide in‑person, mail, and online (often via VitalChek) ordering. [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+
+San Diego County  
+- Search “San Diego County birth certificate” and go to the official sandiegocounty.gov Assessor/Recorder/County Clerk vital records page. They offer in‑person and mail orders, plus online ordering through approved vendors. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+
+### What information and ID you usually need
+
+Typical birth certificate application asks for: [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+
+- Full name at birth  
+- Date of birth (or approximate)  
+- City and county of birth  
+- Parent names (including parent last name before marriage)  
+- Your relationship to the person whose record you’re ordering  
+- Reason for the request  
+
+For a certified copy (authorized):  
+- Notarized sworn statement that you are an authorized person (self, parent, child, legal representative, etc.). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- A copy of a valid government photo ID if ordering through some counties or vendors. [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+
+### What if you have no ID in California?
+
+California law allows eligible people experiencing homelessness to get **fee‑exempt** copies of their California birth certificate if they provide an affidavit from a homeless services provider. [ccr.saccounty](https://ccr.saccounty.gov/content/ccr/us/en/no-fee-birth-certificate-for-homeless-persons.html)
+
+Basic steps (California, including LA/OC/SD):  
+1. Contact a homeless service provider, emergency shelter, or county human services office and say you need a **birth certificate fee waiver** (often based on AB 1733 and Health & Safety Code 103577). [housingca](https://housingca.org/resources/community/providers/help-someone-get-ca-birthcert/)
+2. The provider completes and signs an “Affidavit of Homeless Status” and any county form required. [ccr.saccounty](https://ccr.saccounty.gov/content/ccr/us/en/no-fee-birth-certificate-for-homeless-persons.html)
+3. Bring that affidavit/form to the County Recorder/Registrar office where you were born to get a **no‑fee certified copy**. [housingca](https://housingca.org/resources/community/providers/help-someone-get-ca-birthcert/)
+
+This fee waiver also connects with free California ID cards for unhoused people (see Section 4). [housingca](https://housingca.org/resources/community/individuals/get-ca-birthcert/)
+
+Key birth record links for this section:  
+- CDPH Vital Records: https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+- CDPH birth application (VS 111): https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- Online ordering with state‑approved vendors: https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx)
+- VitalChek: https://www.vitalchek.com [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+- LA County birth certificates: http://publichealth.lacounty.gov/dca/dcabirth.htm [publichealth.lacounty](http://publichealth.lacounty.gov/dca/dcabirth.htm)
+- Homeless birth certificate/ID help (CA): https://housingca.org/resources/community/individuals/get-ca-birthcert/ [housingca](https://housingca.org/resources/community/individuals/get-ca-birthcert/)
+
+***
+
+SECTION 3: REPLACING YOUR SOCIAL SECURITY CARD  
+
+### Overview
+
+The Social Security Administration (SSA) issues replacement Social Security cards at **no charge**. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+You can usually request a replacement online, by starting an application online, or by completing Form SS‑5 and visiting or mailing documents to a local SSA office. [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+
+Official SSA links:  
+- Replacement card info: https://www.ssa.gov/ssnumber [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+- Online account (“my Social Security”): https://www.ssa.gov/myaccount [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+- Application for a Social Security Card (Form SS‑5, PDF): https://www.ssa.gov/forms/ss-5.pdf [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+
+### Option 1: Online replacement (many Californians)
+
+You may be able to replace your card entirely online if: [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+
+- You are a U.S. citizen age 18 or older.  
+- You have a driver’s license or state ID from a participating state (California participates). [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+- You have a U.S. mailing address.  
+- You do not need to change your name, date/place of birth, or gender. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+
+Steps:  
+1. Create/sign into your **my Social Security** account at https://www.ssa.gov/myaccount. [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+2. Select “Replace your Social Security card” and confirm eligibility questions. [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+3. Enter your identity details (name, SSN, DOB, driver’s license/ID info, address, phone). [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+4. Submit your request; SSA mails the new card, usually within 10–14 business days. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+
+### Option 2: Start online, finish at a local office
+
+If you cannot fully complete your request online, SSA allows you to: [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+
+- Answer screening questions on the SSN web page.  
+- Begin your application online and self‑schedule an appointment at a local SSA office. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+- Bring required original documents in person to finish.  
+
+### Option 3: Paper Form SS‑5 (mail or in person)
+
+Use this if you:  
+- Have never had a SSN,  
+- Need to correct data, or  
+- Cannot use the online tools.  
+
+Steps:  
+1. Download and fill out Form SS‑5: https://www.ssa.gov/forms/ss-5.pdf. [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+2. Gather **original** documents proving identity (and citizenship/immigration status, if needed). [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+3. Mail or take the form and documents to your local SSA office; find locations at https://www.ssa.gov/locator. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+
+Acceptable identity documents (for adults, replacement card):  
+- U.S. driver’s license  
+- State‑issued ID card  
+- U.S. passport  
+SSA may accept alternative documents if you cannot get one of these, but they must be current and show your name, identifying information, and a recent photo (for example, employee ID, school ID, health insurance card). [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+
+There is **no fee** for a replacement Social Security card. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+
+### What if you have no ID yet?
+
+Because SSA generally requires valid ID, many people should first secure a birth certificate and then a state ID. [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+If you lack ID, you can:  
+
+- Ask SSA which alternate documents they will accept in your situation (for example, school, medical, or employment records). [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+- Use your birth certificate plus another secondary document (like health insurance card) if accepted. [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+
+Key SSA links for this section:  
+- Replacement card FAQs: https://www.ssa.gov/faqs/en/questions/KA-02017.html [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+- Identity document requirements: https://www.ssa.gov/ssnumber/ss5doc.htm [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+- Form SS‑5: https://www.ssa.gov/forms/ss-5.pdf [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+- my Social Security: https://www.ssa.gov/myaccount [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+
+***
+
+SECTION 4: STATE ID / DRIVER’S LICENSE (CALIFORNIA FOCUSED)  
+
+### ID card vs. driver’s license
+
+- **Driver’s license (DL)**: Photo ID that also authorizes you to drive.  
+- **ID card**: Photo ID only; no driving privileges.  
+
+In California, both are issued by the Department of Motor Vehicles (DMV). [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+
+Key California DMV link:  
+- Replace your DL/ID: https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/ [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+
+### Replacing a lost California DL or ID
+
+For most Californians, you can request a replacement (duplicate) if your card is lost, stolen, or damaged. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+
+**Online replacement (driver’s license only)**  
+1. Go to the DMV replacement DL page and follow the “Request a replacement DL” link. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+2. Complete the online application (you may need a DMV account). [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+3. Pay the replacement fee (varies; typically around the standard replacement DL fee). [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+4. Receive your license in the mail, usually in 3–4 weeks; if not received within 60 days, check status. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+
+**In‑office replacement (DL or ID)**  
+1. Complete a new application online before you go, or on a DMV kiosk at the office. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+2. Bring documents if requested, and be prepared to:  
+   - Have your photo taken,  
+   - Provide thumbprint,  
+   - Pay the replacement fee. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+3. DMV mails your card typically within 3–4 weeks. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+
+### Real ID in California
+
+A Real ID is a federally compliant version of a DL or ID that you will eventually need to board domestic flights and enter many federal facilities.  
+
+To obtain or convert to a Real ID you must provide:  
+- Identity document (e.g., U.S. birth certificate, passport).  
+- Social Security number.  
+- Two documents showing California residency (utility bills, lease, bank statement, etc.).  
+
+California DMV explains Real ID requirements on its Real ID pages (linked from dmv.ca.gov). [abc7](https://abc7.com/post/325000-californians-required-replace-real-ids-due-dmv-software-error-impacting-legal-immigrants/18340822/)
+
+Recent update: California DMV is reissuing approximately 325,000 Real IDs because of a software error and is waiving fees for those affected; notices are mailed to impacted customers. [foxla](https://www.foxla.com/news/california-dmv-real-id-error)
+
+### Fee waivers and free IDs (California, including LA/OC/SD)
+
+California law allows certain people to receive an original or replacement ID card **without paying a fee**, including: [calmatters.digitaldemocracy](https://calmatters.digitaldemocracy.org/bills/ca_201720180ab790)
+
+- Seniors (specific ages/conditions)  
+- People experiencing homelessness (verified)  
+
+For people experiencing homelessness:  
+1. Go to a homeless service provider or county human services office and ask for help getting a **“No Fee Identification Card Eligibility Verification” (Form DL 933)**. [housingca](https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/)
+2. The provider completes DL 933 verifying you meet the federal definition of homelessness. [file.lacounty](http://file.lacounty.gov/SDSInter/dmh/1062827_4e0dfda1-41dc-4303-a03c-e1cbdc606ebb.pdf)
+3. Take the completed DL 933 to the DMV office to get a **no‑fee California ID card**. [housingca](https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/)
+
+Housing California offers plain‑language guides on this process:  
+- Get a CA photo ID (for individuals): https://housingca.org/resources/community/individuals/get-my-ca-photo-id/ [housingca](https://housingca.org/resources/community/individuals/get-my-ca-photo-id/)
+- Help someone get a CA photo ID (for providers): https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/ [housingca](https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/)
+
+### What if you lack supporting documents?
+
+If you lack a birth certificate or SSN card:  
+- Use the roadmap order: get a birth certificate (with homeless fee waiver if eligible), then your SSN card or proof, then return to DMV. [housingca](https://housingca.org/resources/community/providers/help-someone-get-ca-birthcert/)
+- Ask DMV and/or a homeless service provider what alternative documents may be accepted as proof of identity or residency (for example, shelter letters, benefit letters). [housingca](https://housingca.org/resources/community/individuals/get-my-ca-photo-id/)
+
+Key DMV and ID links:  
+- Replace DL/ID: https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/ [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+- Housing California – CA ID guides: https://housingca.org/resources/community/individuals/get-my-ca-photo-id/  and https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/ [housingca](https://housingca.org/resources/community/individuals/get-my-ca-photo-id/)
+
+***
+
+SECTION 5: MARRIAGE & DIVORCE CERTIFICATES  
+
+### Who holds these records?
+
+In California and most states:  
+- **Marriage certificates** and **divorce decrees** are vital records held by **county Recorder/Clerk** where the license was issued or the divorce was finalized. [lavote](https://www.lavote.gov)
+- The state vital records office (CDPH‑VR in California) also maintains marriage and divorce records statewide (with some date limits). [cdph.ca](https://www.cdph.ca.gov/Programs/PSB/Pages/BirthDeathMarriageCertificates.aspx)
+
+California key links:  
+- CDPH vital records (marriage/divorce forms): https://www.cdph.ca.gov/Programs/CHSI/Pages/BirthDeathMarriageCertificates.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/PSB/Pages/BirthDeathMarriageCertificates.aspx)
+- State “Marriage certificates” help page: https://www.ca.gov/lafires/help-for-you/replace-personal-documents/marriage-certificates/ [ca](https://www.ca.gov/lafires/help-for-you/replace-personal-documents/marriage-certificates/)
+
+### Information you typically need
+
+- Full names of both spouses at time of marriage  
+- Date and county where the marriage license was issued or ceremony took place  
+- For divorce: court case number (if known), county where divorce was filed, and approximate date of final judgment  
+
+Fees vary by county and state but are usually around 15–25 USD per copy; check each office’s current fee schedule. [lavote](https://www.lavote.gov)
+
+### Los Angeles County (marriage and divorce)
+
+- LA County Registrar‑Recorder/County Clerk: https://www.lavote.gov [locator.lacounty](https://locator.lacounty.gov/lac/Location/3175505/los-angeles-county-registrar-recordercounty-clerk---beverly-hills)
+- Marriage records information and in‑person request page: https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request [lavote](https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request)
+
+Key points for LA County:  
+- Marriage records are available for licenses issued in Los Angeles County since 1852. [lavote](https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request)
+- You can request in person, by mail, or through VitalChek (expedited online). [lavote](https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request)
+- LA County posts updated fees effective Jan 1, 2026 under AB 64 (slight fee increases). [lavote](https://www.lavote.gov)
+
+VitalChek LA County page:  
+- https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+
+### Orange County and San Diego County
+
+- Orange County: Search “Orange County Clerk‑Recorder marriage records” and use the ocRecorder official site for online, in‑person, or mail requests. They also usually offer online ordering via approved vendors like VitalChek. [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+- San Diego County: Use the official County Assessor/Recorder/County Clerk site for marriage and divorce records, with options to request in person, by mail, or online. [vitalchek](https://www.vitalchek.com/v/birth-certificates/california/california-vital-statistics)
+
+### Divorce certificates and decrees
+
+- The **vital records office** can provide a divorce **record** (proof of dissolution), but detailed divorce **decrees** (with property and custody details) are usually held by the **Superior Court** in the county where the divorce was filed. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+- In LA/OC/SD, check the local Superior Court’s records department or online case search to request certified copies.  
+
+Key links for this section:  
+- LA County Registrar‑Recorder: https://www.lavote.gov [locator.lacounty](https://locator.lacounty.gov/lac/Location/3175505/los-angeles-county-registrar-recordercounty-clerk---beverly-hills)
+- LA County marriage records (in person): https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request [lavote](https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request)
+- VitalChek LA marriage records: https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+- CDPH certificates page (birth/death/marriage): https://www.cdph.ca.gov/Programs/CHSI/Pages/BirthDeathMarriageCertificates.aspx [cdph.ca](https://www.cdph.ca.gov/Programs/PSB/Pages/BirthDeathMarriageCertificates.aspx)
+
+***
+
+SECTION 6: GED / HIGH SCHOOL DIPLOMAS  
+
+### GED certificates
+
+There is no single national office for GED records; each state or testing service holds its own records. [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+
+National GED portal:  
+- https://www.GED.com [ged](https://www.ged.com/life-after-ged.html)
+
+If you earned a GED:  
+- Many states (including California) use GED.com for registrations, testing, and transcript requests. [ged](https://www.ged.com/transcripts/california.html)
+
+California GED transcript link:  
+- https://www.ged.com/transcripts/california.html [ged](https://www.ged.com/transcripts/california.html)
+
+Typical steps (California / most GED.com states):  
+1. Go to the state‑specific transcript page (example for CA above). [ged](https://www.ged.com/transcripts/california.html)
+2. Sign in to your GED.com account, or create one using your testing information. [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+3. Order official transcripts or a diploma replacement; choose mail or electronic delivery. [study](https://study.com/academy/popular/how-to-get-a-new-ged-certificate.html)
+4. Pay the fee (commonly around 15–20 USD per transcript/diploma; confirm on site). [study](https://study.com/academy/popular/how-to-get-a-new-ged-certificate.html)
+5. Electronic copies may arrive same day; printed diplomas may take up to 2–3 weeks. [study](https://study.com/academy/popular/how-to-get-a-new-ged-certificate.html)
+
+If you don’t remember how you tested or where:  
+- The GED.com help article recommends contacting your **state Department of Education** if you cannot locate your record through GED.com. [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+
+### High school diplomas and transcripts
+
+For traditional high school diplomas:  
+- Contact the high school directly (registrar or counseling office) and ask how to request a transcript or diploma reprint.  
+- If the school closed, contact the **school district** or **state Department of Education** to see who holds archived records. [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+
+Information you usually need:  
+- Full name at time of attendance  
+- Date of birth  
+- Approximate years attended and graduation year  
+- School name and city  
+- Photo ID (state ID, license, or birth certificate)  
+
+Key links for this section:  
+- GED main site: https://www.ged.com [ged](https://www.ged.com/life-after-ged.html)
+- California GED transcripts: https://www.ged.com/transcripts/california.html [ged](https://www.ged.com/transcripts/california.html)
+
+***
+
+SECTION 7: COLLEGE DEGREES & TRANSCRIPTS  
+
+College diplomas and transcripts are issued by your specific college or university, not by a central government office.  
+
+### How to request college transcripts
+
+1. Find your school registrar’s page by searching “[College/University name] registrar transcripts.”  
+2. Most registrars use systems like **Parchment**, **National Student Clearinghouse**, or internal portals. [study](https://study.com/academy/popular/how-to-get-a-new-ged-certificate.html)
+3. Create an account or log in and submit a request, including:  
+   - Your name (include former names),  
+   - Student ID or SSN (if requested),  
+   - Dates of attendance,  
+   - Destination (your address, employer, another school).  
+4. Pay transcript fee (often 5–15 USD per copy, plus mailing or electronic delivery fees). [study](https://study.com/academy/popular/how-to-get-a-new-ged-certificate.html)
+
+### Replacing a college diploma
+
+Most colleges allow you to order a replacement diploma:  
+- Check the registrar’s or alumni page for “replacement diploma.”  
+- Fees may range from about 25–75 USD, plus shipping.  
+
+### If the school closed
+
+If a college closed:  
+- Check your state’s Department of Education or licensing agency for “closed school records.”  
+- Many closed schools have their student records transferred to a designated custodian or state archive.  
+
+Because this process is school‑specific, always confirm instructions on the official college or state education website.
+
+***
+
+SECTION 8: OPTIONAL DOCUMENTS (DD‑214, PROFESSIONAL LICENSES, TRIBAL & IMMIGRATION DOCUMENTS)  
+
+### Military discharge papers (DD‑214)
+
+The DD‑214 is your official military discharge document; it is critical for VA benefits, job applications, and some licenses. [dd214](https://www.dd214.com/dd214_faq)
+
+Primary sources:  
+- National Archives – Military Service Records (NPRC): https://www.archives.gov/veterans/military-service-records [archives](https://www.archives.gov/veterans/military-service-records)
+- eVetRecs online request system: https://vetrecs.archives.gov/s/ [vetrecs.archives](https://vetrecs.archives.gov/s/)
+- VA DD‑214 info page: https://www.va.gov/records/get-military-service-records/ [va](https://www.va.gov/records/get-military-service-records/)
+
+Key points:  
+- Veterans and next‑of‑kin can request DD‑214s at **no cost** in most cases. [dd214](https://www.dd214.com/dd214_faq)
+- You can request records online using eVetRecs, then print, sign, and mail or fax a signature page, or use Standard Form SF‑180 by mail. [blog.dd214direct](https://blog.dd214direct.com/i-need-a-copy-of-my-dd214-what-do-i-do-now)
+
+Basic steps via eVetRecs:  
+1. Go to https://vetrecs.archives.gov/s/ and select “Make a new request.” [vetrecs.archives](https://vetrecs.archives.gov/s/)
+2. Answer the online questions about your branch, dates of service, and reason for request. [archives](https://www.archives.gov/veterans/military-service-records)
+3. Print, sign, and date the signature page, then mail or fax it to the address given, or follow the online authentication instructions. [blog.dd214direct](https://blog.dd214direct.com/i-need-a-copy-of-my-dd214-what-do-i-do-now)
+4. Wait for mailed copies; processing time depends on backlog, but emergency options exist (for example, for burial or urgent medical needs). [va](https://www.va.gov/records/get-military-service-records/)
+
+### Professional licenses (California example: nurses, contractors, etc.)
+
+- Each profession has its own licensing board (e.g., California Board of Registered Nursing, Contractors State License Board).  
+- To replace a license card or print verification, go to the board’s official website (always .gov or .ca.gov) and look for “duplicate license” or “license verification.”  
+
+You will usually need:  
+- License number or personal info,  
+- Proof of identity,  
+- A fee (commonly 10–30 USD).  
+
+### Tribal ID
+
+- Tribal identification cards are issued by your federally recognized tribe.  
+- Contact your tribe’s enrollment or membership office for replacement procedures and fees.  
+- Some tribes require you to submit a copy of a state ID or birth certificate plus an application and fee.  
+
+### Immigration documents (USCIS)
+
+Common replacement forms:  
+- **Permanent Resident Card (Green Card)** – Form I‑90, Application to Replace Permanent Resident Card.  
+- **Employment Authorization Document (EAD/work permit)** – Form I‑765, Application for Employment Authorization (replacement option for lost/stolen). [citizenpath](https://citizenpath.com/form-i-765-guide/lost-ead-replacement/)
+
+Key links:  
+- USCIS forms: https://www.uscis.gov/forms [citizenpath](https://citizenpath.com/form-i-765-guide/lost-ead-replacement/)
+- I‑90 info and filing: https://www.uscis.gov/i-90 [citizenpath](https://citizenpath.com/form-i-765-guide/lost-ead-replacement/)
+- I‑765 info: https://www.uscis.gov/i-765 [manifestlaw](https://manifestlaw.com/blog/form-i-765/)
+
+Typical process:  
+1. Create a USCIS online account (optional but strongly recommended).  
+2. Select and complete the appropriate form, choosing “replacement” if the card was lost, stolen, or destroyed. [citizenpath](https://citizenpath.com/form-i-765-guide/lost-ead-replacement/)
+3. Upload supporting documents (proof of identity, immigration status) and pay filing fees unless eligible for a fee waiver (Form I‑912). [citizenpath](https://citizenpath.com/form-i-765-guide/lost-ead-replacement/)
+4. USCIS sends a receipt; processing can take several months, depending on the form and category. [manifestlaw](https://manifestlaw.com/blog/form-i-765/)
+
+***
+
+SECTION 9: FREE OR LOW-COST HELP  
+
+### Fee waivers and free copies
+
+- **SSA**: Replacement Social Security cards are always free. [ssa](https://www.ssa.gov/faqs/en/questions/KA-02017.html)
+- **California birth certificates for unhoused people**: Fee‑exempt for eligible homeless persons with an affidavit from a homeless service provider. [ccr.saccounty](https://ccr.saccounty.gov/content/ccr/us/en/no-fee-birth-certificate-for-homeless-persons.html)
+- **California ID cards for unhoused people**: No‑fee ID cards with completed DL 933 verification form from a homeless service provider. [file.lacounty](http://file.lacounty.gov/SDSInter/dmh/1062827_4e0dfda1-41dc-4303-a03c-e1cbdc606ebb.pdf)
+- Some vital records offices offer reduced or waived fees after disasters or for low‑income individuals; check your state/county website, especially in fire or flood recovery pages (California example: “Marriage certificates 2025 Los Angeles Fires”). [ca](https://www.ca.gov/lafires/help-for-you/replace-personal-documents/marriage-certificates/)
+
+### Legal aid and ID recovery support (California focus)
+
+- Call **211** from any phone in California to reach local referrals for shelters, legal aid, and ID recovery help.  
+- Many legal aid groups assist with name changes, immigration document issues, and identity theft.  
+
+Examples (you can search by county):  
+- Search “Los Angeles legal aid ID replacement” or check LA County Legal Aid Foundation/Neighborhood Legal Services sites.  
+- Similar organizations exist in Orange and San Diego Counties.  
+
+### Social services and case management
+
+People who are unhoused, at risk of homelessness, or survivors of disaster can often get help through:  
+- County departments of public social services  
+- Homeless outreach teams and coordinated entry systems  
+- Veterans Resource Centers and VA social workers (for veterans’ documents and DD‑214). [va](https://www.va.gov/records/get-military-service-records/)
+
+These providers can help:  
+- Complete homeless affidavits and DMV form DL 933. [housingca](https://housingca.org/resources/community/providers/help-someone-get-a-ca-photo-id/)
+- Navigate SSA, DHS, and DMV visits.  
+- Pay or waive fees when possible via emergency funds.
+
+Key low‑cost help links:  
+- Housing California birth certificate/ID guides: https://housingca.org/resources/community/individuals/get-ca-birthcert/ and https://housingca.org/resources/community/individuals/get-my-ca-photo-id/ [housingca](https://housingca.org/resources/community/individuals/get-my-ca-photo-id/)
+
+***
+
+SECTION 10: COMMON PROBLEMS & WORKAROUNDS  
+
+### 1. No ID at all
+
+If you truly have zero photo ID, start with:  
+
+1. **Birth certificate** – use homeless fee‑waiver in CA if eligible. [ccr.saccounty](https://ccr.saccounty.gov/content/ccr/us/en/no-fee-birth-certificate-for-homeless-persons.html)
+2. Use birth certificate to help get Social Security card (SSA will accept it plus possibly other non‑photo records). [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+3. Use birth certificate + SSN proof + homeless verification (if applicable) to get free CA ID card. [file.lacounty](http://file.lacounty.gov/SDSInter/dmh/1062827_4e0dfda1-41dc-4303-a03c-e1cbdc606ebb.pdf)
+
+Service providers (shelters, outreach workers) can be crucial in verifying identity and homelessness status. [housingca](https://housingca.org/resources/community/individuals/get-ca-birthcert/)
+
+### 2. Name discrepancies and name changes
+
+- If your name changed due to marriage, divorce, or court order, you will often need a **marriage certificate**, **divorce decree**, or **court order** to update SSA, DMV, and other records. [cdph.ca](https://www.cdph.ca.gov/Programs/PSB/Pages/BirthDeathMarriageCertificates.aspx)
+- SSA lets you correct or update your name and other details when applying for a replacement card; you will need proof of the legal name change. [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+- If your birth certificate, SSA record, and ID show different names, start by correcting SSA and then updating DMV to match. [ssa](https://www.ssa.gov/ssnumber/ss5doc.htm)
+
+### 3. Missing or unknown parental information
+
+Birth certificate applications may ask for parent names; if you are unsure: [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+
+- Provide as much as you know (approximate spelling, partial names). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- If the record cannot be found, CDPH may issue a **Certificate of No Public Record**, and you may need to contact the county where you think you were born for help with a manual search. [housingca](https://housingca.org/resources/community/providers/help-someone-get-ca-birthcert/)
+
+### 4. Destroyed records (fires, floods, older military service)
+
+- California has special information pages for replacing personal documents after disasters such as wildfires (example: marriage certificates for LA fires). [ca](https://www.ca.gov/lafires/help-for-you/replace-personal-documents/marriage-certificates/)
+- For military records damaged or destroyed (e.g., 1973 NPRC fire), NPRC can sometimes reconstruct records from alternative sources. [usamm](https://www.usamm.com/blogs/news/how-to-get-a-dd214-for-deceased-relative)
+
+### 5. Immigration and deportation status complications
+
+- If you are a non‑citizen and lost your immigration documents (green card, EAD, I‑94), contact USCIS and, if possible, a legal aid/immigration attorney.  
+- Use Form I‑90 for green cards and Form I‑765 for EADs; check Form I‑912 for possible fee waivers if you cannot afford filing fees. [manifestlaw](https://manifestlaw.com/blog/form-i-765/)
+
+***
+
+SECTION 11: CHECKLISTS & SAMPLE LANGUAGE  
+
+### Quick checklists (California‑oriented)
+
+**Birth certificate (California):**  
+- Completed VS 111 form. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- Notarized sworn statement (if requesting certified copy). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/CDPH%20Document%20Library/VS111.pdf)
+- Check/money order to “CDPH – VR” or county recorder (correct amount). [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records-fees.aspx)
+- Homeless affidavit if applying for fee‑exempt copy. [ccr.saccounty](https://ccr.saccounty.gov/content/ccr/us/en/no-fee-birth-certificate-for-homeless-persons.html)
+
+**SSA replacement card:**  
+- Online: my Social Security account, CA DL/ID. [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+- In person/mail: Completed Form SS‑5, original ID document, birth certificate if born outside U.S. or to show age/citizenship. [ssa](https://www.ssa.gov/forms/ss-5.pdf)
+
+**California ID / DL replacement:**  
+- Completed online application or DMV form. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+- Proof of identity and California residency (for Real ID or initial issuance). [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+- DL 933 no‑fee verification form if unhoused and seeking free ID. [file.lacounty](http://file.lacounty.gov/SDSInter/dmh/1062827_4e0dfda1-41dc-4303-a03c-e1cbdc606ebb.pdf)
+
+**Marriage certificate (LA/OC/SD):**  
+- Names of both spouses, date and county of marriage. [lavote](https://www.lavote.gov/home/recorder/marriage-records/marriage-records-request/inperson-request)
+- Application form (county‑specific). [cdph.ca](https://www.cdph.ca.gov/Programs/PSB/Pages/BirthDeathMarriageCertificates.aspx)
+- Payment (check fee schedule). [lavote](https://www.lavote.gov)
+
+**GED/High school/College:**  
+- Name at time of attendance, DOB, school name and city, years attended. [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+- Photo ID (or birth certificate + other documents if no ID yet). [ged](https://www.ged.com/blog/how-to-obtain-a-copy-of-your-ged-transcript.html)
+
+**DD‑214:**  
+- Full name, SSN or service number, branch, approximate service dates. [vetrecs.archives](https://vetrecs.archives.gov/s/)
+
+### Sample phone scripts
+
+When calling a county vital records office (example for LA County birth certificate):  
+
+> “Hello, my name is [Name]. I was born in [Year] in Los Angeles County, and I need a certified copy of my birth certificate. I’m calling to ask: What is the current fee, what forms do I need, and can I apply by mail or in person? I am also [experiencing homelessness / low‑income] and want to ask if there is a fee waiver available for my situation.”
+
+When calling SSA for ID issues:  
+
+> “Hi, I lost my Social Security card and I don’t have a current driver’s license or state ID. I do have [birth certificate/other documents]. What documents will you accept to prove my identity, and how should I submit them to apply for a replacement card?”
+
+When contacting a GED or high school registrar:  
+
+> “Hello, my name is [Name]. I completed my [GED / high school diploma] at [School or program name] around [Year]. I lost my original diploma and transcripts. Can you tell me how to request an official transcript or a replacement diploma, what the fee is, and what identification you require?”
+
+When calling the National Archives for DD‑214 help:  
+
+> “Hello, I am a veteran and I need a copy of my DD‑214. I started a request online through eVetRecs but I don’t have a printer. Can you explain how I can submit the required signature and what my options are for getting my record as quickly as possible?”
+
+***
+
+SECTION 12: TIMELINE EXPECTATIONS & FOLLOW‑UP  
+
+Typical timelines (these are general ranges; always check current estimates on each site):  
+
+- California birth certificate (state CDPH): Several weeks or longer by mail, depending on volume. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/Pages/Obtaining-Certified-Copies-Online.aspx)
+- California birth certificate (county LA/OC/SD): Sometimes same day in person, or 1–3 weeks by mail. [publichealth.lacounty](http://publichealth.lacounty.gov/dca/dcabirth.htm)
+- SSA replacement card: Often 10–14 business days after SSA accepts your application. [ssa](https://www.ssa.gov/myaccount/assets/materials/EN-05-10288.pdf)
+- California DL/ID replacement: 3–4 weeks by mail; contact DMV if not received within 60 days. [dmv.ca](https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/)
+- Marriage certificate (LA County via VitalChek): Processing plus mailing time (often 1–3 weeks, but can vary). [vitalchek](https://www.vitalchek.com/v/marriage-records/california/los-angeles-county-registrar-recorder)
+- GED/college transcripts: Electronic delivery often same day, paper copies 1–3 weeks plus mailing. [ged](https://www.ged.com/transcripts/california.html)
+- DD‑214: Timelines vary; routine requests can take weeks, but emergency requests (for burial or urgent needs) may be expedited. [va](https://www.va.gov/records/get-military-service-records/)
+
+If it takes longer than expected:  
+- Use tracking tools where available (e.g., eVetRecs status page, VitalChek order tracking, SSA online account). [vetrecs.archives](https://vetrecs.archives.gov/s/)
+- Call the issuing office with your order number or case number.  
+- For mail lost by USPS, some agencies require you to submit a new application and fee; CDPH, for example, is not responsible for lost mail and does not refund after an order is accepted. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)
+
+By following the priority roadmap—starting with birth certificate, then Social Security card, then California ID or driver’s license—you can steadily rebuild the documents needed to restore access to work, housing, benefits, and education in Los Angeles, Orange County, San Diego, and across the United States. [cdph.ca](https://www.cdph.ca.gov/Programs/CHSI/pages/vital-records.aspx)

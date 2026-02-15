@@ -1,0 +1,427 @@
+If you live in California and are thinking about applying for disability through Social Security, understanding the difference between SSI and SSDI can save you time, stress, and possibly money. As of February 2026, the rules are detailed and can change, so always double‑check key points on official sites before you file. [ssa](https://www.ssa.gov/disability)
+
+***
+
+## Quick definitions: SSI, SSDI, and “disability”
+
+### What is SSDI?
+
+Social Security Disability Insurance (SSDI) is a federal insurance program for people who worked and paid Social Security (FICA) taxes, then became disabled and can no longer work at a substantial level.  Your benefit amount is based on your past earnings, not on your current income or savings.  SSDI is part of the larger Social Security program that also pays retirement and survivors benefits. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+
+### What is SSI?
+
+Supplemental Security Income (SSI) is a needs‑based program for people with very low income and limited resources who are age 65 or older, blind, or disabled.  SSI is not based on your work history; it is funded by general tax revenues and meant to help pay for basic needs like food and shelter.  In California, SSI is combined with a state payment called SSP (State Supplementary Payment), which slightly increases the monthly benefit to reflect the high cost of living. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+### What counts as “disabled” for SSDI/SSI?
+
+For adults, Social Security uses the same strict definition of disability for both SSDI and SSI: 
+
+- You have a medically determinable physical or mental impairment.
+- The condition is severe and has lasted or is expected to last at least 12 months or result in death.
+- Because of it, you cannot perform “substantial gainful activity” (SGA) — basically, you cannot work and earn above a set monthly amount. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+California’s Disability Determination Services (DDS) applies this federal definition when it reviews your medical evidence and decides your case. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+
+**Key sources for definitions and basics:**
+
+- SSA Disability overview: https://www.ssa.gov/disability [ssa](https://www.ssa.gov/disability)
+- SSA Red Book disability overview: https://www.ssa.gov/redbook/eng/overview-disability.htm [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- USAGov SSI/SSDI overview: https://www.usa.gov/social-security-disability [usa](https://www.usa.gov/social-security-disability)
+- CA SSDI/SSI info: https://www.cdss.ca.gov/ssdi-ssi [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+
+ [usa](https://www.usa.gov/social-security-disability)
+
+***
+
+## Main differences between SSI and SSDI
+
+At a glance, the biggest differences are: where the money comes from, who qualifies, and how much you get. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+- SSDI: Insurance based on your work and FICA taxes; no asset limit; benefit amount depends on your earnings record. [ssa](https://www.ssa.gov/disability)
+- SSI: Needs‑based; strict income and resource limits; flat federal benefit plus a California supplement. [ca4ssi](http://ca4ssi.org/the-basics)
+
+### SSI vs SSDI – side‑by‑side (California)
+
+| Feature | SSI | SSDI |
+| --- | --- | --- |
+| Basic purpose | Needs‑based cash benefit for low‑income people who are 65+, blind, or disabled.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) | Insurance benefit for people who worked and paid Social Security taxes, then became disabled.  [ssa](https://www.ssa.gov/disability) |
+| Funding source | General federal funds, plus California State Supplementary Payment (SSP).  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) | Social Security trust funds funded by payroll taxes (FICA).  [ssa](https://www.ssa.gov/disability) |
+| Work history required? | No work credits required.  [usa](https://www.usa.gov/social-security-disability) | Yes; you must have enough recent work credits based on age.  [ssa](https://www.ssa.gov/disability) |
+| Income limits | Very strict countable income limits; benefits reduced as income goes up.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) | No income/resource test, but you generally cannot earn above SGA from work and still be considered disabled.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) |
+| Resource (asset) limits | Countable resources generally must be ≤ 2,000 (single) or 3,000 (couple), with some exclusions.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) | No resource limit for the federal program.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) |
+| California supplement? | Yes; California adds SSP to the federal SSI amount.  [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp) | No California SSP with SSDI.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) |
+| Health coverage link | In California, SSI recipients are typically automatically eligible for Medi‑Cal (California’s Medicaid).  [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp) | SSDI recipients generally qualify for Medicare after 24 months of entitlement (earlier for some conditions like ALS).  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) |
+| When benefits can start | First full month after application date or date you’re found eligible, whichever is later.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) | After a 5‑month waiting period from the established disability onset date; payments start in the 6th full month.  [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm) |
+| Back pay basics | Cannot be paid for months before your application’s effective date.  [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm) | May get retroactive benefits back to a limited time before you applied, based on onset date; rules are technical and case‑specific.  [ssa](https://www.ssa.gov/disability) |
+| Paid to children? | Some disabled children with low‑income families can qualify for SSI.  [usa](https://www.usa.gov/social-security-disability) | Children may receive dependents benefits on a disabled worker’s record (different rules than SSI child disability).  [ssa](https://www.ssa.gov/disability) |
+
+**Key references:**
+
+- SSA disability comparison (Red Book): https://www.ssa.gov/redbook/eng/overview-disability.htm [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- USAGov disability page: https://www.usa.gov/social-security-disability [usa](https://www.usa.gov/social-security-disability)
+- SSA Disability page: https://www.ssa.gov/disability [ssa](https://www.ssa.gov/disability)
+- CA SSI/SSP basics: https://www.cdss.ca.gov/inforesources/ssi-ssp [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+ [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+***
+
+## Who qualifies for SSI in California?
+
+To qualify for SSI in California, you must meet both federal rules and some California‑specific conditions. [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+You generally must:
+
+- Be 65 or older, or blind, or meet SSA’s adult or child disability definition. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- Have very limited income and resources within SSI rules. [usa](https://www.usa.gov/social-security-disability)
+- Be a U.S. citizen or certain eligible noncitizen. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- Live in the U.S. and not be absent for a full calendar month or 30 consecutive days. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+California then adds SSP on top of the federal SSI payment, so your combined benefit is higher than the federal minimum.  The state’s SSI/SSP program is administered through the California Department of Social Services, but you still apply through Social Security. [ca4ssi](http://ca4ssi.org/the-basics)
+
+California‑specific notes:
+
+- California does *not* have a separate state SSI application; SSA handles eligibility and payments that include the SSP amount. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+- Certain living arrangements in California (for example, licensed residential care facilities) have specific SSI/SSP “facility rates,” and facilities are limited in what they can charge SSI recipients. [canhr](https://canhr.org/supplemental-security-income-ssi-in-rcfes/)
+
+**Key SSI/CA links:**
+
+- SSI program info: https://www.ssa.gov/ssi [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- SSI application process: https://www.ssa.gov/ssi/text-apply-ussi.htm [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- CA SSI/SSP program info: https://www.cdss.ca.gov/inforesources/ssi-ssp [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+ [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+
+***
+
+## Who qualifies for SSDI (work credits explained simply)
+
+SSDI is for workers who paid into Social Security and then became disabled under SSA’s rules. [ssa](https://www.ssa.gov/disability)
+
+You must generally:
+
+- Have a medical condition that meets SSA’s definition of disability. [ssa](https://www.ssa.gov/disability)
+- Have enough “work credits” from jobs where you paid Social Security taxes, and some of those credits must be recent. [ssa](https://www.ssa.gov/disability)
+- Be insured under Social Security at the time you became disabled (your “date last insured” must not have passed). [ssa](https://www.ssa.gov/disability)
+
+Work credits:  
+
+- You earn up to four credits per year based on your earnings; the dollar amount needed per credit changes annually. [ssa](https://www.ssa.gov/disability)
+- Most adults need 20 credits earned in the 10 years just before disability, but younger workers need fewer. The exact requirement depends on your age when you became disabled. [ssa](https://www.ssa.gov/disability)
+
+Example: A person in their late 30s or 40s who worked full‑time for five years before becoming disabled will usually have enough credits. [ssa](https://www.ssa.gov/disability)
+
+SSDI is federal; California does not change the work‑credit rules but does handle the medical review through its DDS. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+
+**Key SSDI links:**
+
+- SSA Disability/SSDI overview: https://www.ssa.gov/disability [ssa](https://www.ssa.gov/disability)
+- SSDI online application: https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- Work credits explanation (via SSA disability pages and online tools): https://www.ssa.gov/disability [ssa](https://www.ssa.gov/disability)
+
+ [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+
+***
+
+## Can you get both? (Concurrent benefits)
+
+Some Californians receive **both** SSDI and SSI at the same time. This is called “concurrent” benefits. [usa](https://www.usa.gov/social-security-disability)
+
+You might qualify for concurrent benefits if:
+
+- Your SSDI check is low (for example, because you had low‑wage or short work history). [usa](https://www.usa.gov/social-security-disability)
+- Your countable income and resources are still low enough to meet SSI limits. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+In that situation:
+
+- SSDI is paid based on your work record. [ssa](https://www.ssa.gov/disability)
+- SSI/SSP “tops up” your income up to the allowed level for California. [ca4ssi](http://ca4ssi.org/the-basics)
+
+Concurrent cases are fairly common among people with part‑time work histories or long breaks from work due to illness. [usa](https://www.usa.gov/social-security-disability)
+
+**References:**
+
+- SSA disability programs overview: https://www.ssa.gov/redbook/eng/overview-disability.htm [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- USAGov SSI vs SSDI overview: https://www.usa.gov/social-security-disability [usa](https://www.usa.gov/social-security-disability)
+
+ [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+***
+
+## What you need before applying (checklist)
+
+Having documents ready makes the process smoother, especially if you’re applying online from California. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+Before you apply for SSDI or SSI, gather:
+
+- **Personal ID:** Social Security number, birth certificate or other proof of age, and proof of citizenship or immigration status. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+- **Marital and family info:** Names, Social Security numbers, and dates of birth for your spouse and minor children; dates of marriage/divorce. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+- **Work history:** Names and addresses of employers for the last 2–5 years, job titles, and a summary of what you did (lifting, standing, supervising, etc.). [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- **Income and resources:** Bank account numbers for direct deposit; information about pensions, workers’ compensation, other benefits, and assets (for SSI). [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- **Medical providers:** Names, addresses, phone numbers, and dates of visits for all doctors, clinics, hospitals, therapists, and mental health providers. [ssa](https://www.ssa.gov/disability/determination.htm)
+- **Medical evidence:** Lists of diagnoses, medications (names, doses), tests (MRIs, X‑rays, labs), and treatments. [ssa](https://www.ssa.gov/disability/determination.htm)
+- **Functional information:** Notes about how your condition limits your daily activities (sitting, standing, walking, concentrating, self‑care). [ssa](https://www.ssa.gov/disability/determination.htm)
+
+SSA offers an Adult Disability Checklist you can print and use to make sure you have everything. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+**Useful links:**
+
+- Adult Disability Checklist and online application: https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- SSI application process: https://www.ssa.gov/ssi/text-apply-ussi.htm [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+
+ [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+***
+
+## Step‑by‑step: How to apply for SSDI
+
+You can apply for SSDI from anywhere in California online, by phone, or in person at your local Social Security office. [ssa](https://www.ssa.gov/disability/disability.html)
+
+### Option 1: Apply online (recommended for most adults)
+
+1. Go to SSA’s disability application page: https://www.ssa.gov/applyfordisability. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+2. Review the Adult Disability Checklist and gather your documents. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+3. Create or sign in to your **my Social Security** account. [ssa](https://www.ssa.gov/blog/en/posts/2025-06-12.html)
+4. Complete the online Disability Benefit Application and related medical forms. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+5. Submit the electronic medical release form so SSA can request your records. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+6. Keep your confirmation number and regularly check your my Social Security account and mail for updates. [ssa](https://www.ssa.gov/blog/en/posts/2025-06-12.html)
+
+### Option 2: Apply by phone
+
+1. Call SSA’s national number: 1‑800‑772‑1213 (TTY 1‑800‑325‑0778) Monday–Friday, 8 a.m.–7 p.m. local time. [ssa](https://www.ssa.gov/disability/disability.html)
+2. Ask to apply for **Social Security Disability Insurance**. [ssa](https://www.ssa.gov/disability/disability.html)
+3. SSA may complete the application by phone or schedule you for a phone appointment. [ssa](https://www.ssa.gov/disability/disability.html)
+
+### Option 3: Apply in person (California office)
+
+1. Find your local SSA office using the office locator: https://secure.ssa.gov/ICON/main.jsp. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+2. Call ahead to schedule an appointment if possible. [ssa](https://www.ssa.gov/disability/disability.html)
+3. Bring your documents and be prepared to answer detailed questions about your work and medical history. [ssa](https://www.ssa.gov/disability/disability.html)
+
+### How long does SSDI take?
+
+- Initial decisions often take several months; many cases run 3–6 months or longer, depending on medical complexity and how quickly records are received. [ssa](https://www.ssa.gov/disability/determination.htm)
+- If approved, benefits usually begin after the 5‑month waiting period from your established onset date, and you may receive back pay. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+**Key SSDI application links:**
+
+- Apply for disability benefits (SSDI online): https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- How to apply for disability benefits: https://www.ssa.gov/disability/disability.html [ssa](https://www.ssa.gov/disability/disability.html)
+
+ [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+***
+
+## Step‑by‑step: How to apply for SSI (and what’s different)
+
+SSI applications are more tied to interviews and income/resource review, and not everyone can do a full SSI application entirely online yet. [ssa](https://www.ssa.gov/blog/en/posts/2025-06-12.html)
+
+### Option 1: Start online
+
+1. Visit SSA’s SSI page: https://www.ssa.gov/ssi. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+2. Use the SSI online application portal: https://www.ssa.gov/apply/ssi. [ssa](https://www.ssa.gov/apply/ssi)
+3. If you qualify to apply online (for example, you are 18–64, applying for both SSDI and SSI, and meet certain criteria), complete the online forms and submit. [ssa](https://www.ssa.gov/apply/ssi)
+4. SSA may still contact you for additional information or an interview about income and resources. [ssa](https://www.ssa.gov/blog/en/posts/2025-06-12.html)
+
+### Option 2: Phone or local office (very common)
+
+1. Call 1‑800‑772‑1213 and tell SSA you want to apply for **Supplemental Security Income**. [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+2. Ask them to **protect your filing date** and schedule an appointment (phone or in person). [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+3. On your appointment date, complete the application and financial questions with the SSA representative. [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+
+### What’s different about SSI vs SSDI applications?
+
+- SSI requires detailed questions about household income, living arrangements, and resources, because it is means‑tested. [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- Your California SSI payment includes the SSP amount automatically; you do *not* submit a separate state SSI/SSP form. [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+- Timing matters: SSI generally cannot pay for months before your application’s effective date, so apply as soon as possible. [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+
+**Key SSI application links:**
+
+- SSI overview: https://www.ssa.gov/ssi [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- Start SSI application process: https://www.ssa.gov/ssi/text-apply-ussi.htm [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- Apply for SSI (adult/child portal): https://www.ssa.gov/apply/ssi [ssa](https://www.ssa.gov/apply/ssi)
+
+ [ssa](https://www.ssa.gov/apply/ssi)
+
+***
+
+## What happens after you apply (California DDS, exams, timelines)
+
+Once you file your SSDI or SSI claim, SSA sends your case to **Disability Determination Services** (DDS) for California, a state agency that makes the medical decision. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+
+### Role of California DDS
+
+- Reviews your application and disability report from SSA. [ssa](https://www.ssa.gov/disability/determination.htm)
+- Requests medical records from your doctors, hospitals, clinics, and mental health providers. [ssa](https://www.ssa.gov/disability/determination.htm)
+- Evaluates how your impairments limit your ability to do past work or adjust to other work, following SSA’s rules. [jonathanpena](https://www.jonathanpena.com/understanding-disability-determination-services-dds-in-california-how-to-qualify-for-benefits/)
+- May schedule a **consultative examination (CE)** with a doctor contracted by SSA if your records are incomplete. [jonathanpena](https://www.jonathanpena.com/understanding-disability-determination-services-dds-in-california-how-to-qualify-for-benefits/)
+
+### Timelines
+
+- Many initial decisions take 3–6 months, but complex cases or slow medical records can make it longer. [ssa](https://www.ssa.gov/disability/determination.htm)
+- If DDS denies your claim, SSA will mail you a written decision explaining the reasons and your appeal rights. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+California DDS is under the California Department of Social Services, but it must follow federal rules and SSA’s definition of disability. [jonathanpena](https://www.jonathanpena.com/understanding-disability-determination-services-dds-in-california-how-to-qualify-for-benefits/)
+
+**Key DDS links:**
+
+- SSA disability determination process: https://www.ssa.gov/disability/determination.htm [ssa](https://www.ssa.gov/disability/determination.htm)
+- CA SSDI/SSI info (with DDS reference): https://www.cdss.ca.gov/ssdi-ssi [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+
+ [jonathanpena](https://www.jonathanpena.com/understanding-disability-determination-services-dds-in-california-how-to-qualify-for-benefits/)
+
+***
+
+## Tips to strengthen your application
+
+You cannot control everything, but you can improve the quality of the evidence SSA and California DDS see. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+
+Helpful steps:
+
+- **Get consistent medical care.** Regular treatment notes from doctors, specialists, and therapists are powerful evidence. [ssa](https://www.ssa.gov/disability/determination.htm)
+- **Describe function, not just diagnosis.** Explain how your condition affects standing, walking, lifting, focusing, following instructions, and daily self‑care. [ssa](https://www.ssa.gov/disability/determination.htm)
+- **Respond to forms and calls quickly.** Return SSA questionnaires and attend any consultative exams; missing them can lead to denial. [ssa](https://www.ssa.gov/disability/determination.htm)
+- **Update SSA on changes.** If you move, change doctors, or have a new serious diagnosis, inform SSA so DDS can obtain the new records. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+SSA’s Adult Disability Checklist and online materials give examples of the kind of information they are looking for. [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+**References:**
+
+- SSA disability determination process: https://www.ssa.gov/disability/determination.htm [ssa](https://www.ssa.gov/disability/determination.htm)
+- Adult Disability Checklist: https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+ [ssa](https://www.ssa.gov/pubs/EN-05-10550.pdf)
+
+***
+
+## If you’re denied: appeals roadmap and deadlines
+
+Many Californians are denied at first but later win on appeal, especially if they provide more evidence or get representation. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+### Basic appeal levels
+
+1. **Reconsideration**  
+   - Deadline: You generally have 60 days from the date you receive the denial letter to request reconsideration. [ssa](https://www.ssa.gov/disability/determination.htm)
+   - What it is: A different DDS examiner reviews your case and any new evidence. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+2. **Hearing by an Administrative Law Judge (ALJ)**  
+   - If reconsideration is denied, you can request a hearing with an ALJ. [ssa](https://www.ssa.gov/disability/determination.htm)
+   - You can appear by video, phone, or in person; many people use attorneys or representatives at this stage. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+3. **Appeals Council review**  
+   - If you disagree with the ALJ decision, you can ask the Appeals Council to review it. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+4. **Federal court**  
+   - After the Appeals Council, you may file a case in federal district court. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+You can usually appeal online through SSA’s appeals portal or by contacting your local office.  Missing the 60‑day deadline can cause you to lose appeal rights, so act quickly. [ssa](https://www.ssa.gov/disability/determination.htm)
+
+**Appeals resources:**
+
+- SSA appeals info: https://www.ssa.gov/benefits/disability/appeal.html (linked from disability pages) [ssa](https://www.ssa.gov/disability/determination.htm)
+- SSA disability determination process summary: https://www.ssa.gov/disability/determination.htm [ssa](https://www.ssa.gov/disability/determination.htm)
+
+ [ssa](https://www.ssa.gov/disability/determination.htm)
+
+***
+
+## Where to get free/low‑cost help in California
+
+You do not have to do this alone. In California there are multiple places to get information and representation.
+
+Common options:
+
+- **Legal aid organizations and disability advocates.** Many Legal Aid and Disability Rights groups offer free or low‑cost help with SSI/SSDI; they are not all on one state list, so search by county or call 211. (Availability and capacity vary.)  
+- **California Department of Social Services.** Provides information on SSDI/SSI and links to SSA’s site; they do not process the applications but can help with related state benefits questions. [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+- **SSA itself.** SSA staff can explain forms and processes (but not give legal advice); call 1‑800‑772‑1213 or contact your local office. [ssa](https://www.ssa.gov/disability/disability.html)
+- **211 California.** Dial 211 or visit your local 211 website to find legal aid, social services, and disability advocacy programs in your county. (211 is a nationwide information and referral system; coverage is broad but not identical in every area.)  
+
+For facility‑related SSI questions (for example, if you or a family member lives in a residential care facility), California nonprofit resources that focus on long‑term care can provide guidance based on state rules. [canhr](https://canhr.org/supplemental-security-income-ssi-in-rcfes/)
+
+**References:**
+
+- CA SSDI/SSI info (CDSS): https://www.cdss.ca.gov/ssdi-ssi [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)
+- SSA contact and office locator: https://www.ssa.gov/locator and 1‑800‑772‑1213 [ssa](https://www.ssa.gov/disability/disability.html)
+
+ [canhr](https://canhr.org/supplemental-security-income-ssi-in-rcfes/)
+
+***
+
+## Common confusion: SSDI vs retirement, SSI vs “welfare,” work rules
+
+### SSDI vs Social Security retirement
+
+- SSDI and Social Security retirement use the same earnings record but are different programs. [ssa](https://www.ssa.gov/disability)
+- If you get SSDI, when you reach full retirement age your benefits usually convert to retirement benefits, often at the same amount. [ssa](https://www.ssa.gov/disability)
+- People who are already at full retirement age typically apply for retirement, not SSDI. [ssa](https://www.ssa.gov/disability)
+
+### Is SSI just “welfare”?
+
+- SSI is a federal means‑tested program paid from general tax revenues, not Social Security taxes. [specialneedsanswers](https://specialneedsanswers.com/three-big-differences-between-ssi-and-ssdi-14866)
+- It is often grouped with “safety net” programs, but it has its own national rules and strict disability and age criteria. [specialneedsanswers](https://specialneedsanswers.com/three-big-differences-between-ssi-and-ssdi-14866)
+
+### Can you work while on SSDI or SSI?
+
+Work rules are complex and can change, so always check current SSA guidance. [usa](https://www.usa.gov/social-security-disability)
+
+- **SSDI:** You generally must stay under “substantial gainful activity” (SGA) earnings, but SSA has work incentives such as trial work periods and extended periods of eligibility. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- **SSI:** Earnings reduce your payment, but not dollar‑for‑dollar. SSA ignores part of your income; above that, your SSI is reduced according to formulas. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+SSA’s Red Book explains work incentives and trial work periods in detail. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+**Key links:**
+
+- SSA Disability overview and work incentives (Red Book): https://www.ssa.gov/redbook [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+- USAGov disability info: https://www.usa.gov/social-security-disability [usa](https://www.usa.gov/social-security-disability)
+
+ [usa](https://www.usa.gov/social-security-disability)
+
+***
+
+## FAQ (California‑focused)
+
+**1. Do I apply for SSI and SSDI separately in California?**  
+No. You apply through SSA, and they screen you for SSDI and SSI; if you qualify for both, they process a concurrent claim.  California’s SSP portion is built into the SSI/SSP payment—no separate state application. [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+**2. Does California automatically give Medi‑Cal if I get SSI?**  
+In California, SSI eligibility generally makes you automatically eligible for Medi‑Cal, though there can be administrative steps to coordinate the coverage.  Always confirm with your county Medi‑Cal office, since health coverage procedures can change. (Details are often handled at the county level.) [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+**3. Can I apply for disability online if I don’t have a printer or scanner?**  
+Yes. You can complete the online SSDI application without printing or scanning; you only need access to the internet and your information.  SSA provides an electronic medical release form as part of the process. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+
+**4. I live in Los Angeles. Do I have to go to downtown SSA?**  
+Not necessarily. You can apply online or by phone from anywhere in Los Angeles County.  If you want in‑person help, use SSA’s office locator to find the nearest office and call for an appointment. [ssa](https://www.ssa.gov/disability/disability.html)
+
+**5. How far back can SSDI pay me if I win?**  
+SSDI back pay depends on your established onset date and the 5‑month waiting period; SSA can sometimes pay retroactive benefits for a limited time before you applied, but the exact rules are technical.  SSI cannot pay for months before your application’s effective date. [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+
+**6. Do I lose SSDI when I hit retirement age?**  
+Your SSDI typically converts to a Social Security retirement benefit at full retirement age, usually for about the same amount; it does not simply stop. [ssa](https://www.ssa.gov/disability)
+
+**7. What if I don’t have all my medical records?**  
+Apply anyway. SSA and California DDS can request records from your providers once you sign the medical release; they may also send you to a consultative exam if needed. [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+
+**8. How often will they review my case?**  
+SSA sets a “diary date” for continuing disability reviews based on how likely improvement is expected, for both SSI and SSDI cases.  This can range from every few years to longer intervals. [ssa](https://www.ssa.gov/redbook/eng/overview-disability.htm)
+
+**References:**
+
+- SSI apply process: https://www.ssa.gov/ssi/text-apply-ussi.htm [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- Disability application online: https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- CA SSI/SSP and SSDI/SSI info: https://www.cdss.ca.gov/inforesources/ssi-ssp and https://www.cdss.ca.gov/ssdi-ssi [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+ [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+***
+
+## Conclusion: Next steps if you’re in California
+
+If you are in California and think you may qualify for SSI, SSDI, or both, your best next steps are to gather your documents, open a **my Social Security** account, and either start the online disability application or call SSA to protect your filing date.  Keep in mind that as of February 2026, rules and amounts can change over time, so always verify key details on SSA and California Department of Social Services websites before relying on them. [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+
+**Key “one‑stop” links to bookmark:**
+
+- Apply online for disability (SSDI & some SSI cases): https://www.ssa.gov/applyfordisability [ssa](https://www.ssa.gov/applyfordisability/index.htm)
+- SSI overview and process: https://www.ssa.gov/ssi and https://www.ssa.gov/ssi/text-apply-ussi.htm [ssa](https://www.ssa.gov/ssi/text-apply-ussi.htm)
+- Apply for SSI (portal): https://www.ssa.gov/apply/ssi [ssa](https://www.ssa.gov/apply/ssi)
+- CA SSI/SSP info: https://www.cdss.ca.gov/inforesources/ssi-ssp [cdss.ca](https://cdss.ca.gov/inforesources/ssi-ssp)
+- CA SSDI/SSI info: https://www.cdss.ca.gov/ssdi-ssi [cdss.ca](https://www.cdss.ca.gov/ssdi-ssi)

@@ -40,7 +40,13 @@
       "Bash(powershell -Command \"Select-String -Path ''c:\\Users\\brandon\\Downloads\\virgil-st_new_mvp\\server\\routers.ts'' -Pattern ''export const appRouter'' -Context 0,10\")",
       "Bash(powershell -Command \"Select-String -Path ''c:\\Users\\brandon\\Downloads\\virgil-st_new_mvp\\client\\src\\pages\\Map.tsx'' -Pattern ''(Live Feed Sidebar|</Dialog>)'' -Context 2,2\")",
       "Bash(powershell -Command:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(turso --version:*)",
+      "Bash(bash)"
     ],
     "deny": [],
     "ask": []

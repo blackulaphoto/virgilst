@@ -1,4 +1,5 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { buildApiUrl } from "./lib/api";
 
 // Generate login URL at runtime so redirect URI reflects the current origin.
 export const getLoginUrl = () => {
@@ -9,7 +10,10 @@ export const getLoginUrl = () => {
   // In production, use Google OAuth
   const authEndpoint = isDevelopment ? "/api/auth/dev-login" : "/api/auth/google";
 
-  const url = new URL(authEndpoint, window.location.origin);
+  const authUrl = buildApiUrl(authEndpoint);
+  const url = authUrl.startsWith("http")
+    ? new URL(authUrl)
+    : new URL(authUrl, window.location.origin);
   url.searchParams.set("next", currentPath || "/");
 
   return url.toString();

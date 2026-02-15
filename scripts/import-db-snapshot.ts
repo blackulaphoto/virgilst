@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createClient } from "@libsql/client";
+import postgres from "postgres";
 
 type SnapshotTable = {
   name: string;

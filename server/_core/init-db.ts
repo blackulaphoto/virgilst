@@ -4,7 +4,7 @@
  */
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createClient } from "@libsql/client";
+import postgres from "postgres";
 
 type SnapshotTable = {
   name: string;
@@ -23,20 +23,16 @@ function quoteIdent(identifier: string) {
   return `"${identifier.replaceAll('"', '""')}"`;
 }
 
-async function tableExists(client: ReturnType<typeof createClient>, tableName: string) {
-  const result = await client.execute({
-    sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name = ? LIMIT 1",
-    args: [tableName],
-  });
-  return result.rows.length > 0;
+async function tableExists(client: ReturnType<typeof postgres>, tableName: string) {
+  const result = await client`SELECT 1 FROM information_schema.tables WHERE table_name = ${tableName} LIMIT 1`;
+  return result.length > 0;
 }
 
-async function getResourceCount(client: ReturnType<typeof createClient>) {
+async function getResourceCount(client: ReturnType<typeof postgres>) {
   try {
-    const result = await client.execute("SELECT COUNT(*) AS c FROM resources");
-    const raw = result.rows[0]?.c;
-    if (typeof raw === "number") return raw;
-    return Number(raw ?? 0);
+    const result = await client`SELECT COUNT(*) AS c FROM resources`;
+    const count = result[0]?.c;
+    return Number(count ?? 0);
   } catch (error) {
     // Table might not exist yet
     return 0;
@@ -44,22 +40,20 @@ async function getResourceCount(client: ReturnType<typeof createClient>) {
 }
 
 async function insertTableRows(
-  client: ReturnType<typeof createClient>,
+  client: ReturnType<typeof postgres>,
   table: SnapshotTable,
   batchSize: number = 100
 ) {
   if (table.rows.length === 0) return;
 
-  const colList = table.columns.map(quoteIdent).join(", ");
-  const placeholders = table.columns.map(() => "?").join(", ");
-  const sql = `INSERT INTO ${quoteIdent(table.name)} (${colList}) VALUES (${placeholders})`;
-
   for (let i = 0; i < table.rows.length; i += batchSize) {
     const batch = table.rows.slice(i, i + batchSize);
     for (const row of batch) {
-      const args = table.columns.map(col => (row[col] ?? null) as any);
       try {
-        await client.execute({ sql, args });
+        const columns = table.columns.map(quoteIdent).join(", ");
+        const placeholders = table.columns.map((_, idx) => `$${idx + 1}`).join(", ");
+        const values = table.columns.map(col => row[col] ?? null);
+        await client.unsafe(`INSERT INTO ${quoteIdent(table.name)} (${columns}) VALUES (${placeholders})`, values);
       } catch (error) {
         console.error(`[init-db] Error inserting row in ${table.name}:`, error);
       }
@@ -95,7 +89,7 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
     return false;
   }
 
-  const client = createClient({ url: databaseUrl });
+  const client = postgres(databaseUrl);
 
   try {
     // Check if resources table exists
@@ -126,11 +120,7 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
     }
 
     // Import data
-    await client.execute("PRAGMA foreign_keys = OFF");
-    await client.execute("BEGIN");
-    let transactionStarted = true;
-
-    try {
+    await client.begin(async (tx) => {
       for (const table of snapshot.tables) {
         const exists = await tableExists(client, table.name);
         if (!exists) {
@@ -141,25 +131,18 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
         await insertTableRows(client, table);
         console.log(`[init-db] ✓ ${table.name}: ${table.rows.length} rows`);
       }
+    });
 
-      await client.execute("COMMIT");
-      await client.execute("PRAGMA foreign_keys = ON");
+    const afterCount = await getResourceCount(client);
+    console.log(`[init-db] ✅ Snapshot imported successfully! (${afterCount} resources)`);
 
-      const afterCount = await getResourceCount(client);
-      console.log(`[init-db] ✅ Snapshot imported successfully! (${afterCount} resources)`);
-
-      return true;
-    } catch (error) {
-      if (transactionStarted) {
-        await client.execute("ROLLBACK");
-      }
-      console.error("[init-db] Import failed, rolled back:", error);
-      return false;
-    }
+    await client.end();
+    return true;
   } catch (error) {
     console.error("[init-db] Initialization error:", error);
+    try {
+      await client.end();
+    } catch {}
     return false;
-  } finally {
-    await client.close();
   }
 }

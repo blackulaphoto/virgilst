@@ -8,6 +8,7 @@ import { sdk } from "./sdk";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "";
 
 // Initialize Google OAuth client
 const googleClient = new OAuth2Client(
@@ -22,9 +23,25 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 function getRedirectUri(req: Request): string {
-  const protocol = req.secure || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+  const forwardedProtoHeader = req.headers["x-forwarded-proto"];
+  const protoList = Array.isArray(forwardedProtoHeader)
+    ? forwardedProtoHeader
+    : (forwardedProtoHeader || "").split(",");
+  const forwardedProtoIsHttps = protoList.some(proto => proto.trim().toLowerCase() === "https");
+  const protocol = req.secure || forwardedProtoIsHttps ? "https" : "http";
   const host = req.headers.host || "localhost:3000";
   return `${protocol}://${host}/api/auth/google/callback`;
+}
+
+function resolveFrontendRedirect(nextPath: string): string {
+  const safePath = nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/";
+  if (!FRONTEND_ORIGIN) return safePath;
+
+  try {
+    return new URL(safePath, FRONTEND_ORIGIN).toString();
+  } catch {
+    return safePath;
+  }
 }
 
 export function registerOAuthRoutes(app: Express) {
@@ -121,11 +138,14 @@ export function registerOAuthRoutes(app: Express) {
       // Decode state to get redirect path
       const state = JSON.parse(Buffer.from(stateParam, "base64").toString());
       const next = state.next || "/";
+      const redirectTarget = resolveFrontendRedirect(next);
       const redirectUri = state.redirectUri || getRedirectUri(req);
 
       // Exchange authorization code for tokens
-      googleClient.setRedirectUri(redirectUri);
-      const { tokens } = await googleClient.getToken(code);
+      const { tokens } = await googleClient.getToken({
+        code,
+        redirect_uri: redirectUri,
+      });
 
       if (!tokens.id_token) {
         throw new Error("No ID token received from Google");
@@ -173,8 +193,8 @@ export function registerOAuthRoutes(app: Express) {
         maxAge: ONE_YEAR_MS,
       });
 
-      console.log("[OAuth] Login successful, redirecting to:", next);
-      res.redirect(302, next);
+      console.log("[OAuth] Login successful, redirecting to:", redirectTarget);
+      res.redirect(302, redirectTarget);
     } catch (error) {
       console.error("[OAuth] Google callback failed:", error);
       res.redirect(302, "/?error=auth_failed");
