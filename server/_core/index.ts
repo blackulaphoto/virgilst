@@ -55,12 +55,6 @@ function createCorsMiddleware() {
 }
 
 async function startServer() {
-  // Initialize database with snapshot data if empty (production auto-setup)
-  // Run if DATABASE_URL is set (production) or if explicitly enabled
-  if (process.env.DATABASE_URL && process.env.NODE_ENV !== "development") {
-    await initializeDatabaseIfEmpty();
-  }
-
   const app = express();
   const server = createServer(app);
   app.set("trust proxy", 1);
@@ -92,6 +86,13 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on port ${port}`);
+
+    // Run database initialization in background so health checks pass quickly.
+    if (process.env.DATABASE_URL && process.env.NODE_ENV !== "development") {
+      void initializeDatabaseIfEmpty().catch(error => {
+        console.error("[init-db] Background initialization failed:", error);
+      });
+    }
   });
 }
 
