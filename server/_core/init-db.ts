@@ -19,6 +19,42 @@ type SnapshotFile = {
   tables: SnapshotTable[];
 };
 
+const TABLE_IMPORT_PRIORITY: Record<string, number> = {
+  users: 10,
+  legalCases: 20,
+  calendarEvents: 30,
+  caseDocuments: 30,
+  caseMilestones: 30,
+  articles: 40,
+  resources: 40,
+  map_pins: 40,
+  forum_posts: 40,
+  treatment_centers: 40,
+  meetings: 40,
+  events: 40,
+  medi_cal_providers: 40,
+  videos: 40,
+  knowledge_documents: 50,
+  chat_conversations: 60,
+  forum_replies: 60,
+  pin_comments: 60,
+  resource_feedback: 60,
+  favorite_articles: 70,
+  favorite_map_pins: 70,
+  followed_threads: 70,
+  chat_messages: 80,
+  knowledge_chunks: 90,
+};
+
+function sortTablesForImport(tables: SnapshotTable[]): SnapshotTable[] {
+  return [...tables].sort((a, b) => {
+    const pa = TABLE_IMPORT_PRIORITY[a.name] ?? 1000;
+    const pb = TABLE_IMPORT_PRIORITY[b.name] ?? 1000;
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 function quoteIdent(identifier: string) {
   return `"${identifier.replaceAll('"', '""')}"`;
 }
@@ -111,7 +147,8 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
     await client.begin(async tx => {
       await tx.unsafe("SET CONSTRAINTS ALL DEFERRED");
 
-      for (const table of snapshot.tables) {
+      const orderedTables = sortTablesForImport(snapshot.tables);
+      for (const table of orderedTables) {
         const exists = await tableExists(tx as any, table.name);
         if (!exists) {
           console.warn(`[init-db] Skipping missing table: ${table.name}`);
