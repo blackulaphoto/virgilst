@@ -70,7 +70,7 @@ function normalizeValueForInsert(column: string, value: unknown): unknown {
     typeof value === "number" &&
     Number.isInteger(value) &&
     value > 2147483647 &&
-    /(At|Time|Date)$/i.test(column)
+    (/(At|Time|Date)$/i.test(column) || column === "lastSignedIn")
   ) {
     return Math.floor(value / 1000);
   }
