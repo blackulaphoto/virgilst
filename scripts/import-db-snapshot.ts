@@ -65,6 +65,18 @@ function quoteIdent(identifier: string) {
   return `"${identifier.replaceAll("\"", "\"\"")}"`;
 }
 
+function normalizeValueForInsert(column: string, value: unknown): unknown {
+  if (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value > 2147483647 &&
+    /(At|Time|Date)$/i.test(column)
+  ) {
+    return Math.floor(value / 1000);
+  }
+  return value;
+}
+
 async function tableExists(client: ReturnType<typeof postgres>, tableName: string) {
   const result = await client`SELECT 1 FROM information_schema.tables WHERE table_name = ${tableName} LIMIT 1`;
   return result.length > 0;
@@ -82,7 +94,7 @@ async function insertTableRows(
     for (const row of batch) {
       const columns = table.columns.map(quoteIdent).join(", ");
       const placeholders = table.columns.map((_, idx) => `$${idx + 1}`).join(", ");
-      const values = table.columns.map(col => row[col] ?? null) as any[];
+      const values = table.columns.map(col => normalizeValueForInsert(col, row[col] ?? null)) as any[];
       await client.unsafe(`INSERT INTO ${quoteIdent(table.name)} (${columns}) VALUES (${placeholders})`, values);
     }
   }
