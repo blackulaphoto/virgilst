@@ -133,7 +133,7 @@ This creates `data/db-snapshot.json`.
 2. Commit and push snapshot + scripts:
 ```bash
 git add data/db-snapshot.json scripts/export-db-snapshot.ts scripts/import-db-snapshot.ts package.json README.md
-git commit -m "Add SQLite snapshot export/import for Railway data transfer"
+git commit -m "Update snapshot import/export for Railway data transfer"
 git push
 ```
 
@@ -147,6 +147,14 @@ pnpm run db:setup
 5. Verify import count quickly:
 ```bash
 node --input-type=module -e "import postgres from 'postgres'; const sql=postgres(process.env.DATABASE_URL); const r=await sql`SELECT COUNT(*)::int AS c FROM resources`; console.log('resources=', r[0].c); await sql.end();"
+```
+
+### Post-Deploy Smoke Check
+
+Run this after each Railway deployment to verify core content loaded:
+
+```bash
+node --input-type=module -e "import postgres from 'postgres'; const sql=postgres(process.env.DATABASE_URL); const r=await sql`SELECT (SELECT COUNT(*) FROM resources) resources,(SELECT COUNT(*) FROM articles) articles,(SELECT COUNT(*) FROM medi_cal_providers) medi_cal_providers,(SELECT COUNT(*) FROM treatment_centers) treatment_centers,(SELECT COUNT(*) FROM meetings) meetings`; console.log(r[0]); await sql.end();"
 ```
 
 ## Virgil AI Features

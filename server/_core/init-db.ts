@@ -85,6 +85,18 @@ async function getResourceCount(client: ReturnType<typeof postgres>) {
   }
 }
 
+async function getImportSummary(client: ReturnType<typeof postgres>) {
+  const result = await client`
+    SELECT
+      (SELECT COUNT(*) FROM resources) AS resources,
+      (SELECT COUNT(*) FROM articles) AS articles,
+      (SELECT COUNT(*) FROM medi_cal_providers) AS medi_cal_providers,
+      (SELECT COUNT(*) FROM treatment_centers) AS treatment_centers,
+      (SELECT COUNT(*) FROM meetings) AS meetings
+  `;
+  return result[0];
+}
+
 async function insertTableRows(
   client: ReturnType<typeof postgres>,
   table: SnapshotTable,
@@ -174,6 +186,8 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
 
     const afterCount = await getResourceCount(client);
     console.log(`[init-db] Snapshot imported successfully (${afterCount} resources)`);
+    const summary = await getImportSummary(client);
+    console.log("[init-db] Import summary:", summary);
     await client.end();
     return true;
   } catch (error) {
