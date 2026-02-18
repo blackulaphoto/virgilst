@@ -29,39 +29,32 @@ function quoteIdent(identifier: string) {
   return `"${identifier.replaceAll("\"", "\"\"")}"`;
 }
 
-async function tableExists(client: ReturnType<typeof createClient>, tableName: string) {
-  const result = await client.execute({
-    sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name = ? LIMIT 1",
-    args: [tableName],
-  });
-  return result.rows.length > 0;
+async function tableExists(client: ReturnType<typeof postgres>, tableName: string) {
+  const result = await client`SELECT 1 FROM information_schema.tables WHERE table_name = ${tableName} LIMIT 1`;
+  return result.length > 0;
 }
 
 async function insertTableRows(
-  client: ReturnType<typeof createClient>,
+  client: ReturnType<typeof postgres>,
   table: SnapshotTable,
   batchSize: number = 100
 ) {
   if (table.rows.length === 0) return;
 
-  const colList = table.columns.map(quoteIdent).join(", ");
-  const placeholders = table.columns.map(() => "?").join(", ");
-  const sql = `INSERT INTO ${quoteIdent(table.name)} (${colList}) VALUES (${placeholders})`;
-
   for (let i = 0; i < table.rows.length; i += batchSize) {
     const batch = table.rows.slice(i, i + batchSize);
     for (const row of batch) {
-      const args = table.columns.map(col => (row[col] ?? null) as any);
-      await client.execute({ sql, args });
+      const columns = table.columns.map(quoteIdent).join(", ");
+      const placeholders = table.columns.map((_, idx) => `$${idx + 1}`).join(", ");
+      const values = table.columns.map(col => row[col] ?? null) as any[];
+      await client.unsafe(`INSERT INTO ${quoteIdent(table.name)} (${columns}) VALUES (${placeholders})`, values);
     }
   }
 }
 
-async function getResourceCount(client: ReturnType<typeof createClient>) {
-  const result = await client.execute("SELECT COUNT(*) AS c FROM resources");
-  const raw = result.rows[0]?.c;
-  if (typeof raw === "number") return raw;
-  return Number(raw ?? 0);
+async function getResourceCount(client: ReturnType<typeof postgres>) {
+  const result = await client`SELECT COUNT(*) AS c FROM resources`;
+  return Number(result[0]?.c ?? 0);
 }
 
 async function main() {
@@ -72,8 +65,7 @@ async function main() {
     throw new Error(`Unsupported snapshot version: ${snapshot.version}`);
   }
 
-  const client = createClient({ url: targetUrl });
-  let transactionStarted = false;
+  const client = postgres(targetUrl);
   try {
     const resourcesTableExists = await tableExists(client, "resources");
     if (!resourcesTableExists) {
@@ -88,38 +80,33 @@ async function main() {
       return;
     }
 
-    await client.execute("PRAGMA foreign_keys = OFF");
-    await client.execute("BEGIN");
-    transactionStarted = true;
+    await client.begin(async tx => {
+      await tx.unsafe("SET CONSTRAINTS ALL DEFERRED");
 
-    for (const table of snapshot.tables) {
-      const exists = await tableExists(client, table.name);
-      if (!exists) {
-        console.warn(`[import] skipping missing table: ${table.name}`);
-        continue;
+      for (const table of snapshot.tables) {
+        const exists = await tableExists(tx as any, table.name);
+        if (!exists) {
+          console.warn(`[import] skipping missing table: ${table.name}`);
+          continue;
+        }
+
+        if (truncateFirst) {
+          await tx.unsafe(`TRUNCATE TABLE ${quoteIdent(table.name)} RESTART IDENTITY CASCADE`);
+        }
+
+        await insertTableRows(tx as any, table);
+        console.log(`[import] ${table.name}: ${table.rows.length} rows`);
       }
+    });
 
-      if (truncateFirst) {
-        await client.execute(`DELETE FROM ${quoteIdent(table.name)}`);
-      }
-
-      await insertTableRows(client, table);
-      console.log(`[import] ${table.name}: ${table.rows.length} rows`);
-    }
-
-    await client.execute("COMMIT");
-    await client.execute("PRAGMA foreign_keys = ON");
     const afterCount = await getResourceCount(client);
     console.log("[import] Snapshot imported successfully");
     console.log(`[import] resources after import: ${afterCount}`);
   } catch (error) {
-    if (transactionStarted) {
-      await client.execute("ROLLBACK");
-    }
     console.error("[import] failed, rolled back:", error);
     process.exit(1);
   } finally {
-    await client.close();
+    await client.end();
   }
 }
 

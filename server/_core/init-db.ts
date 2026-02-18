@@ -1,6 +1,6 @@
 /**
- * Database initialization for production deployments
- * Automatically imports snapshot data if database is empty
+ * Database initialization for production deployments.
+ * Automatically imports snapshot data if database is empty.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -31,10 +31,8 @@ async function tableExists(client: ReturnType<typeof postgres>, tableName: strin
 async function getResourceCount(client: ReturnType<typeof postgres>) {
   try {
     const result = await client`SELECT COUNT(*) AS c FROM resources`;
-    const count = result[0]?.c;
-    return Number(count ?? 0);
-  } catch (error) {
-    // Table might not exist yet
+    return Number(result[0]?.c ?? 0);
+  } catch {
     return 0;
   }
 }
@@ -46,24 +44,22 @@ async function insertTableRows(
 ) {
   if (table.rows.length === 0) return;
 
+  const columns = table.columns.map(quoteIdent).join(", ");
+  const placeholders = table.columns.map((_, idx) => `$${idx + 1}`).join(", ");
+  const sql = `INSERT INTO ${quoteIdent(table.name)} (${columns}) VALUES (${placeholders})`;
+
   for (let i = 0; i < table.rows.length; i += batchSize) {
     const batch = table.rows.slice(i, i + batchSize);
     for (const row of batch) {
-      try {
-        const columns = table.columns.map(quoteIdent).join(", ");
-        const placeholders = table.columns.map((_, idx) => `$${idx + 1}`).join(", ");
-        const values = table.columns.map(col => row[col] ?? null);
-        await client.unsafe(`INSERT INTO ${quoteIdent(table.name)} (${columns}) VALUES (${placeholders})`, values);
-      } catch (error) {
-        console.error(`[init-db] Error inserting row in ${table.name}:`, error);
-      }
+      const values = table.columns.map(col => row[col] ?? null) as any[];
+      await client.unsafe(sql, values);
     }
   }
 }
 
 /**
- * Initialize database with snapshot data if empty
- * Returns true if initialization was performed, false if skipped
+ * Initialize database with snapshot data if empty.
+ * Returns true if initialization was performed, false if skipped.
  */
 export async function initializeDatabaseIfEmpty(): Promise<boolean> {
   console.log("[init-db] Starting initialization check...");
@@ -72,7 +68,6 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
   console.log("[init-db] DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
 
   const databaseUrl = process.env.DATABASE_URL;
-
   if (!databaseUrl) {
     console.warn("[init-db] DATABASE_URL not set, skipping initialization");
     return false;
@@ -82,9 +77,8 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
   console.log("[init-db] Looking for snapshot at:", snapshotPath);
 
   try {
-    // Check if snapshot file exists
     await fs.access(snapshotPath);
-  } catch (error) {
+  } catch {
     console.warn("[init-db] No snapshot file found at:", snapshotPath);
     return false;
   }
@@ -92,7 +86,6 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
   const client = postgres(databaseUrl);
 
   try {
-    // Check if resources table exists
     const resourcesExists = await tableExists(client, "resources");
     if (!resourcesExists) {
       console.log("[init-db] Database schema not initialized yet, skipping snapshot import");
@@ -100,17 +93,13 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
       return false;
     }
 
-    // Check if database is already populated
     const resourceCount = await getResourceCount(client);
-
     if (resourceCount > 0) {
       console.log(`[init-db] Database already populated with ${resourceCount} resources`);
       return false;
     }
 
     console.log("[init-db] Database is empty, importing snapshot...");
-
-    // Load snapshot
     const raw = await fs.readFile(snapshotPath, "utf8");
     const snapshot = JSON.parse(raw) as SnapshotFile;
 
@@ -119,30 +108,32 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
       return false;
     }
 
-    // Import data
-    await client.begin(async (tx) => {
+    await client.begin(async tx => {
+      await tx.unsafe("SET CONSTRAINTS ALL DEFERRED");
+
       for (const table of snapshot.tables) {
-        const exists = await tableExists(client, table.name);
+        const exists = await tableExists(tx as any, table.name);
         if (!exists) {
           console.warn(`[init-db] Skipping missing table: ${table.name}`);
           continue;
         }
 
-        await insertTableRows(client, table);
-        console.log(`[init-db] ✓ ${table.name}: ${table.rows.length} rows`);
+        await insertTableRows(tx as any, table);
+        console.log(`[init-db] Imported ${table.name}: ${table.rows.length} rows`);
       }
     });
 
     const afterCount = await getResourceCount(client);
-    console.log(`[init-db] ✅ Snapshot imported successfully! (${afterCount} resources)`);
-
+    console.log(`[init-db] Snapshot imported successfully (${afterCount} resources)`);
     await client.end();
     return true;
   } catch (error) {
     console.error("[init-db] Initialization error:", error);
     try {
       await client.end();
-    } catch {}
+    } catch {
+      // no-op
+    }
     return false;
   }
 }

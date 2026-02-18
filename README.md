@@ -1,6 +1,6 @@
 # Virgil St.
 
-Vite/React + Express/tRPC + Drizzle (MySQL) app with resource library, chat assistant, maps, forum, and legal/treatment flows.
+Vite/React + Express/tRPC + Drizzle (PostgreSQL) app with resource library, chat assistant, maps, forum, and legal/treatment flows.
 
 ## Local Dev Quickstart
 
@@ -8,7 +8,7 @@ Vite/React + Express/tRPC + Drizzle (MySQL) app with resource library, chat assi
 
 - Node.js 20+
 - pnpm 10+
-- MySQL 8+ (local install or Docker)
+- PostgreSQL 14+ (local install or Docker)
 
 ### 2) Configure environment
 
@@ -18,7 +18,7 @@ cp .env.example .env
 
 **Core Required Variables:**
 
-- `DATABASE_URL` - MySQL connection string
+- `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for session cookies (generate random string)
 - `OAUTH_SERVER_URL` - Your OAuth server URL
 - `OWNER_OPEN_ID` - OpenID that becomes admin
@@ -42,28 +42,14 @@ cp .env.example .env
 
 **Note:** Virgil AI requires your OpenAI API key (`BUILT_IN_FORGE_API_KEY`) and SerpAPI key (`SERPAPI_KEY`) to function. The AI uses GPT-4o for responses and Google search for current information.
 
-### 3) Start MySQL (Docker option)
-
-```bash
-docker compose up -d mysql
-```
-
-This repository includes `docker-compose.yml` with:
-
-- host: `127.0.0.1`
-- port: `3306`
-- database: `virgil_st`
-- user: `root`
-- password: `root`
-
-### 4) Install and migrate
+### 3) Install and migrate
 
 ```bash
 pnpm install
 pnpm run db:push
 ```
 
-### 5) Index knowledge base (REQUIRED for AI)
+### 4) Index knowledge base (REQUIRED for AI)
 
 ```bash
 pnpm run index-knowledge
@@ -73,7 +59,7 @@ This processes 80+ knowledge files (PDFs, markdown) and creates embeddings for s
 
 **Note:** This requires `BUILT_IN_FORGE_API_KEY` to be set for embedding generation.
 
-### 6) Validate and run
+### 5) Validate and run
 
 ```bash
 pnpm run check
@@ -98,29 +84,22 @@ Open `http://localhost:3000`.
 ### Railway (Backend)
 
 1. Create a Railway project from this repo.
-2. Railway uses `railway.json` and starts with:
-   - `pnpm run db:setup && pnpm start`
-3. `db:setup` does:
-   - `pnpm run db:push`
-   - `pnpm run db:import:snapshot:safe`
-4. `db:import:snapshot:safe` behavior:
-   - Checks `SELECT COUNT(*) FROM resources`
-   - If count > 0: logs `Database already populated` and exits
-   - If count = 0: imports `data/db-snapshot.json` and logs `Snapshot imported successfully`
-   - Logs resource row count before and after import
-5. Set required backend environment variables:
+2. Add a Railway PostgreSQL service/plugin.
+3. Railway uses `railway.json` and starts with:
+   - `node dist/index.js`
+4. Build uses `package.json`:
+   - `pnpm run build` (which runs `pnpm run db:push` first)
+5. On first production start, startup auto-imports `data/db-snapshot.json` if `resources` is empty.
+6. Set required backend environment variables:
    - `NODE_ENV=production`
    - `PORT` (Railway provides this automatically)
-   - `DATABASE_URL=file:/data/virgil_st.db`
+   - `DATABASE_URL` (from Railway PostgreSQL service)
    - `JWT_SECRET`
    - `OWNER_OPEN_ID`
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
    - `BUILT_IN_FORGE_API_KEY`
    - `SERPAPI_KEY`
-6. Configure persistent storage:
-   - Add a Railway volume
-   - Mount path: `/data`
 7. For split hosting with Vercel frontend, also set:
    - `FRONTEND_ORIGIN=https://your-frontend.vercel.app`
    - `CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app`
@@ -158,9 +137,7 @@ git commit -m "Add SQLite snapshot export/import for Railway data transfer"
 git push
 ```
 
-3. In Railway, ensure:
-- You mounted a persistent volume (example mount path: `/data`)
-- `DATABASE_URL=file:/data/virgil_st.db`
+3. In Railway, ensure `DATABASE_URL` points to Railway PostgreSQL.
 
 4. In Railway service shell (or Run Command), run:
 ```bash
@@ -169,7 +146,7 @@ pnpm run db:setup
 
 5. Verify import count quickly:
 ```bash
-node --input-type=module -e "import { createClient } from '@libsql/client'; const c=createClient({url:process.env.DATABASE_URL}); const r=await c.execute('SELECT COUNT(*) c FROM resources'); console.log('resources=', r.rows[0].c); await c.close();"
+node --input-type=module -e "import postgres from 'postgres'; const sql=postgres(process.env.DATABASE_URL); const r=await sql`SELECT COUNT(*)::int AS c FROM resources`; console.log('resources=', r[0].c); await sql.end();"
 ```
 
 ## Virgil AI Features

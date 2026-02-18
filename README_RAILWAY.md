@@ -1,174 +1,54 @@
-# 🚂 Railway Deployment - Quick Start
+# Railway Deployment (PostgreSQL)
 
-## TL;DR - Get Content Showing in 5 Minutes
+This repository is configured for PostgreSQL in production.
 
-Your Railway app has no content because it needs a **persistent database**. Here's the fix:
+## Required Railway Setup
 
-### 1. Install Turso CLI
-```bash
-npm install -g @turso/cli
-```
+1. Add a PostgreSQL service in Railway.
+2. Use the injected `DATABASE_URL` from Railway Postgres.
+3. Set app variables:
+   - `NODE_ENV=production`
+   - `JWT_SECRET`
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `OWNER_OPEN_ID`
+   - `BUILT_IN_FORGE_API_KEY`
+   - `SERPAPI_KEY`
 
-### 2. Create Database
-```bash
-turso auth signup
-turso db create virgil-st-prod
-turso db show virgil-st-prod --url
-turso db tokens create virgil-st-prod
-```
+## Build and Start
 
-### 3. Set Railway Environment Variable
-In Railway dashboard → Variables:
-```
-DATABASE_URL=libsql://[from-step-2].turso.io?authToken=[from-step-2]
-```
+- Build uses `package.json`:
+  - `pnpm run build` runs `pnpm run db:push` first, then builds server/client.
+- Start uses:
+  - `node dist/index.js`
 
-### 4. Redeploy
-Railway will automatically:
-- ✅ Create database tables (`db:push`)
-- ✅ Build the app
-- ✅ Import all content on first start (automatic!)
+On first production start, the app auto-imports `data/db-snapshot.json` if `resources` is empty.
 
-### 5. Verify
-Check Railway logs for:
-```
-[init-db] ✅ Snapshot imported successfully! (265 resources)
-Server running on port 3000
-```
+## Log Lines to Confirm Success
 
-Visit your app - **content will be there!** 🎉
+Look for:
 
----
+- `[init-db] Database is empty, importing snapshot...`
+- `[init-db] Imported resources: ... rows`
+- `[init-db] Snapshot imported successfully (...)`
+- `Server running on port ...`
 
-## What Content Will Appear?
+## Manual Import (if needed)
 
-After successful deploy, your app will have:
-
-| Content Type | Count | Page |
-|-------------|-------|------|
-| Articles | 17 | `/articles` |
-| Resources | 265 | `/resources` |
-| Medi-Cal Providers | 3,326 | `/medi-cal` |
-| Treatment Centers | 370 | `/treatment` |
-| Recovery Meetings | 252 | `/meetings` |
-| Map Pins | 15 | `/map` |
-| Events | 1 | `/events` |
-| Videos | 30 | `/videos` |
-
-**Total: 4,350+ records!**
-
----
-
-## Why Turso?
-
-- ✅ **Persistent** - Data survives redeploys
-- ✅ **Fast** - Edge database, low latency
-- ✅ **Free tier** - Perfect for production
-- ✅ **SQLite** - No code changes needed
-- ✅ **Easy** - 2 commands to set up
-
----
-
-## Troubleshooting
-
-### ❌ "Still no content after deploy"
-
-**Check Railway logs:**
+Run in Railway shell:
 
 ```bash
-# If you see this:
-[init-db] DATABASE_URL not set, skipping initialization
-
-# Fix:
-Set DATABASE_URL in Railway variables
+pnpm run db:push
+pnpm run db:import:snapshot
 ```
 
-```bash
-# If you see this:
-[init-db] Database already populated with X resources
+## Quick Validation Query
 
-# But still no content on site:
-You're using SQLite file storage (ephemeral)
-Switch to Turso (see steps above)
+```sql
+SELECT
+  (SELECT COUNT(*) FROM resources) AS resources,
+  (SELECT COUNT(*) FROM articles) AS articles,
+  (SELECT COUNT(*) FROM medi_cal_providers) AS medi_cal_providers,
+  (SELECT COUNT(*) FROM treatment_centers) AS treatment_centers,
+  (SELECT COUNT(*) FROM meetings) AS meetings;
 ```
-
-### ❌ "Build failed"
-
-Check that `DATABASE_URL` is set **before** build starts. Railway needs it during the build process.
-
-### ❌ "Turso connection error"
-
-Verify the token format:
-```
-libsql://[db-name].turso.io?authToken=[token]
-```
-
-Create a new token if expired:
-```bash
-turso db tokens create virgil-st-prod
-```
-
----
-
-## Environment Variables Checklist
-
-Required for Railway:
-
-```env
-✅ NODE_ENV=production
-✅ DATABASE_URL=libsql://...
-✅ GOOGLE_CLIENT_ID=...
-✅ GOOGLE_CLIENT_SECRET=...
-✅ JWT_SECRET=...
-
-# For AI features:
-✅ BUILT_IN_FORGE_API_KEY=sk-...
-✅ SERPAPI_KEY=...
-```
-
-Generate JWT_SECRET:
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
----
-
-## How Auto-Import Works
-
-The app has intelligent automatic initialization:
-
-1. **Build step:** Creates database tables
-2. **First start:** Detects empty database
-3. **Auto-import:** Loads `data/db-snapshot.json`
-4. **Done:** All content available immediately
-5. **Subsequent starts:** Skips import (data already there)
-
-No manual intervention needed! 🎯
-
----
-
-## Need More Help?
-
-📚 **Full Documentation:**
-- `SOLUTION_SUMMARY.md` - Complete technical explanation
-- `RAILWAY_SETUP.md` - Detailed setup guide
-- `DEPLOY_CHECKLIST.md` - Troubleshooting reference
-
-🐛 **Still stuck?**
-1. Check Railway logs first
-2. Verify all environment variables are set
-3. Make sure `DATABASE_URL` uses Turso (not file://)
-4. Confirm `data/db-snapshot.json` exists in repo
-
----
-
-## Success Indicators
-
-✅ Railway build logs show: `Running db:push`
-✅ Railway start logs show: `[init-db] ✅ Snapshot imported successfully!`
-✅ Homepage loads without errors
-✅ `/articles` shows 17 articles
-✅ `/resources` shows 265 resources
-✅ `/medi-cal` shows 3,326 providers
-
-**All green? You're live! 🚀**

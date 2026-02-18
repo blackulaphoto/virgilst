@@ -173,11 +173,11 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     }
 
     if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
+      values.lastSignedIn = Math.floor(Date.now() / 1000);
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
+      updateSet.lastSignedIn = Math.floor(Date.now() / 1000);
     }
 
     await db.insert(users).values(values).onConflictDoUpdate({
@@ -219,7 +219,7 @@ export async function getArticles(filters?: {
     conditions.push(eq(articles.category, filters.category as any));
   }
   if (filters?.isPublished !== undefined) {
-    conditions.push(eq(articles.isPublished, filters.isPublished));
+    conditions.push(eq(articles.isPublished, filters.isPublished ? 1 : 0));
   }
   if (filters?.search) {
     conditions.push(
@@ -361,7 +361,7 @@ export async function getMapPins(filters?: {
     conditions.push(eq(mapPins.type, filters.type as any));
   }
   if (filters?.isApproved !== undefined) {
-    conditions.push(eq(mapPins.isApproved, filters.isApproved));
+    conditions.push(eq(mapPins.isApproved, filters.isApproved ? 1 : 0));
   }
 
   if (conditions.length > 0) {
@@ -389,7 +389,7 @@ export async function approveMapPin(id: number) {
   const db = await getDb();
   if (!db) return;
 
-  await db.update(mapPins).set({ isApproved: true }).where(eq(mapPins.id, id));
+  await db.update(mapPins).set({ isApproved: 1 }).where(eq(mapPins.id, id));
 }
 
 // ============ FORUM HELPERS ============
@@ -592,7 +592,10 @@ export async function createChatMessage(message: InsertChatMessage) {
   await db.insert(chatMessages).values(message);
   
   // Update conversation last message time
-  await db.update(chatConversations).set({ lastMessageAt: new Date() }).where(eq(chatConversations.id, message.conversationId));
+  await db
+    .update(chatConversations)
+    .set({ lastMessageAt: Math.floor(Date.now() / 1000) })
+    .where(eq(chatConversations.id, message.conversationId));
 }
 
 // ============ SEARCH HELPERS ============
@@ -607,7 +610,7 @@ export async function globalSearch(query: string, limit: number = 100, offset: n
     db.select().from(articles)
       .where(
         and(
-          eq(articles.isPublished, true),
+          eq(articles.isPublished, 1),
           or(
             like(articles.title, searchPattern),
             like(articles.content, searchPattern)
@@ -945,7 +948,7 @@ export async function getAllTreatmentCenters(filters?: {
   const db = await getDb();
   if (!db) return [];
 
-  const conditions = [eq(treatmentCenters.isPublished, true)];
+  const conditions = [eq(treatmentCenters.isPublished, 1)];
   
   if (filters?.type) {
     conditions.push(eq(treatmentCenters.type, filters.type as any));
@@ -954,10 +957,10 @@ export async function getAllTreatmentCenters(filters?: {
     conditions.push(like(treatmentCenters.city, `%${filters.city}%`));
   }
   if (filters?.acceptsMediCal !== undefined) {
-    conditions.push(eq(treatmentCenters.acceptsMediCal, filters.acceptsMediCal));
+    conditions.push(eq(treatmentCenters.acceptsMediCal, filters.acceptsMediCal ? 1 : 0));
   }
   if (filters?.acceptsCouples !== undefined) {
-    conditions.push(eq(treatmentCenters.acceptsCouples, filters.acceptsCouples));
+    conditions.push(eq(treatmentCenters.acceptsCouples, filters.acceptsCouples ? 1 : 0));
   }
   if (filters?.servesPopulation) {
     conditions.push(eq(treatmentCenters.servesPopulation, filters.servesPopulation as any));
@@ -1021,7 +1024,7 @@ export async function getMeetings(filters?: {
   const db = await getDb();
   if (!db) return [];
 
-  const conditions = [eq(meetings.isPublished, true)];
+  const conditions = [eq(meetings.isPublished, 1)];
 
   if (filters?.type) {
     conditions.push(eq(meetings.type, filters.type as any));
@@ -1067,7 +1070,7 @@ export async function searchMeetings(query: string): Promise<Meeting[]> {
     .from(meetings)
     .where(
       and(
-        eq(meetings.isPublished, true),
+        eq(meetings.isPublished, 1),
         or(
           like(meetings.name, `%${query}%`),
           like(meetings.venueName, `%${query}%`),
