@@ -9,6 +9,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "";
+const nowEpochSeconds = () => Math.floor(Date.now() / 1000);
 
 // Initialize Google OAuth client
 const googleClient = new OAuth2Client(
@@ -66,7 +67,7 @@ export function registerOAuthRoutes(app: Express) {
         name,
         email: "dev@localhost",
         loginMethod: "dev",
-        lastSignedIn: Date.now(),
+        lastSignedIn: nowEpochSeconds(),
       });
 
       const sessionToken = await sdk.createSessionToken(openId, {
@@ -177,7 +178,7 @@ export function registerOAuthRoutes(app: Express) {
         email,
         avatarUrl: picture,
         loginMethod: "google",
-        lastSignedIn: Date.now(),
+        lastSignedIn: nowEpochSeconds(),
       });
 
       // Create session token using your existing SDK

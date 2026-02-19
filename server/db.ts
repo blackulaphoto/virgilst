@@ -50,6 +50,20 @@ import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+function normalizeEpochSeconds(value: unknown): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (value instanceof Date) {
+    return Math.floor(value.getTime() / 1000);
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (value > 2147483647) {
+      return Math.floor(value / 1000);
+    }
+    return Math.floor(value);
+  }
+  return undefined;
+}
+
 const SEARCH_STOPWORDS = new Set([
   "a",
   "an",
@@ -161,8 +175,11 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     textFields.forEach(assignNullable);
 
     if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
+      const normalizedLastSignedIn = normalizeEpochSeconds(user.lastSignedIn);
+      if (normalizedLastSignedIn !== undefined) {
+        values.lastSignedIn = normalizedLastSignedIn;
+        updateSet.lastSignedIn = normalizedLastSignedIn;
+      }
     }
     if (user.role !== undefined) {
       values.role = user.role;

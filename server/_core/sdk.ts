@@ -212,19 +212,19 @@ class SDKServer {
       });
       const { openId, appId, name } = payload as Record<string, unknown>;
 
-      if (
-        !isNonEmptyString(openId) ||
-        !isNonEmptyString(appId) ||
-        !isNonEmptyString(name)
-      ) {
-        console.warn("[Auth] Session payload missing required fields");
+      if (!isNonEmptyString(openId)) {
+        console.warn("[Auth] Session payload missing required openId");
         return null;
       }
 
+      const resolvedAppId =
+        isNonEmptyString(appId) ? appId : ENV.appId || "virgil-st";
+      const resolvedName = typeof name === "string" ? name : "";
+
       return {
         openId,
-        appId,
-        name,
+        appId: resolvedAppId,
+        name: resolvedName,
       };
     } catch (error) {
       console.warn("[Auth] Session verification failed", String(error));
@@ -267,7 +267,7 @@ class SDKServer {
     }
 
     const sessionUserId = session.openId;
-    const signedInAt = new Date();
+    const signedInAt = Math.floor(Date.now() / 1000);
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not in DB, sync from OAuth server automatically
