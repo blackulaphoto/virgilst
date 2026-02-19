@@ -14,6 +14,7 @@ import * as legalCases from "./legalCases";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { ingestKnowledgeUpload, MAX_KNOWLEDGE_UPLOAD_BYTES } from "./knowledgeIngestion";
+import { virgilTools } from "./virgilTools";
 
 const VIRGIL_SYSTEM_PROMPT = `You are Virgil, a California social-services case detective with the heart and sparkle of Penelope Garcia.
 
@@ -695,62 +696,7 @@ export const appRouter = router({
         // Call LLM with system prompt, history, and tool calling
         const systemPrompt = VIRGIL_SYSTEM_PROMPT;
 
-        const tools = [
-          {
-            type: "function" as const,
-            function: {
-              name: "search_knowledge",
-              description: "Search the knowledge base of guides, PDFs, and documents about benefits, housing, legal issues, healthcare, employment, and other survival resources. Use this when the user asks about programs, rights, or processes.",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "The search query to find relevant information in the knowledge base",
-                  },
-                },
-                required: ["query"],
-                additionalProperties: false,
-              },
-            },
-          },
-          {
-            type: "function" as const,
-            function: {
-              name: "scrape_url",
-              description: "Fetch and extract text content from a specific URL. Use this when the user provides a URL or asks about a specific website.",
-              parameters: {
-                type: "object",
-                properties: {
-                  url: {
-                    type: "string",
-                    description: "The URL to scrape content from",
-                  },
-                },
-                required: ["url"],
-                additionalProperties: false,
-              },
-            },
-          },
-          {
-            type: "function" as const,
-            function: {
-              name: "search_google",
-              description: "Search Google for current information, resources, or services. Use this when you need up-to-date information not in the knowledge base.",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "The search query for Google",
-                  },
-                },
-                required: ["query"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ];
+        const tools = virgilTools;
 
         let assistantMessage = "";
         let sources: any[] = [];
@@ -785,6 +731,10 @@ export const appRouter = router({
                 const searchResults = await searchKnowledge(args.query, 5);
                 result = formatKnowledgeResults(searchResults);
                 sources.push(...getCitations(searchResults));
+              } else if (functionName === "search_local_resources") {
+                const forced = await buildForcedResourceContext(args.query);
+                result = forced.context || "No local resources found for this query.";
+                sources.push(...forced.sources);
               } else if (functionName === "scrape_url") {
                 const scraped = await scrapeUrl(args.url);
                 if (scraped.success) {
@@ -948,62 +898,7 @@ export const appRouter = router({
         // System prompt and tools (same as non-streaming)
         const systemPrompt = VIRGIL_SYSTEM_PROMPT;
 
-        const tools = [
-          {
-            type: "function" as const,
-            function: {
-              name: "search_knowledge",
-              description: "Search the knowledge base of guides, PDFs, and documents about benefits, housing, legal issues, healthcare, employment, and other survival resources. Use this when the user asks about programs, rights, or processes.",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "The search query to find relevant information in the knowledge base",
-                  },
-                },
-                required: ["query"],
-                additionalProperties: false,
-              },
-            },
-          },
-          {
-            type: "function" as const,
-            function: {
-              name: "scrape_url",
-              description: "Fetch and extract text content from a specific URL. Use this when the user provides a URL or asks about a specific website.",
-              parameters: {
-                type: "object",
-                properties: {
-                  url: {
-                    type: "string",
-                    description: "The URL to scrape content from",
-                  },
-                },
-                required: ["url"],
-                additionalProperties: false,
-              },
-            },
-          },
-          {
-            type: "function" as const,
-            function: {
-              name: "search_google",
-              description: "Search Google for current information, resources, or services. Use this when you need up-to-date information not in the knowledge base.",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "The search query for Google",
-                  },
-                },
-                required: ["query"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ];
+        const tools = virgilTools;
 
         // Collect streamed response
         let assistantMessage = "";
@@ -1045,6 +940,10 @@ export const appRouter = router({
                 const searchResults = await searchKnowledge(args.query, 5);
                 result = formatKnowledgeResults(searchResults);
                 sources.push(...getCitations(searchResults));
+              } else if (functionName === "search_local_resources") {
+                const forced = await buildForcedResourceContext(args.query);
+                result = forced.context || "No local resources found for this query.";
+                sources.push(...forced.sources);
               } else if (functionName === "scrape_url") {
                 const scraped = await scrapeUrl(args.url);
                 if (scraped.success) {
