@@ -768,7 +768,11 @@ export const appRouter = router({
                   role: m.role as "user" | "assistant",
                   content: m.content,
                 })),
-                choice.message,
+                {
+                  role: "assistant" as const,
+                  content: choice.message.content || "",
+                  tool_calls: choice.message.tool_calls,
+                },
                 ...toolResults,
               ],
             });
