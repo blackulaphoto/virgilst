@@ -1447,3 +1447,159 @@ export async function getMediCalSpecialties(): Promise<string[]> {
 
   return Array.from(specialtiesSet).sort();
 }
+
+// ============ ADMIN FUNCTIONS ============
+
+/**
+ * Get all users (admin only)
+ */
+export async function getAllUsers(filters?: {
+  role?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { role, limit = 50, offset = 0 } = filters || {};
+
+  let query = db
+    .select({
+      id: users.id,
+      openId: users.openId,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      displayName: users.displayName,
+      createdAt: users.createdAt,
+      lastSignedIn: users.lastSignedIn,
+      profileComplete: users.profileComplete,
+    })
+    .from(users);
+
+  if (role) {
+    query = query.where(eq(users.role, role)) as any;
+  }
+
+  const results = await query
+    .orderBy(desc(users.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  return results;
+}
+
+/**
+ * Update user role (admin only)
+ */
+export async function updateUserRole(userId: number, role: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(users)
+    .set({ role, updatedAt: Math.floor(Date.now() / 1000) })
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Delete user (admin only)
+ */
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(users).where(eq(users.id, userId));
+}
+
+/**
+ * Get all forum posts with moderation info (admin only)
+ */
+export async function getAllForumPostsForModeration(filters?: {
+  category?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { category, limit = 50, offset = 0 } = filters || {};
+
+  let query = db
+    .select({
+      id: forumPosts.id,
+      title: forumPosts.title,
+      content: forumPosts.content,
+      category: forumPosts.category,
+      authorId: forumPosts.authorId,
+      isAnonymous: forumPosts.isAnonymous,
+      isPinned: forumPosts.isPinned,
+      isLocked: forumPosts.isLocked,
+      upvotes: forumPosts.upvotes,
+      viewCount: forumPosts.viewCount,
+      replyCount: forumPosts.replyCount,
+      createdAt: forumPosts.createdAt,
+      updatedAt: forumPosts.updatedAt,
+      authorName: users.name,
+      authorEmail: users.email,
+    })
+    .from(forumPosts)
+    .leftJoin(users, eq(forumPosts.authorId, users.id));
+
+  if (category) {
+    query = query.where(eq(forumPosts.category, category)) as any;
+  }
+
+  const results = await query
+    .orderBy(desc(forumPosts.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  return results;
+}
+
+/**
+ * Delete forum post (admin only)
+ */
+export async function deleteForumPost(postId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(forumPosts).where(eq(forumPosts.id, postId));
+}
+
+/**
+ * Pin/unpin forum post (admin only)
+ */
+export async function togglePinForumPost(postId: number, isPinned: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(forumPosts)
+    .set({ isPinned: isPinned ? 1 : 0, updatedAt: Math.floor(Date.now() / 1000) })
+    .where(eq(forumPosts.id, postId));
+}
+
+/**
+ * Lock/unlock forum post (admin only)
+ */
+export async function toggleLockForumPost(postId: number, isLocked: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(forumPosts)
+    .set({ isLocked: isLocked ? 1 : 0, updatedAt: Math.floor(Date.now() / 1000) })
+    .where(eq(forumPosts.id, postId));
+}
+
+/**
+ * Delete forum reply (admin only)
+ */
+export async function deleteForumReply(replyId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(forumReplies).where(eq(forumReplies.id, replyId));
+}

@@ -9,12 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { 
-  BookOpen, 
-  Video, 
-  Link as LinkIcon, 
-  MapPin, 
-  MessageSquare, 
+import {
+  BookOpen,
+  Video,
+  Link as LinkIcon,
+  MapPin,
+  MessageSquare,
   Users,
   Shield,
   Loader2,
@@ -22,10 +22,25 @@ import {
   Check,
   X,
   Trash2,
-  Eye
+  Eye,
+  Lock,
+  Unlock,
+  Pin,
+  PinOff,
+  UserCog
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -81,6 +96,8 @@ export default function AdminDashboard() {
   const { data: allArticles } = trpc.articles.list.useQuery({});
   const { data: allVideos } = trpc.videos.list.useQuery({});
   const { data: allResources } = trpc.resources.list.useQuery({});
+  const { data: forumPosts } = trpc.admin.forum.posts.useQuery({});
+  const { data: allUsers } = trpc.admin.users.list.useQuery({});
 
   // Mutations
   const createArticleMutation = trpc.articles.create.useMutation({
@@ -136,6 +153,57 @@ export default function AdminDashboard() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to upload knowledge file");
+    },
+  });
+
+  // Admin mutations
+  const deletePostMutation = trpc.admin.forum.deletePost.useMutation({
+    onSuccess: () => {
+      utils.admin.forum.posts.invalidate();
+      toast.success("Post deleted successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete post");
+    },
+  });
+
+  const togglePinMutation = trpc.admin.forum.togglePin.useMutation({
+    onSuccess: () => {
+      utils.admin.forum.posts.invalidate();
+      toast.success("Post pin status updated");
+    },
+    onError: () => {
+      toast.error("Failed to update pin status");
+    },
+  });
+
+  const toggleLockMutation = trpc.admin.forum.toggleLock.useMutation({
+    onSuccess: () => {
+      utils.admin.forum.posts.invalidate();
+      toast.success("Post lock status updated");
+    },
+    onError: () => {
+      toast.error("Failed to update lock status");
+    },
+  });
+
+  const updateUserRoleMutation = trpc.admin.users.updateRole.useMutation({
+    onSuccess: () => {
+      utils.admin.users.list.invalidate();
+      toast.success("User role updated");
+    },
+    onError: () => {
+      toast.error("Failed to update user role");
+    },
+  });
+
+  const deleteUserMutation = trpc.admin.users.delete.useMutation({
+    onSuccess: () => {
+      utils.admin.users.list.invalidate();
+      toast.success("User deleted");
+    },
+    onError: () => {
+      toast.error("Failed to delete user");
     },
   });
 
@@ -477,7 +545,80 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">Forum moderation tools coming soon...</p>
+                <div className="space-y-4">
+                  {forumPosts && forumPosts.length > 0 ? (
+                    forumPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="flex items-start justify-between rounded-lg border border-border p-4"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {post.isPinned ? (
+                              <Pin className="h-4 w-4 text-primary" />
+                            ) : null}
+                            {post.isLocked ? (
+                              <Lock className="h-4 w-4 text-muted-foreground" />
+                            ) : null}
+                            <h3 className="font-semibold text-card-foreground">{post.title}</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {post.category} • {post.viewCount} views • {post.replyCount} replies • {post.upvotes} upvotes
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            By: {post.isAnonymous ? "Anonymous" : post.authorName || post.authorEmail || "Unknown"} •{" "}
+                            {new Date((post.createdAt || 0) * 1000).toLocaleDateString()}
+                          </p>
+                          {post.content && (
+                            <p className="mt-2 text-sm text-card-foreground line-clamp-2">{post.content}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            size="sm"
+                            variant={post.isPinned ? "default" : "outline"}
+                            onClick={() => togglePinMutation.mutate({ postId: post.id, isPinned: !post.isPinned })}
+                            title={post.isPinned ? "Unpin" : "Pin"}
+                          >
+                            {post.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={post.isLocked ? "default" : "outline"}
+                            onClick={() => toggleLockMutation.mutate({ postId: post.id, isLocked: !post.isLocked })}
+                            title={post.isLocked ? "Unlock" : "Lock"}
+                          >
+                            {post.isLocked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
+                          >
+                            <a href={`/forum/post/${post.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this post?")) {
+                                deletePostMutation.mutate({ postId: post.id });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No forum posts yet
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -492,7 +633,85 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">User management tools coming soon...</p>
+                <div className="space-y-4">
+                  {allUsers && allUsers.length > 0 ? (
+                    <div className="rounded-lg border border-border">
+                      <table className="w-full">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="p-3 text-left text-sm font-semibold">User</th>
+                            <th className="p-3 text-left text-sm font-semibold">Email</th>
+                            <th className="p-3 text-left text-sm font-semibold">Role</th>
+                            <th className="p-3 text-left text-sm font-semibold">Joined</th>
+                            <th className="p-3 text-left text-sm font-semibold">Last Sign In</th>
+                            <th className="p-3 text-right text-sm font-semibold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {allUsers.map((user) => (
+                            <tr key={user.id} className="border-t border-border">
+                              <td className="p-3">
+                                <div>
+                                  <div className="font-medium text-card-foreground">
+                                    {user.displayName || user.name || "Unnamed User"}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    ID: {user.id}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="p-3 text-sm text-muted-foreground">
+                                {user.email || "No email"}
+                              </td>
+                              <td className="p-3">
+                                <Select
+                                  value={user.role}
+                                  onValueChange={(newRole) => {
+                                    if (confirm(`Change ${user.name || "this user"}'s role to ${newRole}?`)) {
+                                      updateUserRoleMutation.mutate({ userId: user.id, role: newRole as "admin" | "user" });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="w-28">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="user">User</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="p-3 text-sm text-muted-foreground">
+                                {user.createdAt ? new Date(user.createdAt * 1000).toLocaleDateString() : "Unknown"}
+                              </td>
+                              <td className="p-3 text-sm text-muted-foreground">
+                                {user.lastSignedIn ? new Date(user.lastSignedIn * 1000).toLocaleDateString() : "Never"}
+                              </td>
+                              <td className="p-3 text-right">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => {
+                                    if (confirm(`Are you sure you want to delete ${user.name || "this user"}? This action cannot be undone.`)) {
+                                      deleteUserMutation.mutate({ userId: user.id });
+                                    }
+                                  }}
+                                  disabled={user.id === 1} // Protect local admin
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No users found
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

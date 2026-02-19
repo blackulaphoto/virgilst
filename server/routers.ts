@@ -201,13 +201,93 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 export const appRouter = router({
   system: systemRouter,
-  
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
+    }),
+  }),
+
+  // ============ ADMIN ROUTES ============
+  admin: router({
+    // User Management
+    users: router({
+      list: adminProcedure
+        .input(z.object({
+          role: z.string().optional(),
+          limit: z.number().optional(),
+          offset: z.number().optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return await db.getAllUsers(input || {});
+        }),
+
+      updateRole: adminProcedure
+        .input(z.object({
+          userId: z.number(),
+          role: z.enum(["admin", "user"]),
+        }))
+        .mutation(async ({ input }) => {
+          await db.updateUserRole(input.userId, input.role);
+          return { success: true };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ userId: z.number() }))
+        .mutation(async ({ input }) => {
+          await db.deleteUser(input.userId);
+          return { success: true };
+        }),
+    }),
+
+    // Forum Moderation
+    forum: router({
+      posts: adminProcedure
+        .input(z.object({
+          category: z.string().optional(),
+          limit: z.number().optional(),
+          offset: z.number().optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return await db.getAllForumPostsForModeration(input || {});
+        }),
+
+      deletePost: adminProcedure
+        .input(z.object({ postId: z.number() }))
+        .mutation(async ({ input }) => {
+          await db.deleteForumPost(input.postId);
+          return { success: true };
+        }),
+
+      togglePin: adminProcedure
+        .input(z.object({
+          postId: z.number(),
+          isPinned: z.boolean(),
+        }))
+        .mutation(async ({ input }) => {
+          await db.togglePinForumPost(input.postId, input.isPinned);
+          return { success: true };
+        }),
+
+      toggleLock: adminProcedure
+        .input(z.object({
+          postId: z.number(),
+          isLocked: z.boolean(),
+        }))
+        .mutation(async ({ input }) => {
+          await db.toggleLockForumPost(input.postId, input.isLocked);
+          return { success: true };
+        }),
+
+      deleteReply: adminProcedure
+        .input(z.object({ replyId: z.number() }))
+        .mutation(async ({ input }) => {
+          await db.deleteForumReply(input.replyId);
+          return { success: true };
+        }),
     }),
   }),
 
