@@ -45,11 +45,13 @@ export default function Home() {
                   <User className="h-4 w-4" />
                   <span>{user?.name || 'User'}</span>
                 </div>
-                <Link href="/admin">
-                  <Button variant="ghost" size="sm">
-                    Admin
-                  </Button>
-                </Link>
+                {user?.role === "admin" && (
+                  <Link href="/admin">
+                    <Button variant="ghost" size="sm">
+                      Admin
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
