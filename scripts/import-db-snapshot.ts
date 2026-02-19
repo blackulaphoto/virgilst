@@ -105,6 +105,32 @@ async function getResourceCount(client: ReturnType<typeof postgres>) {
   return Number(result[0]?.c ?? 0);
 }
 
+async function repairSerialSequences(client: ReturnType<typeof postgres>) {
+  const serialColumns = await client`
+    SELECT
+      table_schema,
+      table_name,
+      column_name,
+      pg_get_serial_sequence(format('%I.%I', table_schema, table_name), column_name) AS sequence_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND column_default LIKE 'nextval%'
+  `;
+
+  for (const row of serialColumns) {
+    const table = String(row.table_name);
+    const column = String(row.column_name);
+    const sequenceName = row.sequence_name ? String(row.sequence_name) : null;
+    if (!sequenceName) continue;
+
+    const maxResult = await client.unsafe(
+      `SELECT COALESCE(MAX(${quoteIdent(column)}), 0) AS max_id FROM ${quoteIdent(table)}`
+    );
+    const nextValue = Number(maxResult[0]?.max_id ?? 0) + 1;
+    await client`SELECT setval(${sequenceName}, ${nextValue}, false)`;
+  }
+}
+
 async function main() {
   const raw = await fs.readFile(snapshotPath, "utf8");
   const snapshot = JSON.parse(raw) as SnapshotFile;
@@ -151,6 +177,8 @@ async function main() {
     const afterCount = await getResourceCount(client);
     console.log("[import] Snapshot imported successfully");
     console.log(`[import] resources after import: ${afterCount}`);
+    await repairSerialSequences(client);
+    console.log("[import] Serial sequences repaired");
   } catch (error) {
     console.error("[import] failed, rolled back:", error);
     process.exit(1);

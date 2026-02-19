@@ -97,6 +97,32 @@ async function getImportSummary(client: ReturnType<typeof postgres>) {
   return result[0];
 }
 
+async function repairSerialSequences(client: ReturnType<typeof postgres>) {
+  const serialColumns = await client`
+    SELECT
+      table_schema,
+      table_name,
+      column_name,
+      pg_get_serial_sequence(format('%I.%I', table_schema, table_name), column_name) AS sequence_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND column_default LIKE 'nextval%'
+  `;
+
+  for (const row of serialColumns) {
+    const table = String(row.table_name);
+    const column = String(row.column_name);
+    const sequenceName = row.sequence_name ? String(row.sequence_name) : null;
+    if (!sequenceName) continue;
+
+    const maxResult = await client.unsafe(
+      `SELECT COALESCE(MAX(${quoteIdent(column)}), 0) AS max_id FROM ${quoteIdent(table)}`
+    );
+    const nextValue = Number(maxResult[0]?.max_id ?? 0) + 1;
+    await client`SELECT setval(${sequenceName}, ${nextValue}, false)`;
+  }
+}
+
 async function insertTableRows(
   client: ReturnType<typeof postgres>,
   table: SnapshotTable,
@@ -155,6 +181,8 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
 
     const resourceCount = await getResourceCount(client);
     if (resourceCount > 0) {
+      // Existing databases can have stale sequences after snapshot imports.
+      await repairSerialSequences(client);
       console.log(`[init-db] Database already populated with ${resourceCount} resources`);
       return false;
     }
@@ -186,6 +214,8 @@ export async function initializeDatabaseIfEmpty(): Promise<boolean> {
 
     const afterCount = await getResourceCount(client);
     console.log(`[init-db] Snapshot imported successfully (${afterCount} resources)`);
+    await repairSerialSequences(client);
+    console.log("[init-db] Serial sequences repaired");
     const summary = await getImportSummary(client);
     console.log("[init-db] Import summary:", summary);
     await client.end();
