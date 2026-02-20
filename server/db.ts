@@ -1310,15 +1310,15 @@ export async function getMediCalProviders(filters: {
   const conditions = [];
 
   if (filters.city) {
-    conditions.push(like(mediCalProviders.city, `%${filters.city}%`));
+    conditions.push(ilike(mediCalProviders.city, `%${filters.city}%`));
   }
 
   if (filters.specialty) {
-    conditions.push(like(mediCalProviders.specialties, `%${filters.specialty}%`));
+    conditions.push(ilike(mediCalProviders.specialties, `%${filters.specialty}%`));
   }
 
   if (filters.language) {
-    conditions.push(like(mediCalProviders.languagesSpoken, `%${filters.language}%`));
+    conditions.push(ilike(mediCalProviders.languagesSpoken, `%${filters.language}%`));
   }
 
   if (filters.zipCode) {
@@ -1362,30 +1362,30 @@ export async function searchMediCalProviders(
   const terms = tokenizeSearchTerms(query);
   const tokenConditions = terms.map(term =>
     or(
-      like(mediCalProviders.providerName, `%${term}%`),
-      like(mediCalProviders.facilityName, `%${term}%`),
-      like(mediCalProviders.city, `%${term}%`),
-      like(mediCalProviders.specialties, `%${term}%`),
-      like(mediCalProviders.address, `%${term}%`),
-      like(mediCalProviders.zipCode, `%${term}%`),
-      like(mediCalProviders.npi, `%${term}%`)
+      ilike(mediCalProviders.providerName, `%${term}%`),
+      ilike(mediCalProviders.facilityName, `%${term}%`),
+      ilike(mediCalProviders.city, `%${term}%`),
+      ilike(mediCalProviders.specialties, `%${term}%`),
+      ilike(mediCalProviders.address, `%${term}%`),
+      ilike(mediCalProviders.zipCode, `%${term}%`),
+      ilike(mediCalProviders.npi, `%${term}%`)
     )
   );
 
   const textMatcher =
     tokenConditions.length > 0
       ? or(
-          like(mediCalProviders.providerName, `%${query}%`),
-          like(mediCalProviders.facilityName, `%${query}%`),
-          like(mediCalProviders.city, `%${query}%`),
-          like(mediCalProviders.specialties, `%${query}%`),
+          ilike(mediCalProviders.providerName, `%${query}%`),
+          ilike(mediCalProviders.facilityName, `%${query}%`),
+          ilike(mediCalProviders.city, `%${query}%`),
+          ilike(mediCalProviders.specialties, `%${query}%`),
           ...tokenConditions
         )
       : or(
-          like(mediCalProviders.providerName, `%${query}%`),
-          like(mediCalProviders.facilityName, `%${query}%`),
-          like(mediCalProviders.city, `%${query}%`),
-          like(mediCalProviders.specialties, `%${query}%`)
+          ilike(mediCalProviders.providerName, `%${query}%`),
+          ilike(mediCalProviders.facilityName, `%${query}%`),
+          ilike(mediCalProviders.city, `%${query}%`),
+          ilike(mediCalProviders.specialties, `%${query}%`)
         );
 
   const results = await db
