@@ -46,7 +46,11 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(turso --version:*)",
-      "Bash(bash)"
+      "Bash(bash)",
+      "Bash($env:DATABASE_URL='postgresql://postgres:iUQSAitUaXcQQbLsHKuSbhilZkXQkVnM@metro.proxy.rlwy.net:37297/railway')",
+      "Bash(del .env.backup .env.temp)",
+      "Bash(pnpm run check:client:*)",
+      "Bash(bash -c 'export $(cat .env | grep -v \"\"^#\"\" | xargs) && node check-cities.js')"
     ],
     "deny": [],
     "ask": []

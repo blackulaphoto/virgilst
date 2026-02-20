@@ -635,6 +635,31 @@ export const appRouter = router({
         const video = await db.createVideo(input);
         return video;
       }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        youtubeId: z.string().optional(),
+        category: z.enum(["how_to_guides", "legal_help", "recovery_motivation", "street_hacks", "mental_health"]).optional(),
+        duration: z.number().optional(),
+        thumbnailUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        await db.updateVideo(id, updates);
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteVideo(input.id);
+        return { success: true };
+      }),
   }),
 
   // ============ AI CHAT ============

@@ -1,11 +1,11 @@
-import { integer, sqliteTable, text, real, index } from "drizzle-orm/sqlite-core";
+import { pgTable, serial, text, integer, real, index, boolean, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 /**
  * Core user table backing auth flow.
  */
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: text("openId").notNull().unique(),
   name: text("name"),
   email: text("email"),
@@ -18,9 +18,9 @@ export const users = sqliteTable("users", {
   avatarUrl: text("avatarUrl"),
   profileComplete: integer("profileComplete").default(0).notNull(),
   // Timestamps
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
-  lastSignedIn: integer("lastSignedIn").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  lastSignedIn: integer("lastSignedIn").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -29,8 +29,8 @@ export type InsertUser = typeof users.$inferInsert;
 /**
  * Legal cases (custody reunification, record expungement)
  */
-export const legalCases = sqliteTable("legalCases", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const legalCases = pgTable("legalCases", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").notNull().references(() => users.id),
   caseType: text("caseType").notNull(),
   status: text("status").default("not_started").notNull(),
@@ -47,8 +47,8 @@ export const legalCases = sqliteTable("legalCases", {
   completedAt: integer("completedAt"),
   // Metadata
   notes: text("notes"),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userIdx: index("legalCases_user_idx").on(table.userId),
   typeIdx: index("legalCases_type_idx").on(table.caseType),
@@ -61,8 +61,8 @@ export type InsertLegalCase = typeof legalCases.$inferInsert;
 /**
  * Calendar events (court dates, deadlines, appointments)
  */
-export const calendarEvents = sqliteTable("calendarEvents", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const calendarEvents = pgTable("calendarEvents", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").notNull().references(() => users.id),
   caseId: integer("caseId").references(() => legalCases.id),
   title: text("title").notNull(),
@@ -78,8 +78,8 @@ export const calendarEvents = sqliteTable("calendarEvents", {
   // Metadata
   isCompleted: integer("isCompleted").default(0).notNull(),
   notes: text("notes"),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userIdx: index("calendarEvents_user_idx").on(table.userId),
   caseIdx: index("calendarEvents_case_idx").on(table.caseId),
@@ -93,8 +93,8 @@ export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;
 /**
  * Case documents (required forms, completion tracking)
  */
-export const caseDocuments = sqliteTable("caseDocuments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const caseDocuments = pgTable("caseDocuments", {
+  id: serial("id").primaryKey(),
   caseId: integer("caseId").notNull().references(() => legalCases.id),
   documentName: text("documentName").notNull(),
   documentType: text("documentType").notNull(),
@@ -114,8 +114,8 @@ export const caseDocuments = sqliteTable("caseDocuments", {
   isRequired: integer("isRequired").default(1).notNull(),
   sortOrder: integer("sortOrder").default(0).notNull(),
   notes: text("notes"),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   caseIdx: index("caseDocuments_case_idx").on(table.caseId),
   statusIdx: index("caseDocuments_status_idx").on(table.status),
@@ -128,8 +128,8 @@ export type InsertCaseDocument = typeof caseDocuments.$inferInsert;
 /**
  * Case milestones (progress tracking for each case type)
  */
-export const caseMilestones = sqliteTable("caseMilestones", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const caseMilestones = pgTable("caseMilestones", {
+  id: serial("id").primaryKey(),
   caseId: integer("caseId").notNull().references(() => legalCases.id),
   milestoneName: text("milestoneName").notNull(),
   description: text("description"),
@@ -140,8 +140,8 @@ export const caseMilestones = sqliteTable("caseMilestones", {
   sortOrder: integer("sortOrder").default(0).notNull(),
   // Metadata
   notes: text("notes"),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   caseIdx: index("caseMilestones_case_idx").on(table.caseId),
   statusIdx: index("caseMilestones_status_idx").on(table.status),
@@ -154,8 +154,8 @@ export type InsertCaseMilestone = typeof caseMilestones.$inferInsert;
 /**
  * Resource library articles (benefits, housing, legal, health guides)
  */
-export const articles = sqliteTable("articles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const articles = pgTable("articles", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
@@ -165,8 +165,8 @@ export const articles = sqliteTable("articles", {
   authorId: integer("authorId").references(() => users.id),
   isPublished: integer("isPublished").default(1).notNull(),
   viewCount: integer("viewCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   categoryIdx: index("articles_category_idx").on(table.category),
   slugIdx: index("articles_slug_idx").on(table.slug),
@@ -179,8 +179,8 @@ export type InsertArticle = typeof articles.$inferInsert;
 /**
  * Community resources (shelters, food banks, clinics, etc.)
  */
-export const resources = sqliteTable("resources", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const resources = pgTable("resources", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   type: text("type").notNull(),
@@ -195,8 +195,8 @@ export const resources = sqliteTable("resources", {
   longitude: real("longitude"),
   isVerified: integer("isVerified").default(0).notNull(),
   lastVerifiedAt: integer("lastVerifiedAt"),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("resources_type_idx").on(table.type),
   zipIdx: index("resources_zip_idx").on(table.zipCode),
@@ -208,8 +208,8 @@ export type InsertResource = typeof resources.$inferInsert;
 /**
  * Resource feedback - community reports on resource status
  */
-export const resourceFeedback = sqliteTable("resource_feedback", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const resourceFeedback = pgTable("resource_feedback", {
+  id: serial("id").primaryKey(),
   resourceId: integer("resourceId").notNull().references(() => resources.id),
   userId: integer("userId").references(() => users.id),
 
@@ -233,7 +233,7 @@ export const resourceFeedback = sqliteTable("resource_feedback", {
   verifiedBy: integer("verifiedBy").references(() => users.id),
   verifiedAt: integer("verifiedAt"),
 
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   resourceIdx: index("resourceFeedback_resource_idx").on(table.resourceId),
   typeIdx: index("resourceFeedback_type_idx").on(table.feedbackType),
@@ -247,8 +247,8 @@ export type InsertResourceFeedback = typeof resourceFeedback.$inferInsert;
 /**
  * Interactive map pins (safe zones, resource locations, warnings)
  */
-export const mapPins = sqliteTable("map_pins", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const mapPins = pgTable("map_pins", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
   type: text("type").notNull(),
@@ -259,8 +259,8 @@ export const mapPins = sqliteTable("map_pins", {
   isApproved: integer("isApproved").default(0).notNull(),
   isFlagged: integer("isFlagged").default(0).notNull(),
   upvotes: integer("upvotes").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("mapPins_type_idx").on(table.type),
   approvedIdx: index("mapPins_approved_idx").on(table.isApproved),
@@ -273,13 +273,13 @@ export type InsertMapPin = typeof mapPins.$inferInsert;
 /**
  * Comments on map pins for real-time updates
  */
-export const pinComments = sqliteTable("pin_comments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const pinComments = pgTable("pin_comments", {
+  id: serial("id").primaryKey(),
   pinId: integer("pinId").notNull().references(() => mapPins.id, { onDelete: "cascade" }),
   authorId: integer("authorId").references(() => users.id),
   content: text("content").notNull(),
   isAnonymous: integer("isAnonymous").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   pinIdx: index("pinComments_pin_idx").on(table.pinId),
   createdIdx: index("pinComments_created_idx").on(table.createdAt),
@@ -291,8 +291,8 @@ export type InsertPinComment = typeof pinComments.$inferInsert;
 /**
  * Community forum posts
  */
-export const forumPosts = sqliteTable("forum_posts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const forumPosts = pgTable("forum_posts", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   category: text("category").notNull(),
@@ -303,8 +303,8 @@ export const forumPosts = sqliteTable("forum_posts", {
   upvotes: integer("upvotes").default(0).notNull(),
   viewCount: integer("viewCount").default(0).notNull(),
   replyCount: integer("replyCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   categoryIdx: index("forumPosts_category_idx").on(table.category),
   authorIdx: index("forumPosts_author_idx").on(table.authorId),
@@ -317,16 +317,16 @@ export type InsertForumPost = typeof forumPosts.$inferInsert;
 /**
  * Forum post replies (nested comments)
  */
-export const forumReplies = sqliteTable("forum_replies", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const forumReplies = pgTable("forum_replies", {
+  id: serial("id").primaryKey(),
   postId: integer("postId").notNull().references(() => forumPosts.id, { onDelete: "cascade" }),
   parentReplyId: integer("parentReplyId"), // For nested replies
   content: text("content").notNull(),
   authorId: integer("authorId").references(() => users.id),
   isAnonymous: integer("isAnonymous").default(0).notNull(),
   upvotes: integer("upvotes").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   postIdx: index("forumReplies_post_idx").on(table.postId),
   parentIdx: index("forumReplies_parent_idx").on(table.parentReplyId),
@@ -338,8 +338,8 @@ export type InsertForumReply = typeof forumReplies.$inferInsert;
 /**
  * Video library (curated YouTube videos)
  */
-export const videos = sqliteTable("videos", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const videos = pgTable("videos", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
   youtubeId: text("youtubeId").notNull(),
@@ -347,8 +347,8 @@ export const videos = sqliteTable("videos", {
   duration: integer("duration"), // in seconds
   thumbnailUrl: text("thumbnailUrl"),
   viewCount: integer("viewCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   categoryIdx: index("videos_category_idx").on(table.category),
 }));
@@ -359,12 +359,12 @@ export type InsertVideo = typeof videos.$inferInsert;
 /**
  * AI chat conversations
  */
-export const chatConversations = sqliteTable("chat_conversations", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const chatConversations = pgTable("chat_conversations", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").references(() => users.id),
   title: text("title"),
-  lastMessageAt: integer("lastMessageAt").default(sql`(unixepoch())`).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  lastMessageAt: integer("lastMessageAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userIdx: index("chatConversations_user_idx").on(table.userId),
 }));
@@ -375,12 +375,12 @@ export type InsertChatConversation = typeof chatConversations.$inferInsert;
 /**
  * AI chat messages
  */
-export const chatMessages = sqliteTable("chat_messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
   conversationId: integer("conversationId").notNull().references(() => chatConversations.id, { onDelete: "cascade" }),
   role: text("role").notNull(),
   content: text("content").notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   conversationIdx: index("chatMessages_conversation_idx").on(table.conversationId),
 }));
@@ -391,11 +391,11 @@ export type InsertChatMessage = typeof chatMessages.$inferInsert;
 /**
  * User favorites - bookmarked articles
  */
-export const favoriteArticles = sqliteTable("favorite_articles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const favoriteArticles = pgTable("favorite_articles", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   articleId: integer("articleId").notNull().references(() => articles.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userArticleIdx: index("favoriteArticles_user_article_idx").on(table.userId, table.articleId),
   uniqueUserArticle: index("favoriteArticles_unique_user_article").on(table.userId, table.articleId),
@@ -407,11 +407,11 @@ export type InsertFavoriteArticle = typeof favoriteArticles.$inferInsert;
 /**
  * User favorites - saved map pins
  */
-export const favoriteMapPins = sqliteTable("favorite_map_pins", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const favoriteMapPins = pgTable("favorite_map_pins", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   pinId: integer("pinId").notNull().references(() => mapPins.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userPinIdx: index("favoriteMapPins_user_pin_idx").on(table.userId, table.pinId),
   uniqueUserPin: index("favoriteMapPins_unique_user_pin").on(table.userId, table.pinId),
@@ -423,11 +423,11 @@ export type InsertFavoriteMapPin = typeof favoriteMapPins.$inferInsert;
 /**
  * User favorites - followed forum threads
  */
-export const followedThreads = sqliteTable("followed_threads", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const followedThreads = pgTable("followed_threads", {
+  id: serial("id").primaryKey(),
   userId: integer("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   postId: integer("postId").notNull().references(() => forumPosts.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userPostIdx: index("followedThreads_user_post_idx").on(table.userId, table.postId),
   uniqueUserPost: index("followedThreads_unique_user_post").on(table.userId, table.postId),
@@ -439,8 +439,8 @@ export type InsertFollowedThread = typeof followedThreads.$inferInsert;
 /**
  * Knowledge base documents (source files for RAG)
  */
-export const knowledgeDocuments = sqliteTable("knowledge_documents", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const knowledgeDocuments = pgTable("knowledge_documents", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   filename: text("filename").notNull(),
   filepath: text("filepath").notNull(),
@@ -449,8 +449,8 @@ export const knowledgeDocuments = sqliteTable("knowledge_documents", {
   summary: text("summary"),
   wordCount: integer("wordCount").default(0).notNull(),
   chunkCount: integer("chunkCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   categoryIdx: index("knowledgeDocuments_category_idx").on(table.category),
   filenameIdx: index("knowledgeDocuments_filename_idx").on(table.filename),
@@ -462,14 +462,14 @@ export type InsertKnowledgeDocument = typeof knowledgeDocuments.$inferInsert;
 /**
  * Knowledge base chunks (text segments with embeddings for semantic search)
  */
-export const knowledgeChunks = sqliteTable("knowledge_chunks", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const knowledgeChunks = pgTable("knowledge_chunks", {
+  id: serial("id").primaryKey(),
   documentId: integer("documentId").notNull().references(() => knowledgeDocuments.id, { onDelete: "cascade" }),
   chunkIndex: integer("chunkIndex").notNull(),
   content: text("content").notNull(),
   embedding: text("embedding"), // Store embedding vector as JSON string
   tokenCount: integer("tokenCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   documentIdx: index("knowledgeChunks_document_idx").on(table.documentId),
   documentChunkIdx: index("knowledgeChunks_document_chunk_idx").on(table.documentId, table.chunkIndex),
@@ -482,8 +482,8 @@ export type InsertKnowledgeChunk = typeof knowledgeChunks.$inferInsert;
 /**
  * Treatment centers - sober living, detox, and treatment facilities
  */
-export const treatmentCenters = sqliteTable("treatment_centers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const treatmentCenters = pgTable("treatment_centers", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   type: text("type").notNull(),
   address: text("address"),
@@ -514,13 +514,13 @@ export const treatmentCenters = sqliteTable("treatment_centers", {
   // Location coordinates for map
   latitude: real("latitude"),
   longitude: real("longitude"),
-  
+
   // Admin fields
   isVerified: integer("isVerified").default(0).notNull(),
   isPublished: integer("isPublished").default(1).notNull(),
   addedBy: integer("addedBy").references(() => users.id),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("treatmentCenters_type_idx").on(table.type),
   cityIdx: index("treatmentCenters_city_idx").on(table.city),
@@ -535,8 +535,8 @@ export type InsertTreatmentCenter = typeof treatmentCenters.$inferInsert;
 /**
  * Recovery meetings - AA, NA, CMA, SMART Recovery, etc.
  */
-export const meetings = sqliteTable("meetings", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const meetings = pgTable("meetings", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   type: text("type").notNull(), // 'aa', 'na', 'cma', 'smart', 'other'
 
@@ -572,8 +572,8 @@ export const meetings = sqliteTable("meetings", {
   // Metadata
   isVerified: integer("isVerified").default(0).notNull(),
   isPublished: integer("isPublished").default(1).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("meetings_type_idx").on(table.type),
   dayIdx: index("meetings_day_idx").on(table.dayOfWeek),
@@ -588,8 +588,8 @@ export type InsertMeeting = typeof meetings.$inferInsert;
 /**
  * Community events - resource fairs, workshops, support events
  */
-export const events = sqliteTable("events", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
 
@@ -643,8 +643,8 @@ export const events = sqliteTable("events", {
   isPublished: integer("isPublished").default(1).notNull(),
   isFeatured: integer("isFeatured").default(0).notNull(),
   viewCount: integer("viewCount").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("events_type_idx").on(table.eventType),
   categoryIdx: index("events_category_idx").on(table.category),
@@ -660,8 +660,8 @@ export type InsertEvent = typeof events.$inferInsert;
 /**
  * Medi-Cal Providers - doctors, clinics, and medical facilities that accept Medi-Cal
  */
-export const mediCalProviders = sqliteTable("medi_cal_providers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const mediCalProviders = pgTable("medi_cal_providers", {
+  id: serial("id").primaryKey(),
 
   // Provider information
   providerName: text("providerName").notNull(),
@@ -692,8 +692,8 @@ export const mediCalProviders = sqliteTable("medi_cal_providers", {
 
   // Metadata
   isVerified: integer("isVerified").default(0).notNull(),
-  createdAt: integer("createdAt").default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt").default(sql`(unixepoch())`).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   cityIdx: index("mediCal_city_idx").on(table.city),
   zipIdx: index("mediCal_zip_idx").on(table.zipCode),

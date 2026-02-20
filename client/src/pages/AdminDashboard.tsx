@@ -50,6 +50,8 @@ export default function AdminDashboard() {
   const [showArticleDialog, setShowArticleDialog] = useState(false);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showResourceDialog, setShowResourceDialog] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<any | null>(null);
+  const [deletingVideo, setDeletingVideo] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
@@ -121,6 +123,29 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast.error("Failed to add video");
+    },
+  });
+
+  const updateVideoMutation = trpc.videos.update.useMutation({
+    onSuccess: () => {
+      utils.videos.list.invalidate();
+      setEditingVideo(null);
+      setVideoForm({ title: "", description: "", youtubeId: "", category: "" });
+      toast.success("Video updated successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to update video");
+    },
+  });
+
+  const deleteVideoMutation = trpc.videos.delete.useMutation({
+    onSuccess: () => {
+      utils.videos.list.invalidate();
+      setDeletingVideo(null);
+      toast.success("Video deleted successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to delete video");
     },
   });
 
@@ -418,17 +443,39 @@ export default function AdminDashboard() {
                         key={video.id}
                         className="flex items-center justify-between rounded-lg border border-border p-4"
                       >
-                        <div>
+                        <div className="flex-1">
                           <h3 className="font-semibold text-card-foreground">{video.title}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {video.category} • {video.viewCount} views
+                            {video.category} • YouTube ID: {video.youtubeId} • {video.viewCount} views
                           </p>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" asChild>
-                            <a href={`/videos`}>
+                            <a href={`/videos`} target="_blank">
                               <Eye className="h-4 w-4" />
                             </a>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingVideo(video);
+                              setVideoForm({
+                                title: video.title,
+                                description: video.description || "",
+                                youtubeId: video.youtubeId,
+                                category: video.category,
+                              });
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setDeletingVideo(video)}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -815,7 +862,7 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Video Dialog */}
+      {/* Video Dialog (Add) */}
       <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
         <DialogContent>
           <DialogHeader>
@@ -899,6 +946,117 @@ export default function AdminDashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Video Dialog */}
+      <Dialog open={!!editingVideo} onOpenChange={(open) => !open && setEditingVideo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Video</DialogTitle>
+            <DialogDescription>
+              Update video information
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-video-title">Title</Label>
+              <Input
+                id="edit-video-title"
+                value={videoForm.title}
+                onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
+                placeholder="Video title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-video-youtube">YouTube Video ID</Label>
+              <Input
+                id="edit-video-youtube"
+                value={videoForm.youtubeId}
+                onChange={(e) => setVideoForm({ ...videoForm, youtubeId: e.target.value })}
+                placeholder="e.g., dQw4w9WgXcQ"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                The ID from the YouTube URL (youtube.com/watch?v=ID)
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="edit-video-category">Category</Label>
+              <Select
+                value={videoForm.category}
+                onValueChange={(value) => setVideoForm({ ...videoForm, category: value as typeof videoForm.category })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="how_to_guides">How-To Guides</SelectItem>
+                  <SelectItem value="legal_help">Legal Help</SelectItem>
+                  <SelectItem value="recovery_motivation">Recovery & Motivation</SelectItem>
+                  <SelectItem value="street_hacks">Street Hacks</SelectItem>
+                  <SelectItem value="mental_health">Mental Health</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-video-description">Description</Label>
+              <Textarea
+                id="edit-video-description"
+                value={videoForm.description}
+                onChange={(e) => setVideoForm({ ...videoForm, description: e.target.value })}
+                placeholder="Video description"
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setEditingVideo(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!videoForm.title || !videoForm.youtubeId || !videoForm.category) {
+                    toast.error("Please fill in all required fields");
+                    return;
+                  }
+                  updateVideoMutation.mutate({
+                    id: editingVideo.id,
+                    title: videoForm.title,
+                    description: videoForm.description,
+                    youtubeId: videoForm.youtubeId,
+                    category: videoForm.category as "how_to_guides" | "legal_help" | "recovery_motivation" | "street_hacks" | "mental_health",
+                  });
+                }}
+                disabled={updateVideoMutation.isPending}
+              >
+                {updateVideoMutation.isPending ? "Updating..." : "Update Video"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Video Confirmation */}
+      <AlertDialog open={!!deletingVideo} onOpenChange={(open) => !open && setDeletingVideo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Video</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingVideo?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingVideo) {
+                  deleteVideoMutation.mutate({ id: deletingVideo.id });
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Resource Dialog */}
       <Dialog open={showResourceDialog} onOpenChange={setShowResourceDialog}>

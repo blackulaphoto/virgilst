@@ -1,51 +1,52 @@
 ---
-description: Technical specification for AI assistance system implementation including context-aware chat, knowledge integration, and response handling
+description: Defines AI assistance system behavior, context awareness, and knowledge base integration for homeless services platform
 ---
 
 
 # ai-assistant-implementation
 
-## Core Chat System Implementation
-Importance Score: 95/100
+The AI assistance system consists of several interconnected components:
 
-Location: client/src/pages/Chat.tsx
+## Context-Aware Assistant
+Path: client/src/components/FloatingAIAssistant.tsx
+Importance Score: 85
+- Dynamically adapts responses based on current page context
+- Maintains awareness of user journey and navigation state 
+- Generates contextual greetings and suggestions based on viewed resources
+- Provides quick action shortcuts relevant to current section
 
-1. Context-Aware Response System
-- Domain-specific prompt templates tailored for social services
-- Custom context management preserving case-specific details
-- Multi-turn conversation tracking with service history 
-- Automatic citation generation from knowledge base sources
+## Chat Implementation
+Path: client/src/components/AIChatBox.tsx
+Importance Score: 90
+- Specialized message handling for social services domain
+- Context preservation across conversation sessions
+- Dynamic suggestion system based on user intent
+- Source attribution for knowledge base references
+- Privacy-aware data handling for sensitive information
 
-2. Knowledge Integration Engine
-Location: server/ragSearch.ts
-- Specialized embedding generation for social service documents
-- Domain-weighted relevance scoring for resource recommendations
-- Legal/social services content chunking with preservation of critical context
-- Citation tracking system linking responses to source materials
+## Knowledge Base Integration
+Path: server/knowledgeIngestion.ts
+Importance Score: 85
+- Domain-specific document categorization for social services
+- Custom chunking optimized for service provider information
+- Specialized embedding generation for legal/benefits content
+- Category-specific organization (housing, health, legal, benefits)
 
-3. Response Generation Pipeline
-Location: server/chatRouter.ts
-- Trauma-informed response templating
-- Service eligibility validation integration
-- Multi-tool orchestration for comprehensive assistance
-- Automatic resource recommendation injection
+## RAG Search System
+Path: server/ragSearch.ts
+Importance Score: 80
+- Specialized similarity search for social services knowledge
+- Custom ranking for service provider relevance
+- Context formatting optimized for social service queries
+- Prioritized local resource matching
 
-4. Chat State Management 
-Location: client/src/components/AIChatBox.tsx
-- Case continuity preservation across sessions
-- Specialized message history tracking for service referrals
-- Source citation rendering with reference linking
-- Service verification status tracking
-
-Key Domain Features:
-- Social services knowledge base integration
-- Legal aid context preservation
-- Service eligibility tracking
-- Citation and source verification
-- Case history maintenance
-- Trauma-informed response generation
-
-The system implements specialized logic for maintaining context across complex social service cases while ensuring accurate information delivery with proper source attribution.
+## AI Tools Framework
+Path: server/virgilTools.ts
+Importance Score: 75
+- Function definitions for social service assistance
+- Tiered search strategy prioritizing local resources
+- Domain-specific tool selection for assistance requests
+- Integration with case management system
 
 $END$
 

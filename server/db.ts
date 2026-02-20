@@ -569,6 +569,20 @@ export async function createVideo(video: InsertVideo) {
   return result[0];
 }
 
+export async function updateVideo(id: number, updates: Partial<InsertVideo>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(videos).set(updates).where(eq(videos.id, id));
+}
+
+export async function deleteVideo(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(videos).where(eq(videos.id, id));
+}
+
 // ============ CHAT HELPERS ============
 
 export async function getUserConversations(userId: number) {

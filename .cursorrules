@@ -10,56 +10,59 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The system implements specialized business logic for managing social services, treatment facilities, and community resources across several core domains:
+Core Platform Organization:
 
-## Resource Mapping and Verification (85/100)
-- Community resource mapping with specialized categorization systems
-- Multi-layer filtering for resource types with color-coding
-- Real-time pin approval and moderation workflow
-- Community-driven verification for location status
-- Crisis resource availability tracking
+1. Community Resource Mapping
+- Location-based pin system with moderated submissions
+- Resource categorization: safe zones, services, warnings, sweep alerts
+- Community verification through comment threading and upvoting
+Importance Score: 85
 
-## Treatment Facility Management (85/100)
-- Dual-mode filtering for sober living and treatment centers
-- Insurance acceptance validation (MediCal, Medicare, Private, RBH)
-- Population-specific facility matching (men, women, coed, LGBTQ+)
-- Treatment type compatibility matching
-- Geographic service area mapping
+2. Recovery Service Coordination
+- Multi-program meeting aggregation (AA, NA, CMA, SMART)
+- Accessibility classification system
+- Format handling: hybrid/online/in-person
+- Meeting recurrence management
+Importance Score: 80
 
-## Recovery Meeting Organization (85/100)
-- Program-specific meeting classification (AA/NA/CMA/SMART)
-- Anonymity-preserving attendance tracking
-- Meeting format categorization (in-person/online/hybrid)
-- Language support tracking (en, fa, ru, hy, es)
-- Accessibility requirements monitoring
-
-## Medical Provider Network (70/100)
-- Provider verification system
-- Specialty-based categorization
-- Insurance acceptance validation
-- Multi-language support tracking
+3. Healthcare Provider Network
+- Medical provider directory with specialty filtering
+- Verification status tracking system
 - Network affiliation management
+- Geographic service coverage mapping
+Importance Score: 75
 
-## Knowledge Management (85/100)
-- Domain-specific chunking for legal/social services content
-- Semantic search with service-weighted relevance
-- Case type-specific milestone tracking
-- Document requirement templates
-- Service eligibility validation
+4. Crisis Management System
+- AI case management with context awareness
+- Domain-specific resource recommendations
+- Source attribution and verification
+- Conversation history tracking
+Importance Score: 90
 
-## AI-Powered Case Management (85/100)
-- Context-aware responses for social services
-- Source citation and reference tracking
-- Domain-specific prompt templates
-- Knowledge base integration
-- Specialized conversation history management
+5. Treatment Matching Engine
+- Multi-criteria facility matching:
+  * Geographic constraints
+  * Insurance coverage
+  * Treatment requirements
+  * Population specifics
+- Progressive filtering system
+Importance Score: 85
 
-Core system components are integrated through:
-- Community trust scoring system
-- Anonymous reporting mechanisms
-- Social service eligibility validation
-- Service verification workflows
-- Crisis resource availability tracking
+6. Knowledge Management
+- Domain-specific document categorization
+- Legal/social services content organization
+- Intelligent content chunking
+- Custom embedding generation
+Importance Score: 90
+
+Integration Architecture:
+- Community-driven resource verification
+- Multi-service provider coordination
+- Location-based service discovery
+- Moderated content contribution
+- AI-assisted case routing
+
+Platform focuses on comprehensive social service coordination with strong emphasis on community verification, crisis response, and treatment accessibility.
 
 $END$
 
