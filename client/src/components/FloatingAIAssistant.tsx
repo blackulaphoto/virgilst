@@ -28,7 +28,7 @@ export default function FloatingAIAssistant() {
     onSuccess: (data: any) => {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.response },
+        { role: "assistant", content: data.message }, // Changed from data.response to data.message
       ]);
       // Store conversation ID from response
       if (data.conversationId && !conversationId) {
