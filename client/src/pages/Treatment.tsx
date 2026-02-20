@@ -25,8 +25,7 @@ export default function Treatment() {
     acceptsCouples: couplesOnly || undefined,
   });
 
-  const { data: treatmentCenters, isLoading: isLoadingTC } = trpc.treatmentCenters.list.useQuery({
-    type: selectedTreatmentType as any,
+  const { data: allTreatmentCenters, isLoading: isLoadingTC } = trpc.treatmentCenters.list.useQuery({
     city: selectedCity,
     servesPopulation: selectedPopulation as any,
     acceptsMediCal: mediCalOnly || undefined,
@@ -36,14 +35,28 @@ export default function Treatment() {
   const filteredSoberLiving = soberLivingCenters?.filter(center =>
     searchQuery === "" ||
     center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    center.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     center.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredTreatmentCenters = treatmentCenters?.filter(center =>
-    searchQuery === "" ||
-    center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    center.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter treatment centers: exclude sober living AND apply treatment type filter
+  const filteredTreatmentCenters = allTreatmentCenters?.filter(center => {
+    // Must NOT be sober living
+    if (center.type === "sober_living") return false;
+
+    // Apply treatment type filter if selected
+    if (selectedTreatmentType && center.type !== selectedTreatmentType) return false;
+
+    // Apply search query
+    if (searchQuery !== "" &&
+        !center.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !center.city?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !center.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    return true;
+  });
 
   const typeLabels: Record<string, string> = {
     sober_living: "Sober Living",
@@ -109,7 +122,7 @@ export default function Treatment() {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
                   <Input
-                    placeholder="Search by name or description..."
+                    placeholder="Search by name, city, or description..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 bg-zinc-800 border-zinc-700 text-white"
@@ -180,6 +193,9 @@ export default function Treatment() {
             </Card>
 
             {/* Results */}
+            <div className="text-sm text-zinc-400 mb-4">
+              {isLoadingSL ? "Loading..." : `${filteredSoberLiving?.length || 0} sober living facilities found`}
+            </div>
             {isLoadingSL ? (
               <div className="text-center py-12 text-zinc-400">Loading sober living facilities...</div>
             ) : filteredSoberLiving && filteredSoberLiving.length > 0 ? (
@@ -318,7 +334,7 @@ export default function Treatment() {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
                   <Input
-                    placeholder="Search by name or description..."
+                    placeholder="Search by name, city, or description..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 bg-zinc-800 border-zinc-700 text-white"
@@ -405,6 +421,9 @@ export default function Treatment() {
             </Card>
 
             {/* Results */}
+            <div className="text-sm text-zinc-400 mb-4">
+              {isLoadingTC ? "Loading..." : `${filteredTreatmentCenters?.length || 0} treatment centers found`}
+            </div>
             {isLoadingTC ? (
               <div className="text-center py-12 text-zinc-400">Loading treatment centers...</div>
             ) : filteredTreatmentCenters && filteredTreatmentCenters.length > 0 ? (
