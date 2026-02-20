@@ -1,4 +1,4 @@
-import { eq, desc, and, like, or, sql, inArray } from "drizzle-orm";
+import { eq, desc, and, like, ilike, or, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -966,12 +966,13 @@ export async function getAllTreatmentCenters(filters?: {
   if (!db) return [];
 
   const conditions = [eq(treatmentCenters.isPublished, 1)];
-  
+
   if (filters?.type) {
     conditions.push(eq(treatmentCenters.type, filters.type as any));
   }
   if (filters?.city) {
-    conditions.push(like(treatmentCenters.city, `%${filters.city}%`));
+    // Use ilike for case-insensitive city search
+    conditions.push(ilike(treatmentCenters.city, `%${filters.city}%`));
   }
   if (filters?.acceptsMediCal !== undefined) {
     conditions.push(eq(treatmentCenters.acceptsMediCal, filters.acceptsMediCal ? 1 : 0));
