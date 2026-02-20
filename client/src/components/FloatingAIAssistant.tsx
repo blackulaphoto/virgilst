@@ -30,9 +30,14 @@ export default function FloatingAIAssistant() {
         ...prev,
         { role: "assistant", content: data.response },
       ]);
+      // Store conversation ID from response
+      if (data.conversationId && !conversationId) {
+        setConversationId(data.conversationId);
+      }
     },
     onError: (error: any) => {
       toast.error(`Error: ${error.message}`);
+      console.error("Chat error:", error);
     },
   });
 
@@ -81,14 +86,14 @@ export default function FloatingAIAssistant() {
     const contextMessage = `[User is currently on: ${location}]\n\n${userMessage}`;
 
     // Send to backend
-    chatMutation.mutate({
-      message: contextMessage,
-      conversationId: conversationId || undefined,
-    });
-
-    // Store conversation ID if this is the first message
-    if (!conversationId && chatMutation.data?.conversationId) {
-      setConversationId(chatMutation.data.conversationId);
+    try {
+      chatMutation.mutate({
+        message: contextMessage,
+        conversationId: conversationId || undefined,
+      });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message. Please try again.");
     }
   };
 
