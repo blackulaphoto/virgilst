@@ -111,21 +111,34 @@ export default function Jobs() {
   const [location, setLocation] = useState("Los Angeles, CA");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [displayedResults, setDisplayedResults] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const RESULTS_PER_PAGE = 20;
 
   const utils = trpc.useUtils();
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
+    setPage(1);
     try {
-      const data = await utils.client.jobs.search.query({ query, location, limit: 20 });
+      const data = await utils.client.jobs.search.query({ query, location, limit: 100 });
       setSearchResults(data.jobs);
+      setDisplayedResults(data.jobs.slice(0, RESULTS_PER_PAGE));
       toast.success(data.fromCache ? "Loaded from cache" : `Found ${data.jobs.length} jobs`);
     } catch (error: any) {
       toast.error(`Search failed: ${error.message}`);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * RESULTS_PER_PAGE;
+    setDisplayedResults(searchResults.slice(startIndex, endIndex));
+    setPage(nextPage);
   };
 
   const handleCategoryClick = (category: typeof jobCategories[0]) => {
@@ -236,14 +249,16 @@ export default function Jobs() {
           <>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold">
-                {searchResults.length} Jobs Found
+                {searchResults.length} Jobs Found {displayedResults.length < searchResults.length && `(Showing ${displayedResults.length})`}
               </h2>
               <Button
                 variant="outline"
                 onClick={() => {
                   setSearchResults([]);
+                  setDisplayedResults([]);
                   setSearchQuery("");
                   setSelectedCategory(null);
+                  setPage(1);
                 }}
               >
                 Clear Results
@@ -251,7 +266,7 @@ export default function Jobs() {
             </div>
 
             <div className="space-y-4">
-              {searchResults.map((job: any, index: number) => (
+              {displayedResults.map((job: any, index: number) => (
                 <Card key={job.externalId || index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -323,6 +338,19 @@ export default function Jobs() {
                 </Card>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {displayedResults.length < searchResults.length && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={handleLoadMore}
+                  size="lg"
+                  variant="outline"
+                >
+                  Load More Jobs ({searchResults.length - displayedResults.length} remaining)
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>

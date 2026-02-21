@@ -243,7 +243,10 @@ const categoryDefinitions: Record<string, {
 export default function JobCategory() {
   const { category } = useParams<{ category: string }>();
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [displayedResults, setDisplayedResults] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const RESULTS_PER_PAGE = 20;
 
   const utils = trpc.useUtils();
 
@@ -259,18 +262,28 @@ export default function JobCategory() {
     if (!categoryData) return;
 
     setIsLoading(true);
+    setPage(1);
     try {
       const data = await utils.client.jobs.search.query({
         query: categoryData.query,
         location: "Los Angeles, CA",
-        limit: 20
+        limit: 100
       });
       setSearchResults(data.jobs);
+      setDisplayedResults(data.jobs.slice(0, RESULTS_PER_PAGE));
     } catch (error: any) {
       toast.error(`Failed to load jobs: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * RESULTS_PER_PAGE;
+    setDisplayedResults(searchResults.slice(startIndex, endIndex));
+    setPage(nextPage);
   };
 
   if (!categoryData) {
@@ -396,7 +409,7 @@ export default function JobCategory() {
         {/* Job Listings */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-4">
-            Current {categoryData.h1} ({searchResults.length} positions)
+            Current {categoryData.h1} ({searchResults.length} positions{displayedResults.length < searchResults.length ? `, showing ${displayedResults.length}` : ''})
           </h2>
         </div>
 
@@ -405,8 +418,9 @@ export default function JobCategory() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : searchResults.length > 0 ? (
-          <div className="space-y-4">
-            {searchResults.map((job: any, index: number) => (
+          <>
+            <div className="space-y-4">
+              {displayedResults.map((job: any, index: number) => (
               <Card key={job.externalId || index} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -477,7 +491,21 @@ export default function JobCategory() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+            </div>
+
+            {/* Load More Button */}
+            {displayedResults.length < searchResults.length && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={handleLoadMore}
+                  size="lg"
+                  variant="outline"
+                >
+                  Load More Jobs ({searchResults.length - displayedResults.length} remaining)
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
