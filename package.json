@@ -18,7 +18,9 @@
     "index-knowledge": "tsx server/scripts/indexKnowledge.ts",
     "db:export:snapshot": "tsx scripts/export-db-snapshot.ts",
     "db:import:snapshot": "tsx scripts/import-db-snapshot.ts",
-    "db:import:snapshot:safe": "tsx scripts/import-db-snapshot.ts"
+    "db:import:snapshot:safe": "tsx scripts/import-db-snapshot.ts",
+    "medi-cal:import:postgres": "tsx scripts/import-medi-cal-providers-postgres.ts",
+    "medi-cal:ensure-indexes": "tsx scripts/ensure-medi-cal-provider-indexes.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

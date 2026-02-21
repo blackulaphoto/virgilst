@@ -20,6 +20,7 @@ import {
   meetings,
   events,
   mediCalProviders,
+  providerCategories,
   type Article,
   type Resource,
   type MapPin,
@@ -47,6 +48,12 @@ import {
   type InsertChatMessage,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import {
+  MEDI_CAL_CATEGORY_DEFS,
+  type MediCalCategoryKey,
+  expandMediCalSearchTerms,
+  isValidMediCalCategory,
+} from "../shared/mediCalTaxonomy";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -1312,6 +1319,7 @@ export async function searchResources(query: string, limit: number = 50): Promis
 export async function getMediCalProviders(filters: {
   city?: string;
   specialty?: string;
+  category?: string;
   language?: string;
   zipCode?: string;
   gender?: string;
@@ -1321,14 +1329,19 @@ export async function getMediCalProviders(filters: {
   const db = await getDb();
   if (!db) return [];
 
-  const conditions = [];
+  const conditions: any[] = [];
 
   if (filters.city) {
     conditions.push(ilike(mediCalProviders.city, `%${filters.city}%`));
   }
 
   if (filters.specialty) {
-    conditions.push(ilike(mediCalProviders.specialties, `%${filters.specialty}%`));
+    conditions.push(
+      or(
+        ilike(mediCalProviders.specialties, `%${filters.specialty}%`),
+        ilike(mediCalProviders.normalizedSpecialties, `%${filters.specialty}%`)
+      )
+    );
   }
 
   if (filters.language) {
@@ -1341,6 +1354,17 @@ export async function getMediCalProviders(filters: {
 
   if (filters.gender) {
     conditions.push(eq(mediCalProviders.gender, filters.gender));
+  }
+
+  if (isValidMediCalCategory(filters.category)) {
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1
+        FROM ${providerCategories}
+        WHERE ${providerCategories.providerId} = ${mediCalProviders.id}
+          AND ${providerCategories.categoryKey} = ${filters.category}
+      )`
+    );
   }
 
   let query = db
@@ -1367,19 +1391,23 @@ export async function getMediCalProviders(filters: {
 
 export async function searchMediCalProviders(
   query: string,
+  category?: string,
+  city?: string,
   limit: number = 100,
   offset: number = 0
 ): Promise<MediCalProvider[]> {
   const db = await getDb();
   if (!db) return [];
 
-  const terms = tokenizeSearchTerms(query);
+  const terms = Array.from(new Set([...tokenizeSearchTerms(query), ...expandMediCalSearchTerms(query)]));
   const tokenConditions = terms.map(term =>
     or(
       ilike(mediCalProviders.providerName, `%${term}%`),
       ilike(mediCalProviders.facilityName, `%${term}%`),
       ilike(mediCalProviders.city, `%${term}%`),
       ilike(mediCalProviders.specialties, `%${term}%`),
+      ilike(mediCalProviders.normalizedSpecialties, `%${term}%`),
+      ilike(mediCalProviders.searchTerms, `%${term}%`),
       ilike(mediCalProviders.address, `%${term}%`),
       ilike(mediCalProviders.zipCode, `%${term}%`),
       ilike(mediCalProviders.npi, `%${term}%`)
@@ -1393,19 +1421,40 @@ export async function searchMediCalProviders(
           ilike(mediCalProviders.facilityName, `%${query}%`),
           ilike(mediCalProviders.city, `%${query}%`),
           ilike(mediCalProviders.specialties, `%${query}%`),
+          ilike(mediCalProviders.normalizedSpecialties, `%${query}%`),
+          ilike(mediCalProviders.searchTerms, `%${query}%`),
           ...tokenConditions
         )
       : or(
           ilike(mediCalProviders.providerName, `%${query}%`),
           ilike(mediCalProviders.facilityName, `%${query}%`),
           ilike(mediCalProviders.city, `%${query}%`),
-          ilike(mediCalProviders.specialties, `%${query}%`)
+          ilike(mediCalProviders.specialties, `%${query}%`),
+          ilike(mediCalProviders.normalizedSpecialties, `%${query}%`),
+          ilike(mediCalProviders.searchTerms, `%${query}%`)
         );
+
+  const conditions: any[] = [textMatcher];
+
+  if (city) {
+    conditions.push(ilike(mediCalProviders.city, `%${city}%`));
+  }
+
+  if (isValidMediCalCategory(category)) {
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1
+        FROM ${providerCategories}
+        WHERE ${providerCategories.providerId} = ${mediCalProviders.id}
+          AND ${providerCategories.categoryKey} = ${category}
+      )`
+    );
+  }
 
   const results = await db
     .select()
     .from(mediCalProviders)
-    .where(textMatcher)
+    .where(and(...conditions))
     .orderBy(mediCalProviders.city, mediCalProviders.providerName)
     .limit(limit)
     .offset(offset);
@@ -1443,17 +1492,30 @@ export async function getMediCalSpecialties(): Promise<string[]> {
   if (!db) return [];
 
   const results = await db
-    .select({ specialties: mediCalProviders.specialties })
+    .select({
+      specialties: mediCalProviders.specialties,
+      normalizedSpecialties: mediCalProviders.normalizedSpecialties,
+    })
     .from(mediCalProviders)
-    .where(sql`${mediCalProviders.specialties} IS NOT NULL AND ${mediCalProviders.specialties} != '[]'`);
+    .where(
+      sql`(${mediCalProviders.specialties} IS NOT NULL AND ${mediCalProviders.specialties} != '[]')
+           OR (${mediCalProviders.normalizedSpecialties} IS NOT NULL AND ${mediCalProviders.normalizedSpecialties} != '[]')`
+    );
 
   const specialtiesSet = new Set<string>();
 
   for (const row of results) {
     try {
-      const parsed = JSON.parse(row.specialties || '[]');
-      if (Array.isArray(parsed)) {
-        parsed.forEach(s => specialtiesSet.add(s));
+      const normalizedParsed = JSON.parse(row.normalizedSpecialties || "[]");
+      if (Array.isArray(normalizedParsed)) {
+        normalizedParsed.forEach(s => specialtiesSet.add(String(s)));
+      }
+
+      if (normalizedParsed.length === 0) {
+        const parsed = JSON.parse(row.specialties || "[]");
+        if (Array.isArray(parsed)) {
+          parsed.forEach(s => specialtiesSet.add(String(s)));
+        }
       }
     } catch (e) {
       // Skip invalid JSON
@@ -1461,6 +1523,34 @@ export async function getMediCalSpecialties(): Promise<string[]> {
   }
 
   return Array.from(specialtiesSet).sort();
+}
+
+export async function getMediCalCategories(): Promise<Array<{ key: MediCalCategoryKey; label: string; count: number }>> {
+  const db = await getDb();
+  if (!db) {
+    return MEDI_CAL_CATEGORY_DEFS.map(category => ({
+      key: category.key,
+      label: category.label,
+      count: 0,
+    }));
+  }
+
+  const rows = await db
+    .select({
+      key: providerCategories.categoryKey,
+      count: sql<number>`count(distinct ${providerCategories.providerId})`.as("count"),
+    })
+    .from(providerCategories)
+    .groupBy(providerCategories.categoryKey);
+
+  const countMap = new Map<string, number>();
+  rows.forEach(row => countMap.set(String(row.key), Number(row.count || 0)));
+
+  return MEDI_CAL_CATEGORY_DEFS.map(category => ({
+    key: category.key,
+    label: category.label,
+    count: countMap.get(category.key) || 0,
+  }));
 }
 
 // ============ ADMIN FUNCTIONS ============

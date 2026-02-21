@@ -29,6 +29,7 @@ const TABLE_IMPORT_PRIORITY: Record<string, number> = {
   meetings: 40,
   events: 40,
   medi_cal_providers: 40,
+  provider_categories: 45,
   videos: 40,
   knowledge_documents: 50,
   chat_conversations: 60,

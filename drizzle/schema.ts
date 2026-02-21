@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, real, index, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, real, index, boolean, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 /**
@@ -681,6 +681,8 @@ export const mediCalProviders = pgTable("medi_cal_providers", {
 
   // Medical info
   specialties: text("specialties"), // JSON array of specialties
+  normalizedSpecialties: text("normalizedSpecialties"), // JSON array of normalized specialties
+  searchTerms: text("searchTerms"), // flattened searchable terms and synonyms
   gender: text("gender"),
   languagesSpoken: text("languagesSpoken"), // JSON array
   boardCertifications: text("boardCertifications"), // JSON array
@@ -702,3 +704,17 @@ export const mediCalProviders = pgTable("medi_cal_providers", {
 
 export type MediCalProvider = typeof mediCalProviders.$inferSelect;
 export type InsertMediCalProvider = typeof mediCalProviders.$inferInsert;
+
+export const providerCategories = pgTable("provider_categories", {
+  id: serial("id").primaryKey(),
+  providerId: integer("providerId").notNull().references(() => mediCalProviders.id, { onDelete: "cascade" }),
+  categoryKey: text("categoryKey").notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  providerIdx: index("providerCategories_provider_idx").on(table.providerId),
+  categoryIdx: index("providerCategories_category_idx").on(table.categoryKey),
+  providerCategoryUniqueIdx: uniqueIndex("providerCategories_unique_provider_category_idx").on(table.providerId, table.categoryKey),
+}));
+
+export type ProviderCategory = typeof providerCategories.$inferSelect;
+export type InsertProviderCategory = typeof providerCategories.$inferInsert;

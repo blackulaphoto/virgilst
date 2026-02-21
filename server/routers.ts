@@ -76,7 +76,7 @@ async function buildForcedResourceContext(query: string): Promise<ForcedContext>
     await Promise.all([
       db.searchTreatmentCenters(query),
       db.searchResources(query, 40),
-      db.searchMediCalProviders(query, 40, 0),
+      db.searchMediCalProviders(query, undefined, undefined, 40, 0),
       searchGoogle(`${localityHint} California`, 5),
     ]);
 
@@ -1268,6 +1268,7 @@ export const appRouter = router({
       .input(z.object({
         city: z.string().optional(),
         specialty: z.string().optional(),
+        category: z.string().optional(),
         language: z.string().optional(),
         zipCode: z.string().optional(),
         gender: z.string().optional(),
@@ -1275,17 +1276,42 @@ export const appRouter = router({
         offset: z.number().optional(),
       }))
       .query(async ({ input }) => {
-        return await db.getMediCalProviders(input);
+        const providers = await db.getMediCalProviders(input);
+        if (input.category) {
+          console.info("[mediCalProviders:list] category_filter", {
+            category: input.category,
+            city: input.city ?? null,
+            specialty: input.specialty ?? null,
+            count: providers.length,
+          });
+        }
+        return providers;
       }),
 
     search: publicProcedure
       .input(z.object({
         query: z.string(),
+        category: z.string().optional(),
+        city: z.string().optional(),
         limit: z.number().optional(),
         offset: z.number().optional(),
       }))
       .query(async ({ input }) => {
-        return await db.searchMediCalProviders(input.query, input.limit, input.offset);
+        const providers = await db.searchMediCalProviders(
+          input.query,
+          input.category,
+          input.city,
+          input.limit,
+          input.offset
+        );
+        if (providers.length === 0) {
+          console.info("[mediCalProviders:search] zero_results", {
+            query: input.query,
+            category: input.category ?? null,
+            city: input.city ?? null,
+          });
+        }
+        return providers;
       }),
 
     getById: publicProcedure
@@ -1302,6 +1328,11 @@ export const appRouter = router({
     specialties: publicProcedure
       .query(async () => {
         return await db.getMediCalSpecialties();
+      }),
+
+    categories: publicProcedure
+      .query(async () => {
+        return await db.getMediCalCategories();
       }),
   }),
 

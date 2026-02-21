@@ -14,8 +14,10 @@ import {
   Building2,
   Search,
   Filter,
+  X,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { MEDI_CAL_CATEGORY_DEFS, type MediCalCategoryKey } from "@shared/mediCalTaxonomy";
 
 export default function MediCalProviders() {
   const { city } = useParams<{ city?: string }>();
@@ -33,6 +35,7 @@ export default function MediCalProviders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState(initialCity);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<MediCalCategoryKey | "">("");
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -43,17 +46,30 @@ export default function MediCalProviders() {
   const { data: providers = [], isLoading } = searchQuery
     ? trpc.mediCalProviders.search.useQuery({
         query: searchQuery,
+        category: selectedCategory || undefined,
+        city: selectedCity || undefined,
         limit: 100,
       })
     : trpc.mediCalProviders.list.useQuery({
         city: selectedCity || undefined,
         specialty: selectedSpecialty || undefined,
+        category: selectedCategory || undefined,
         limit: 100,
       });
 
   // Fetch filter options
   const { data: cities = [] } = trpc.mediCalProviders.cities.useQuery();
   const { data: specialties = [] } = trpc.mediCalProviders.specialties.useQuery();
+  const { data: categoryCounts = [] } = trpc.mediCalProviders.categories.useQuery();
+
+  const resolvedCategories = MEDI_CAL_CATEGORY_DEFS.map(def => {
+    const fromApi = categoryCounts.find(category => category.key === def.key);
+    return {
+      key: def.key,
+      label: def.label,
+      count: fromApi?.count ?? 0,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,6 +100,30 @@ export default function MediCalProviders() {
       {/* Search & Filters */}
       <div className="border-b border-border bg-card/50">
         <div className="container py-4 space-y-3">
+          {/* Category Navigation */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Browse by Category</p>
+            <div className="flex flex-wrap gap-2">
+              {resolvedCategories.map((category) => (
+                <Button
+                  key={category.key}
+                  type="button"
+                  variant={selectedCategory === category.key ? "default" : "outline"}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => {
+                    setSelectedCategory(prev => (prev === category.key ? "" : category.key));
+                  }}
+                >
+                  <span>{category.label}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {category.count}
+                  </Badge>
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -106,26 +146,57 @@ export default function MediCalProviders() {
             >
               <Filter className="h-4 w-4" />
               Filters
-              {(selectedCity || selectedSpecialty) && (
+              {(selectedCity || selectedSpecialty || selectedCategory) && (
                 <Badge variant="secondary" className="ml-1">
-                  {[selectedCity, selectedSpecialty].filter(Boolean).length}
+                  {[selectedCity, selectedSpecialty, selectedCategory].filter(Boolean).length}
                 </Badge>
               )}
             </Button>
 
-            {(selectedCity || selectedSpecialty) && (
+            {(selectedCity || selectedSpecialty || selectedCategory) && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
                   setSelectedCity("");
                   setSelectedSpecialty("");
+                  setSelectedCategory("");
+                  setSearchQuery("");
                 }}
               >
                 Clear All
               </Button>
             )}
           </div>
+
+          {(selectedCategory || selectedCity || selectedSpecialty || searchQuery) && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {selectedCategory && (
+                <Badge variant="secondary" className="gap-1">
+                  Category: {resolvedCategories.find(c => c.key === selectedCategory)?.label || selectedCategory}
+                  <button type="button" onClick={() => setSelectedCategory("")} aria-label="Clear category">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedCity && (
+                <Badge variant="secondary" className="gap-1">
+                  City: {selectedCity}
+                  <button type="button" onClick={() => setSelectedCity("")} aria-label="Clear city">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedSpecialty && (
+                <Badge variant="secondary" className="gap-1">
+                  Specialty: {selectedSpecialty}
+                  <button type="button" onClick={() => setSelectedSpecialty("")} aria-label="Clear specialty">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          )}
 
           {/* Filter Options */}
           {showFilters && (
@@ -185,8 +256,8 @@ export default function MediCalProviders() {
             <Stethoscope className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <p className="text-lg font-medium mb-2">No providers found</p>
             <p className="text-muted-foreground">
-              {searchQuery || selectedCity || selectedSpecialty
-                ? "Try adjusting your search or filters"
+              {searchQuery || selectedCity || selectedSpecialty || selectedCategory
+                ? "Try another category, city, specialty, or search term"
                 : "No providers available"}
             </p>
           </Card>
