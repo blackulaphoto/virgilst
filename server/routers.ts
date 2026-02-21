@@ -1744,7 +1744,7 @@ export const appRouter = router({
       }),
 
     // Track job application
-    apply: protectedProcedure
+    trackApplication: protectedProcedure
       .input(z.object({
         jobId: z.number().optional(),
         company: z.string(),

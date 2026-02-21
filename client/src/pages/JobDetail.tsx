@@ -43,7 +43,7 @@ export default function JobDetail() {
 
   const { data: user } = trpc.auth.me.useQuery();
 
-  const trackApplicationMutation = trpc.jobs.apply.useMutation({
+  const trackApplicationMutation = trpc.jobs.trackApplication.useMutation({
     onSuccess: () => {
       toast.success("Application tracked successfully!");
       setTrackDialogOpen(false);
