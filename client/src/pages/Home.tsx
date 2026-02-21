@@ -143,8 +143,14 @@ export default function Home() {
             <Link href="/medical-providers/los-angeles">
               <Button variant="outline" className="w-full justify-start">Los Angeles Medi-Cal Providers</Button>
             </Link>
-            <Link href="/jobs">
-              <Button variant="outline" className="w-full justify-start">Job Search - Entry Level & Immediate Hire</Button>
+            <Link href="/jobs/category/entry-level">
+              <Button variant="outline" className="w-full justify-start">Entry Level Jobs Los Angeles - No Experience</Button>
+            </Link>
+            <Link href="/jobs/category/warehouse">
+              <Button variant="outline" className="w-full justify-start">Warehouse Jobs Los Angeles - Immediate Hire</Button>
+            </Link>
+            <Link href="/jobs/category/delivery">
+              <Button variant="outline" className="w-full justify-start">Delivery Driver Jobs Los Angeles</Button>
             </Link>
           </div>
         </div>

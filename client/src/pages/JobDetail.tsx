@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import {
   Dialog,
   DialogContent,
@@ -100,8 +101,57 @@ export default function JobDetail() {
     );
   }
 
+  // Generate JobPosting schema markup for SEO
+  const jobPostingSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description || `${job.title} position at ${job.company} in ${job.location}`,
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": job.company,
+      "value": job.externalId || job.id.toString()
+    },
+    "datePosted": job.createdAt,
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company,
+      "sameAs": job.sourceUrl || undefined
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.location
+      }
+    },
+    "baseSalary": job.salary ? {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": {
+        "@type": "QuantitativeValue",
+        "value": job.salary,
+        "unitText": "YEAR"
+      }
+    } : undefined,
+    "employmentType": job.employmentType?.toUpperCase() || "FULL_TIME",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "US"
+    },
+    "jobLocationType": "TELECOMMUTE",
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{job.title} - {job.company} | Virgil St Jobs</title>
+        <meta name="description" content={`${job.title} at ${job.company} in ${job.location}. ${job.description?.substring(0, 150) || 'Apply now on Virgil St.'}`} />
+        <script type="application/ld+json">
+          {JSON.stringify(jobPostingSchema)}
+        </script>
+      </Helmet>
+
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-4">

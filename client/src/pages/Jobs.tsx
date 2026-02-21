@@ -206,25 +206,25 @@ export default function Jobs() {
               {jobCategories.map((category) => {
                 const Icon = category.icon;
                 return (
-                  <Card
-                    key={category.id}
-                    className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
-                      selectedCategory === category.id
-                        ? category.borderColor
-                        : "border-border"
-                    }`}
-                    onClick={() => handleCategoryClick(category)}
-                  >
-                    <CardHeader>
-                      <div className={`w-12 h-12 rounded-lg ${category.bgColor} flex items-center justify-center mb-2`}>
-                        <Icon className={`w-6 h-6 ${category.color}`} />
-                      </div>
-                      <CardTitle className="text-lg">{category.title}</CardTitle>
-                      <CardDescription className="text-sm">
-                        {category.description}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
+                  <Link key={category.id} href={`/jobs/category/${category.id}`}>
+                    <Card
+                      className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
+                        selectedCategory === category.id
+                          ? category.borderColor
+                          : "border-border"
+                      }`}
+                    >
+                      <CardHeader>
+                        <div className={`w-12 h-12 rounded-lg ${category.bgColor} flex items-center justify-center mb-2`}>
+                          <Icon className={`w-6 h-6 ${category.color}`} />
+                        </div>
+                        <CardTitle className="text-lg">{category.title}</CardTitle>
+                        <CardDescription className="text-sm">
+                          {category.description}
+                        </CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>

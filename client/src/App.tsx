@@ -31,6 +31,7 @@ import Onboarding from "./pages/Onboarding";
 import Calendar from "./pages/Calendar";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
+import JobCategory from "./pages/JobCategory";
 import FloatingAIAssistant from "./components/FloatingAIAssistant";
 
 function Router() {
@@ -62,6 +63,7 @@ function Router() {
       <Route path="/medical-providers/:city" component={MediCalProviders} />
       <Route path="/medical-providers" component={MediCalProviders} />
       <Route path="/map" component={Map} />
+      <Route path="/jobs/category/:category" component={JobCategory} />
       <Route path="/jobs/:slug" component={JobDetail} />
       <Route path="/jobs" component={Jobs} />
       <Route path={"/favorites"} component={Favorites} />
