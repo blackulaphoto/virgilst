@@ -315,18 +315,22 @@ export default function Jobs() {
                       )}
 
                       <div className="flex gap-2">
-                        {job.applyLink && (
-                          <Button size="sm" asChild>
-                            <a
-                              href={job.applyLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Apply Now
-                              <ExternalLink className="w-3 h-3 ml-2" />
-                            </a>
-                          </Button>
-                        )}
+                        <Button size="sm" asChild>
+                          <a
+                            href={
+                              job.applyLink ||
+                              job.sourceUrl ||
+                              `https://www.google.com/search?q=${encodeURIComponent(
+                                `${job.title} ${job.company} ${job.location} jobs`
+                              )}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {job.applyLink ? "Apply Now" : "Find Posting"}
+                            <ExternalLink className="w-3 h-3 ml-2" />
+                          </a>
+                        </Button>
                         <Button size="sm" variant="outline" asChild>
                           <Link href={`/jobs/${job.slug}`}>
                             <a>View Details</a>

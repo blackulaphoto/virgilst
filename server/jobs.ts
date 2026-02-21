@@ -11,6 +11,13 @@ interface SerpAPIJobResult {
   description?: string;
   job_id?: string;
   apply_link?: string;
+  share_link?: string;
+  related_links?: Array<{
+    link?: string;
+  }>;
+  apply_options?: Array<{
+    link?: string;
+  }>;
   detected_extensions?: {
     posted_at?: string;
     schedule_type?: string;
@@ -44,6 +51,7 @@ export interface JobListing {
   postedDate: string | null;
   searchQuery: string;
   searchLocation: string | null;
+  sourceUrl?: string | null;
 }
 
 /**
@@ -114,6 +122,11 @@ export async function searchJobs(params: JobSearchParams): Promise<JobListing[]>
           continue;
         }
 
+        const applyOptionLink = job.apply_options?.find((opt) => !!opt.link)?.link || null;
+        const relatedLink = job.related_links?.find((item) => !!item.link)?.link || null;
+        const sourceUrl = job.share_link || relatedLink || null;
+        const applyLink = job.apply_link || applyOptionLink || sourceUrl || null;
+
         seenIds.add(stableId);
         listings.push({
           title: job.title,
@@ -123,10 +136,11 @@ export async function searchJobs(params: JobSearchParams): Promise<JobListing[]>
           employmentType: job.detected_extensions?.schedule_type || null,
           salary: job.detected_extensions?.salary || null,
           externalId: job.job_id || `serp-${Date.now()}-${Math.random()}`,
-          applyLink: job.apply_link || null,
+          applyLink,
           postedDate: job.detected_extensions?.posted_at || null,
           searchQuery: query,
           searchLocation: location,
+          sourceUrl,
         });
 
         if (listings.length >= requestedLimit) {

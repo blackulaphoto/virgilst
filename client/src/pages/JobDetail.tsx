@@ -101,6 +101,11 @@ export default function JobDetail() {
     );
   }
 
+  const fallbackSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+    `${job.title} ${job.company} ${job.location} jobs`
+  )}`;
+  const outboundUrl = job.applyLink || job.sourceUrl || fallbackSearchUrl;
+
   // Generate JobPosting schema markup for SEO
   const jobPostingSchema = {
     "@context": "https://schema.org",
@@ -206,18 +211,16 @@ export default function JobDetail() {
 
           <CardContent className="pt-6">
             <div className="flex gap-2">
-              {job.applyLink && (
-                <Button size="lg" asChild>
-                  <a
-                    href={job.applyLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Apply Now
-                    <ExternalLink className="w-4 h-4 ml-2" />
-                  </a>
-                </Button>
-              )}
+              <Button size="lg" asChild>
+                <a
+                  href={outboundUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {job.applyLink ? "Apply Now" : "Find Original Posting"}
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </a>
+              </Button>
 
               {user && (
                 <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
