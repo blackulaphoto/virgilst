@@ -6,6 +6,7 @@ import { Route, Switch } from "wouter";
 import { useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { HelmetProvider } from "react-helmet-async";
 import { useSeo } from "./lib/seo";
 import { buildSeoConfig } from "./lib/seoConfig";
 import Home from "./pages/Home";
@@ -81,16 +82,18 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="dark"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <FloatingAIAssistant />
-        </TooltipProvider>
-      </ThemeProvider>
+      <HelmetProvider>
+        <ThemeProvider
+          defaultTheme="dark"
+          // switchable
+        >
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+            <FloatingAIAssistant />
+          </TooltipProvider>
+        </ThemeProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }
