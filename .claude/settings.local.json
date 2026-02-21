@@ -50,7 +50,13 @@
       "Bash($env:DATABASE_URL='postgresql://postgres:iUQSAitUaXcQQbLsHKuSbhilZkXQkVnM@metro.proxy.rlwy.net:37297/railway')",
       "Bash(del .env.backup .env.temp)",
       "Bash(pnpm run check:client:*)",
-      "Bash(bash -c 'export $(cat .env | grep -v \"\"^#\"\" | xargs) && node check-cities.js')"
+      "Bash(bash -c 'export $(cat .env | grep -v \"\"^#\"\" | xargs) && node check-cities.js')",
+      "Bash(railway:*)",
+      "Bash(if [ -f .env ])",
+      "Bash(then source .env)",
+      "Bash(else echo \"No .env file\")",
+      "Bash(fi)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:QFsLqjNDmbNyLEUfDnHsyTRJfKdBsDov@metro.proxy.rlwy.net:37297/railway\" pnpm exec drizzle-kit:*)"
     ],
     "deny": [],
     "ask": []

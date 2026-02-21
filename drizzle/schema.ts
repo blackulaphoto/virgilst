@@ -718,3 +718,96 @@ export const providerCategories = pgTable("provider_categories", {
 
 export type ProviderCategory = typeof providerCategories.$inferSelect;
 export type InsertProviderCategory = typeof providerCategories.$inferInsert;
+
+/**
+ * Job listings from SerpAPI with caching
+ */
+export const jobs = pgTable("jobs", {
+  id: serial("id").primaryKey(),
+  // Job details
+  title: text("title").notNull(),
+  company: text("company").notNull(),
+  location: text("location").notNull(),
+  description: text("description"),
+  employmentType: text("employmentType"), // full-time, part-time, contract, etc.
+  salary: text("salary"),
+  // External data
+  externalId: text("externalId").unique(), // SerpAPI job ID
+  applyLink: text("applyLink"),
+  sourceUrl: text("sourceUrl"),
+  postedDate: text("postedDate"),
+  // Search metadata
+  searchQuery: text("searchQuery"),
+  searchLocation: text("searchLocation"),
+  // Categorization
+  category: text("category"), // entry-level, no-experience, warehouse, retail, etc.
+  tags: text("tags"), // JSON array of tags
+  // SEO
+  slug: text("slug").unique(),
+  // Metadata
+  isActive: boolean("isActive").default(true).notNull(),
+  viewCount: integer("viewCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+}, (table) => ({
+  companyIdx: index("jobs_company_idx").on(table.company),
+  locationIdx: index("jobs_location_idx").on(table.location),
+  categoryIdx: index("jobs_category_idx").on(table.category),
+  activeIdx: index("jobs_active_idx").on(table.isActive),
+  externalIdx: index("jobs_external_idx").on(table.externalId),
+}));
+
+export type Job = typeof jobs.$inferSelect;
+export type InsertJob = typeof jobs.$inferInsert;
+
+/**
+ * Job search cache to reduce API calls
+ */
+export const jobSearches = pgTable("job_searches", {
+  id: serial("id").primaryKey(),
+  query: text("query").notNull(),
+  location: text("location"),
+  employmentType: text("employmentType"),
+  // Cache key and results
+  cacheKey: text("cacheKey").notNull().unique(),
+  resultCount: integer("resultCount").default(0).notNull(),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+}, (table) => ({
+  cacheKeyIdx: index("jobSearches_cache_key_idx").on(table.cacheKey),
+  expiresIdx: index("jobSearches_expires_idx").on(table.expiresAt),
+}));
+
+export type JobSearch = typeof jobSearches.$inferSelect;
+export type InsertJobSearch = typeof jobSearches.$inferInsert;
+
+/**
+ * User job applications tracking
+ */
+export const jobApplications = pgTable("job_applications", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().references(() => users.id),
+  jobId: integer("jobId").references(() => jobs.id),
+  // Application details
+  company: text("company").notNull(),
+  position: text("position").notNull(),
+  status: text("status").default("applied").notNull(), // applied, interviewing, offer, rejected, accepted
+  appliedDate: timestamp("appliedDate").defaultNow().notNull(),
+  // Tracking
+  notes: text("notes"),
+  contactName: text("contactName"),
+  contactEmail: text("contactEmail"),
+  contactPhone: text("contactPhone"),
+  followUpDate: timestamp("followUpDate"),
+  // Metadata
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("jobApplications_user_idx").on(table.userId),
+  jobIdx: index("jobApplications_job_idx").on(table.jobId),
+  statusIdx: index("jobApplications_status_idx").on(table.status),
+}));
+
+export type JobApplication = typeof jobApplications.$inferSelect;
+export type InsertJobApplication = typeof jobApplications.$inferInsert;

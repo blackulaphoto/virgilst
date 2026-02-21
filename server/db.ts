@@ -1708,3 +1708,195 @@ export async function deleteForumReply(replyId: number): Promise<void> {
 
   await db.delete(forumReplies).where(eq(forumReplies.id, replyId));
 }
+
+// ============ JOB LISTINGS ============
+
+/**
+ * Save job listings to database
+ */
+export async function saveJobs(jobsData: Array<any>): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const { jobs } = await import("../drizzle/schema");
+
+  for (const job of jobsData) {
+    try {
+      await db.insert(jobs).values(job).onConflictDoNothing({ target: jobs.externalId });
+    } catch (error) {
+      console.error('[DB] Error saving job:', error);
+    }
+  }
+}
+
+/**
+ * Get jobs with filters
+ */
+export async function getJobs(filters?: {
+  category?: string;
+  location?: string;
+  employmentType?: string;
+  searchQuery?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { jobs } = await import("../drizzle/schema");
+
+  let query = db.select().from(jobs).where(eq(jobs.isActive, true)).$dynamic();
+
+  const conditions = [];
+
+  if (filters?.category) {
+    conditions.push(eq(jobs.category, filters.category));
+  }
+
+  if (filters?.location) {
+    conditions.push(ilike(jobs.location, `%${filters.location}%`));
+  }
+
+  if (filters?.employmentType) {
+    conditions.push(eq(jobs.employmentType, filters.employmentType));
+  }
+
+  if (filters?.searchQuery) {
+    conditions.push(eq(jobs.searchQuery, filters.searchQuery));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  query = query.orderBy(desc(jobs.createdAt)) as any;
+
+  if (filters?.limit) {
+    query = query.limit(filters.limit) as any;
+  }
+
+  if (filters?.offset) {
+    query = query.offset(filters.offset) as any;
+  }
+
+  return await query;
+}
+
+/**
+ * Get job by slug
+ */
+export async function getJobBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const { jobs } = await import("../drizzle/schema");
+
+  const result = await db.select().from(jobs).where(eq(jobs.slug, slug)).limit(1);
+  return result[0] || null;
+}
+
+/**
+ * Increment job view count
+ */
+export async function incrementJobViews(jobId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const { jobs } = await import("../drizzle/schema");
+
+  await db.update(jobs)
+    .set({ viewCount: sql`${jobs.viewCount} + 1` })
+    .where(eq(jobs.id, jobId));
+}
+
+/**
+ * Save/update job search cache
+ */
+export async function saveJobSearch(searchData: {
+  query: string;
+  location?: string;
+  employmentType?: string;
+  cacheKey: string;
+  resultCount: number;
+  expiresAt: Date;
+}) {
+  const db = await getDb();
+  if (!db) return;
+
+  const { jobSearches } = await import("../drizzle/schema");
+
+  await db.insert(jobSearches).values(searchData).onConflictDoUpdate({
+    target: jobSearches.cacheKey,
+    set: {
+      resultCount: searchData.resultCount,
+      expiresAt: searchData.expiresAt,
+    },
+  });
+}
+
+/**
+ * Get job search from cache
+ */
+export async function getJobSearch(cacheKey: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const { jobSearches } = await import("../drizzle/schema");
+
+  const result = await db.select().from(jobSearches)
+    .where(and(
+      eq(jobSearches.cacheKey, cacheKey),
+      sql`${jobSearches.expiresAt} > NOW()`
+    ))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+/**
+ * Track job application
+ */
+export async function createJobApplication(application: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { jobApplications } = await import("../drizzle/schema");
+
+  const result = await db.insert(jobApplications).values(application).returning();
+  return result[0];
+}
+
+/**
+ * Get user's job applications
+ */
+export async function getUserJobApplications(userId: number, status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { jobApplications } = await import("../drizzle/schema");
+
+  let query = db.select().from(jobApplications).where(eq(jobApplications.userId, userId));
+
+  if (status) {
+    query = query.where(eq(jobApplications.status, status)) as any;
+  }
+
+  return await query.orderBy(desc(jobApplications.appliedDate));
+}
+
+/**
+ * Update job application status
+ */
+export async function updateJobApplication(id: number, userId: number, updates: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { jobApplications } = await import("../drizzle/schema");
+
+  await db.update(jobApplications)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(and(
+      eq(jobApplications.id, id),
+      eq(jobApplications.userId, userId)
+    ));
+}

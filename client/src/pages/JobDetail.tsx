@@ -1,0 +1,303 @@
+import { useParams, Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  DollarSign,
+  Clock,
+  ExternalLink,
+  Building,
+  Calendar,
+  BookmarkPlus,
+  Loader2,
+} from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+export default function JobDetail() {
+  const { slug } = useParams<{ slug: string }>();
+  const [trackDialogOpen, setTrackDialogOpen] = useState(false);
+  const [trackingNotes, setTrackingNotes] = useState("");
+
+  const { data: job, isLoading } = trpc.jobs.bySlug.useQuery(
+    { slug: slug! },
+    { enabled: !!slug }
+  );
+
+  const { data: user } = trpc.auth.me.useQuery();
+
+  const trackApplicationMutation = trpc.jobs.apply.useMutation({
+    onSuccess: () => {
+      toast.success("Application tracked successfully!");
+      setTrackDialogOpen(false);
+      setTrackingNotes("");
+    },
+    onError: (error) => {
+      toast.error(`Failed to track application: ${error.message}`);
+    },
+  });
+
+  const handleTrackApplication = () => {
+    if (!job) return;
+
+    trackApplicationMutation.mutate({
+      jobId: job.id,
+      company: job.company,
+      position: job.title,
+      status: "applied",
+      notes: trackingNotes,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!job) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Not Found</CardTitle>
+              <CardDescription>
+                This job posting could not be found or may have been removed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link href="/jobs">
+                  <a>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Jobs
+                  </a>
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-4">
+          <Link href="/jobs">
+            <a>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Jobs
+            </a>
+          </Link>
+        </Button>
+
+        {/* Job Header */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-3xl mb-2">{job.title}</CardTitle>
+                <CardDescription className="text-xl font-medium flex items-center gap-2">
+                  <Building className="w-5 h-5" />
+                  {job.company}
+                </CardDescription>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 mt-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="w-4 h-4" />
+                <span>{job.location}</span>
+              </div>
+
+              {job.salary && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <DollarSign className="w-4 h-4" />
+                  <span>{job.salary}</span>
+                </div>
+              )}
+
+              {job.employmentType && (
+                <Badge variant="secondary">{job.employmentType}</Badge>
+              )}
+
+              {job.postedDate && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4" />
+                  <span>Posted {job.postedDate}</span>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+
+          <Separator />
+
+          <CardContent className="pt-6">
+            <div className="flex gap-2">
+              {job.applyLink && (
+                <Button size="lg" asChild>
+                  <a
+                    href={job.applyLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Apply Now
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </a>
+                </Button>
+              )}
+
+              {user && (
+                <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" variant="outline">
+                      <BookmarkPlus className="w-4 h-4 mr-2" />
+                      Track Application
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Track This Application</DialogTitle>
+                      <DialogDescription>
+                        Keep track of your application progress for {job.title} at {job.company}
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Company</Label>
+                        <Input value={job.company} disabled />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Position</Label>
+                        <Input value={job.title} disabled />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="notes">Notes (Optional)</Label>
+                        <Textarea
+                          id="notes"
+                          placeholder="Add any notes about your application..."
+                          value={trackingNotes}
+                          onChange={(e) => setTrackingNotes(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setTrackDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleTrackApplication}
+                        disabled={trackApplicationMutation.isPending}
+                      >
+                        {trackApplicationMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          "Track Application"
+                        )}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Job Description */}
+        {job.description && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-invert max-w-none">
+                <p className="whitespace-pre-wrap text-muted-foreground">
+                  {job.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Job Metadata */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Job Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Company:</span>
+                <p className="font-medium mt-1">{job.company}</p>
+              </div>
+
+              <div>
+                <span className="text-muted-foreground">Location:</span>
+                <p className="font-medium mt-1">{job.location}</p>
+              </div>
+
+              {job.employmentType && (
+                <div>
+                  <span className="text-muted-foreground">Employment Type:</span>
+                  <p className="font-medium mt-1">{job.employmentType}</p>
+                </div>
+              )}
+
+              {job.salary && (
+                <div>
+                  <span className="text-muted-foreground">Salary:</span>
+                  <p className="font-medium mt-1">{job.salary}</p>
+                </div>
+              )}
+
+              {job.postedDate && (
+                <div>
+                  <span className="text-muted-foreground">Posted:</span>
+                  <p className="font-medium mt-1">{job.postedDate}</p>
+                </div>
+              )}
+
+              <div>
+                <span className="text-muted-foreground">Views:</span>
+                <p className="font-medium mt-1">{job.viewCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

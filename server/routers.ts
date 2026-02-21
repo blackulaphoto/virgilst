@@ -15,6 +15,7 @@ import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { ingestKnowledgeUpload, MAX_KNOWLEDGE_UPLOAD_BYTES } from "./knowledgeIngestion";
 import { virgilTools } from "./virgilTools";
+import { searchJobs, getPopularSearches, generateJobSlug, JobListing } from "./jobs";
 
 const VIRGIL_SYSTEM_PROMPT = `You are Virgil, a California social-services case detective with the heart and sparkle of Penelope Garcia.
 
@@ -1643,6 +1644,156 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         return await db.deleteEvent(input.id);
+      }),
+  }),
+
+  // ============ JOBS ============
+  jobs: router({
+    // Search jobs via SerpAPI with caching
+    search: publicProcedure
+      .input(z.object({
+        query: z.string(),
+        location: z.string().optional(),
+        employmentType: z.string().optional(),
+        limit: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        // Check cache first
+        const cacheKey = JSON.stringify({
+          query: input.query.toLowerCase().trim(),
+          location: input.location?.toLowerCase().trim() || '',
+          employmentType: input.employmentType || '',
+        });
+
+        const cached = await db.getJobSearch(cacheKey);
+
+        // If cache exists and hasn't expired, return cached jobs
+        if (cached && new Date(cached.expiresAt) > new Date()) {
+          const jobs = await db.getJobs({
+            searchQuery: input.query,
+            location: input.location,
+            employmentType: input.employmentType,
+            limit: input.limit,
+          });
+          return { jobs, fromCache: true };
+        }
+
+        // Fetch fresh results from SerpAPI
+        const listings = await searchJobs({
+          query: input.query,
+          location: input.location,
+          employmentType: input.employmentType,
+          limit: input.limit,
+        });
+
+        // Generate slugs and save to database
+        const jobsWithSlugs = listings.map(job => ({
+          ...job,
+          slug: generateJobSlug(job),
+          category: input.query.toLowerCase().includes('warehouse') ? 'warehouse' :
+                   input.query.toLowerCase().includes('retail') ? 'retail' :
+                   input.query.toLowerCase().includes('construction') ? 'construction' :
+                   input.query.toLowerCase().includes('delivery') ? 'delivery' :
+                   input.query.toLowerCase().includes('security') ? 'security' :
+                   input.query.toLowerCase().includes('food') ? 'food-service' :
+                   input.query.toLowerCase().includes('entry level') ? 'entry-level' :
+                   'general',
+        }));
+
+        await db.saveJobs(jobsWithSlugs);
+
+        // Save search to cache
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        await db.saveJobSearch({
+          query: input.query,
+          location: input.location || null,
+          employmentType: input.employmentType || null,
+          cacheKey,
+          resultCount: jobsWithSlugs.length,
+          expiresAt,
+        });
+
+        return { jobs: jobsWithSlugs, fromCache: false };
+      }),
+
+    // List jobs from database
+    list: publicProcedure
+      .input(z.object({
+        category: z.string().optional(),
+        location: z.string().optional(),
+        employmentType: z.string().optional(),
+        limit: z.number().optional(),
+        offset: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getJobs(input || {});
+      }),
+
+    // Get job by slug
+    bySlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const job = await db.getJobBySlug(input.slug);
+        if (job) {
+          // Increment view count
+          await db.incrementJobViews(job.id);
+        }
+        return job;
+      }),
+
+    // Track job application
+    apply: protectedProcedure
+      .input(z.object({
+        jobId: z.number().optional(),
+        company: z.string(),
+        position: z.string(),
+        status: z.enum(['applied', 'interviewing', 'offered', 'rejected', 'accepted']).optional(),
+        notes: z.string().optional(),
+        contactName: z.string().optional(),
+        contactEmail: z.string().optional(),
+        contactPhone: z.string().optional(),
+        followUpDate: z.date().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = await db.createJobApplication({
+          userId: ctx.user.id,
+          ...input,
+        });
+        return { success: true, applicationId: id };
+      }),
+
+    // Get user's applications
+    applications: protectedProcedure
+      .input(z.object({
+        status: z.enum(['applied', 'interviewing', 'offered', 'rejected', 'accepted']).optional(),
+      }).optional())
+      .query(async ({ input, ctx }) => {
+        return await db.getUserJobApplications(ctx.user.id, input?.status);
+      }),
+
+    // Update application status
+    updateApplication: protectedProcedure
+      .input(z.object({
+        applicationId: z.number(),
+        status: z.enum(['applied', 'interviewing', 'offered', 'rejected', 'accepted']).optional(),
+        notes: z.string().optional(),
+        contactName: z.string().optional(),
+        contactEmail: z.string().optional(),
+        contactPhone: z.string().optional(),
+        followUpDate: z.date().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { applicationId, ...updates } = input;
+        await db.updateJobApplication(applicationId, ctx.user.id, updates);
+        return { success: true };
+      }),
+
+    // Get popular searches
+    popularSearches: publicProcedure
+      .query(() => {
+        return getPopularSearches();
       }),
   }),
 });

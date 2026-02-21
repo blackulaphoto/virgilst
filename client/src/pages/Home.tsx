@@ -23,6 +23,7 @@ import {
   LogIn,
   LogOut,
   User,
+  Briefcase,
 } from "lucide-react";
 
 export default function Home() {
@@ -141,6 +142,9 @@ export default function Home() {
             </Link>
             <Link href="/medical-providers/los-angeles">
               <Button variant="outline" className="w-full justify-start">Los Angeles Medi-Cal Providers</Button>
+            </Link>
+            <Link href="/jobs">
+              <Button variant="outline" className="w-full justify-start">Job Search - Entry Level & Immediate Hire</Button>
             </Link>
           </div>
         </div>
@@ -316,6 +320,18 @@ export default function Home() {
                     <CardTitle className="text-white text-2xl mb-2">COMMUNITY EVENTS</CardTitle>
                     <CardDescription className="text-zinc-400">
                       Find monthly resource fairs, workshops, and service events
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+
+              <Link href="/jobs">
+                <Card className="bg-zinc-900 border-zinc-800 hover:border-cyan-500 transition-all cursor-pointer group">
+                  <CardHeader>
+                    <Briefcase className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
+                    <CardTitle className="text-white text-2xl mb-2">JOB SEARCH</CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Find entry-level, warehouse, retail, and other employment opportunities
                     </CardDescription>
                   </CardHeader>
                 </Card>
