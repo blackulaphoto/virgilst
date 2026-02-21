@@ -252,6 +252,20 @@ export default function JobCategory() {
 
   const categoryData = category ? categoryDefinitions[category] : null;
 
+  const getJobOutboundInfo = (job: any) => {
+    if (job.applyLink) {
+      return { url: job.applyLink, sourceLabel: "Direct apply", actionLabel: "Apply Now" };
+    }
+    if (job.sourceUrl) {
+      return { url: job.sourceUrl, sourceLabel: "Original source", actionLabel: "Find Posting" };
+    }
+    return {
+      url: `https://www.google.com/search?q=${encodeURIComponent(`${job.title} ${job.company} ${job.location} jobs`)}`,
+      sourceLabel: "Google search",
+      actionLabel: "Find Posting",
+    };
+  };
+
   useEffect(() => {
     if (categoryData) {
       performSearch();
@@ -469,22 +483,26 @@ export default function JobCategory() {
                     )}
 
                     <div className="flex gap-2">
-                      <Button size="sm" asChild>
-                        <a
-                          href={
-                            job.applyLink ||
-                            job.sourceUrl ||
-                            `https://www.google.com/search?q=${encodeURIComponent(
-                              `${job.title} ${job.company} ${job.location} jobs`
-                            )}`
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {job.applyLink ? "Apply Now" : "Find Posting"}
-                          <ExternalLink className="w-3 h-3 ml-2" />
-                        </a>
-                      </Button>
+                      {(() => {
+                        const outbound = getJobOutboundInfo(job);
+                        return (
+                          <>
+                            <Button size="sm" asChild>
+                              <a
+                                href={outbound.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {outbound.actionLabel}
+                                <ExternalLink className="w-3 h-3 ml-2" />
+                              </a>
+                            </Button>
+                            <Badge variant="outline" className="text-xs">
+                              {outbound.sourceLabel}
+                            </Badge>
+                          </>
+                        );
+                      })()}
                       <Button size="sm" variant="outline" asChild>
                         <Link href={`/jobs/${job.slug}`}>
                           <a>View Details</a>

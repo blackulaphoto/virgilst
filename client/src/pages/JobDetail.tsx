@@ -105,6 +105,11 @@ export default function JobDetail() {
     `${job.title} ${job.company} ${job.location} jobs`
   )}`;
   const outboundUrl = job.applyLink || job.sourceUrl || fallbackSearchUrl;
+  const outboundSourceLabel = job.applyLink
+    ? "Direct apply"
+    : job.sourceUrl
+      ? "Original source"
+      : "Google search";
 
   // Generate JobPosting schema markup for SEO
   const jobPostingSchema = {
@@ -210,7 +215,7 @@ export default function JobDetail() {
           <Separator />
 
           <CardContent className="pt-6">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button size="lg" asChild>
                 <a
                   href={outboundUrl}
@@ -221,6 +226,9 @@ export default function JobDetail() {
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
+              <Badge variant="outline" className="text-xs">
+                Source: {outboundSourceLabel}
+              </Badge>
 
               {user && (
                 <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
