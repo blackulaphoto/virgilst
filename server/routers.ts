@@ -1658,22 +1658,25 @@ export const appRouter = router({
         limit: z.number().optional(),
       }))
       .query(async ({ input }) => {
+        const normalizedLimit = Math.min(Math.max(input.limit ?? 100, 1), 100);
+
         // Check cache first
         const cacheKey = JSON.stringify({
           query: input.query.toLowerCase().trim(),
           location: input.location?.toLowerCase().trim() || '',
           employmentType: input.employmentType || '',
+          limit: normalizedLimit,
         });
 
         const cached = await db.getJobSearch(cacheKey);
 
         // If cache exists and hasn't expired, return cached jobs
-        if (cached && new Date(cached.expiresAt) > new Date()) {
+        if (cached && new Date(cached.expiresAt) > new Date() && cached.resultCount >= normalizedLimit) {
           const jobs = await db.getJobs({
             searchQuery: input.query,
             location: input.location,
             employmentType: input.employmentType,
-            limit: input.limit,
+            limit: normalizedLimit,
           });
           return { jobs, fromCache: true };
         }
@@ -1683,7 +1686,7 @@ export const appRouter = router({
           query: input.query,
           location: input.location,
           employmentType: input.employmentType,
-          limit: input.limit,
+          limit: normalizedLimit,
         });
 
         // Generate slugs and save to database

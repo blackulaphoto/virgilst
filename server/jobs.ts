@@ -63,7 +63,7 @@ export async function searchJobs(params: JobSearchParams): Promise<JobListing[]>
     query,
     location = 'Los Angeles, CA',
     employmentType,
-    limit = 20,
+    limit = 100,
   } = params;
 
   try {
