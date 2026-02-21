@@ -22,6 +22,9 @@ import { Label } from "@/components/ui/label";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { useSeo } from "@/lib/seo";
+
+const BASE_URL = "https://www.virgilst.com";
 
 const CATEGORIES = [
   { value: "survival_tips", label: "Survival Tips" },
@@ -222,6 +225,35 @@ export default function ForumPost() {
     const question = `I saw this forum post: "${post.title}"\n\n${post.content}\n\nCan you help me understand this better?`;
     navigate(`/chat?q=${encodeURIComponent(question)}`);
   };
+
+  const canonical = `${BASE_URL}/forum/${postId}`;
+  const postDescription = post?.content ? post.content.replace(/\s+/g, " ").slice(0, 155) : "";
+
+  useSeo({
+    title: post ? `${post.title} | Virgil St Community` : "Forum Discussion | Virgil St Community",
+    description: postDescription || "Read and join community discussions on survival tips and support.",
+    canonical,
+    robots: "index,follow",
+    ogType: "website",
+    ogImage: `${BASE_URL}/og-image.png`,
+    jsonLd: post
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "DiscussionForumPosting",
+            headline: post.title,
+            articleBody: postDescription,
+            url: canonical,
+            datePublished: new Date(post.createdAt).toISOString(),
+            dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+            author: {
+              "@type": "Person",
+              name: post.isAnonymous ? "Anonymous" : (post.authorDisplayName || post.authorName || "Community Member"),
+            },
+          },
+        ]
+      : [],
+  });
 
   if (postLoading) {
     return (

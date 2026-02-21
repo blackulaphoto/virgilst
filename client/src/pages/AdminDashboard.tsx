@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" asChild>
-                            <a href={`/library/${article.slug}`}>
+                            <a href={`/articles/${article.slug}`}>
                               <Eye className="h-4 w-4" />
                             </a>
                           </Button>

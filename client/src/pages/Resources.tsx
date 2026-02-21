@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -81,7 +81,13 @@ const resourceCategories = [
 ];
 
 export default function Resources() {
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const { category } = useParams<{ category?: string }>();
+  const isValidCategory = !!category && resourceCategories.some((cat) => cat.type === category);
+  const [selectedType, setSelectedType] = useState<string | null>(isValidCategory ? category! : null);
+
+  useEffect(() => {
+    setSelectedType(isValidCategory ? category! : null);
+  }, [category, isValidCategory]);
 
   const { data: resources = [], isLoading } = trpc.resources.list.useQuery(
     selectedType ? { type: selectedType } : {}
@@ -114,6 +120,18 @@ export default function Resources() {
 
         {/* Resource List */}
         <div className="container py-8">
+          <div className="mb-6 flex flex-wrap gap-2">
+            {resourceCategories
+              .filter((cat) => cat.type !== selectedType)
+              .slice(0, 5)
+              .map((cat) => (
+                <Link key={cat.type} href={`/resources/${cat.type}`}>
+                  <Button variant="outline" size="sm">
+                    {cat.title}
+                  </Button>
+                </Link>
+              ))}
+          </div>
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (

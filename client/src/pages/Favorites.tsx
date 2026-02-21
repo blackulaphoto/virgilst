@@ -79,7 +79,7 @@ export default function Favorites() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2">
-                            <Link href={`/library/${item.slug}`} className="hover:text-amber-500">
+                            <Link href={`/articles/${item.slug}`} className="hover:text-amber-500">
                               {item.title}
                             </Link>
                           </CardTitle>
@@ -106,7 +106,7 @@ export default function Favorites() {
                   <BookmarkIcon className="w-12 h-12 mx-auto mb-4 text-gray-600" />
                   <p className="text-gray-400 mb-4">No bookmarked articles yet</p>
                   <Button asChild variant="outline">
-                    <Link href="/library">Browse Articles</Link>
+                    <Link href="/articles">Browse Articles</Link>
                   </Button>
                 </CardContent>
               </Card>

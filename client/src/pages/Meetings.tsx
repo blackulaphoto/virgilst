@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,14 +7,23 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Clock, Calendar, Users, Video, Phone, Search, Filter } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useParams } from "wouter";
 
 export default function Meetings() {
+  const { program } = useParams<{ program?: string }>();
+  const initialProgram =
+    program && ["aa", "na", "cma", "smart"].includes(program) ? program : undefined;
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<string | undefined>();
+  const [selectedType, setSelectedType] = useState<string | undefined>(initialProgram);
   const [selectedDay, setSelectedDay] = useState<string | undefined>();
   const [selectedMode, setSelectedMode] = useState<string | undefined>();
   const [selectedCity, setSelectedCity] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (initialProgram) {
+      setSelectedType(initialProgram);
+    }
+  }, [initialProgram]);
 
   const { data: meetings, isLoading } = trpc.meetings.list.useQuery({
     type: selectedType as any,

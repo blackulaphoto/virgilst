@@ -138,7 +138,7 @@ export default function Library() {
               const Icon = category?.icon || FileText;
 
               return (
-                <Link key={article.id} href={`/library/${article.slug}`}>
+            <Link key={article.id} href={`/articles/${article.slug}`}>
                   <Card className="group h-full cursor-pointer transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
                     <CardHeader>
                       <div className="mb-2 flex items-center gap-2">

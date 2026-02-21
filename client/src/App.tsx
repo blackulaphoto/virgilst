@@ -3,8 +3,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { Route, Switch } from "wouter";
+import { useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useSeo } from "./lib/seo";
+import { buildSeoConfig } from "./lib/seoConfig";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Library from "./pages/Library";
@@ -29,10 +32,15 @@ import Calendar from "./pages/Calendar";
 import FloatingAIAssistant from "./components/FloatingAIAssistant";
 
 function Router() {
+  const [location] = useLocation();
+  useSeo(buildSeoConfig(location));
+
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/chat"} component={Chat} />
+      <Route path={"/articles"} component={Library} />
+      <Route path={"/articles/:slug"} component={ArticleDetail} />
       <Route path={"/library"} component={Library} />
       <Route path={"/library/:slug"} component={ArticleDetail} />
       <Route path={"/forum"} component={Forum} />
@@ -42,10 +50,14 @@ function Router() {
       <Route path="/search" component={Search} />
       <Route path="/treatment" component={Treatment} />
       <Route path="/treatment/wizard" component={TreatmentWizard} />
+      <Route path="/treatment/:program" component={Treatment} />
+      <Route path="/meetings/:program" component={Meetings} />
       <Route path="/meetings" component={Meetings} />
       <Route path="/events" component={Events} />
-      <Route path="/resources" component={Resources} />
       <Route path="/resources/map" component={ResourceMap} />
+      <Route path="/resources/:category" component={Resources} />
+      <Route path="/resources" component={Resources} />
+      <Route path="/medical-providers/:city" component={MediCalProviders} />
       <Route path="/medical-providers" component={MediCalProviders} />
       <Route path="/map" component={Map} />
       <Route path={"/favorites"} component={Favorites} />

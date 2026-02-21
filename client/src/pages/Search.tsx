@@ -134,7 +134,7 @@ export default function Search() {
               <TabsContent value="all" className="space-y-4">
                 {/* Articles */}
                 {results?.articles.map((article) => (
-                  <Link key={`article-${article.id}`} href={`/library/${article.slug}`}>
+                  <Link key={`article-${article.id}`} href={`/articles/${article.slug}`}>
                     <Card className="group cursor-pointer transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
                       <CardContent className="p-6">
                         <div className="mb-2 flex items-center gap-2">
@@ -211,7 +211,7 @@ export default function Search() {
 
               <TabsContent value="articles" className="space-y-4">
                 {results?.articles.map((article) => (
-                  <Link key={article.id} href={`/library/${article.slug}`}>
+                  <Link key={article.id} href={`/articles/${article.slug}`}>
                     <Card className="group cursor-pointer transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
                       <CardContent className="p-6">
                         <Badge variant="outline" className="mb-2 text-xs capitalize">

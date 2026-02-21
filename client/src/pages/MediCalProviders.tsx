@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +18,26 @@ import {
 import { trpc } from "@/lib/trpc";
 
 export default function MediCalProviders() {
+  const { city } = useParams<{ city?: string }>();
+  const citySlugMap: Record<string, string> = {
+    "los-angeles": "LOS ANGELES",
+    "van-nuys": "VAN NUYS",
+    encino: "ENCINO",
+    tarzana: "TARZANA",
+    burbank: "BURBANK",
+    northridge: "NORTHRIDGE",
+    "culver-city": "CULVER CITY",
+    "mission-hills": "MISSION HILLS",
+  };
+  const initialCity = city ? citySlugMap[city] || city.replace(/-/g, " ").toUpperCase() : "";
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState(initialCity);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    setSelectedCity(initialCity);
+  }, [initialCity]);
 
   // Fetch providers based on search or filters
   const { data: providers = [], isLoading } = searchQuery

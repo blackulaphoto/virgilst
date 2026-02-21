@@ -7,6 +7,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeDatabaseIfEmpty } from "./init-db";
+import { registerSeoRoutes } from "../seo";
 
 function parseAllowedOrigins(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -67,6 +68,15 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  registerSeoRoutes(app);
+
+  app.get("/library", (_req, res) => {
+    res.redirect(301, "/articles");
+  });
+  app.get("/library/*", (req, res) => {
+    const suffix = req.path.replace(/^\/library\/?/, "");
+    res.redirect(301, `/articles/${suffix}`);
+  });
   // tRPC API
   app.use(
     "/api/trpc",

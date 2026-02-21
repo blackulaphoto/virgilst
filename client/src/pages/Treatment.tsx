@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,15 +6,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Phone, ExternalLink, DollarSign, Users, CheckCircle2, Building2, Search } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useParams } from "wouter";
 
 export default function Treatment() {
+  const { program } = useParams<{ program?: string }>();
+  const routeProgramMap: Record<string, string> = {
+    "sober-living": "sober_living",
+    detox: "detox",
+    residential: "residential",
+    outpatient: "outpatient",
+    "dual-diagnosis": "dual_diagnosis",
+  };
+  const initialProgramType = program ? routeProgramMap[program] : undefined;
+  const initialTab = !initialProgramType || initialProgramType === "sober_living" ? "sober_living" : "treatment";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string | undefined>();
   const [selectedPopulation, setSelectedPopulation] = useState<string | undefined>();
   const [mediCalOnly, setMediCalOnly] = useState(false);
   const [couplesOnly, setCouplesOnly] = useState(false);
-  const [selectedTreatmentType, setSelectedTreatmentType] = useState<string | undefined>();
+  const [selectedTreatmentType, setSelectedTreatmentType] = useState<string | undefined>(
+    initialProgramType && initialProgramType !== "sober_living" ? initialProgramType : undefined
+  );
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  useEffect(() => {
+    if (initialProgramType === "sober_living") {
+      setActiveTab("sober_living");
+      setSelectedTreatmentType(undefined);
+      return;
+    }
+    if (initialProgramType) {
+      setActiveTab("treatment");
+      setSelectedTreatmentType(initialProgramType);
+    }
+  }, [initialProgramType]);
 
   // Separate queries for sober living and treatment centers
   const { data: soberLivingCenters, isLoading: isLoadingSL } = trpc.treatmentCenters.list.useQuery({
@@ -104,7 +130,7 @@ export default function Treatment() {
       </div>
 
       <div className="container mx-auto py-8">
-        <Tabs defaultValue="sober_living" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="sober_living">🏠 Sober Living</TabsTrigger>
             <TabsTrigger value="treatment">🏥 Treatment Centers</TabsTrigger>

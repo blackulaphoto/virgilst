@@ -119,6 +119,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* SEO Hub Links */}
+      <section className="border-t border-border bg-card/30 py-12">
+        <div className="container">
+          <h2 className="mb-4 text-2xl font-bold text-foreground">Browse Popular Resource Hubs</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            <Link href="/resources/food">
+              <Button variant="outline" className="w-full justify-start">Food Resources</Button>
+            </Link>
+            <Link href="/resources/housing">
+              <Button variant="outline" className="w-full justify-start">Housing Assistance</Button>
+            </Link>
+            <Link href="/resources/legal">
+              <Button variant="outline" className="w-full justify-start">Legal Services</Button>
+            </Link>
+            <Link href="/meetings/aa">
+              <Button variant="outline" className="w-full justify-start">AA Meetings</Button>
+            </Link>
+            <Link href="/treatment/sober-living">
+              <Button variant="outline" className="w-full justify-start">Sober Living Programs</Button>
+            </Link>
+            <Link href="/medical-providers/los-angeles">
+              <Button variant="outline" className="w-full justify-start">Los Angeles Medi-Cal Providers</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="py-20">
         <div className="container">
@@ -148,7 +175,7 @@ export default function Home() {
             </Link>
 
             {/* Resource Library */}
-            <Link href="/library">
+            <Link href="/articles">
               <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
                 <CardContent className="p-6">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
