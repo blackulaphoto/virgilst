@@ -18,6 +18,13 @@ interface SerpAPIJobResult {
   };
 }
 
+interface SerpAPIJobsResponse {
+  jobs_results?: SerpAPIJobResult[];
+  serpapi_pagination?: {
+    next_page_token?: string;
+  };
+}
+
 interface JobSearchParams {
   query: string;
   location?: string;
@@ -67,40 +74,73 @@ export async function searchJobs(params: JobSearchParams): Promise<JobListing[]>
   } = params;
 
   try {
-    // Build SerpAPI request
-    const serpParams: any = {
-      engine: 'google_jobs',
-      q: query,
-      location: location,
-      api_key: SERPAPI_KEY,
-      num: Math.min(limit, 100), // SerpAPI max is 100
-    };
+    const requestedLimit = Math.min(Math.max(limit, 1), 100);
+    const listings: JobListing[] = [];
+    const seenIds = new Set<string>();
+    let nextPageToken: string | undefined;
+    let pageRequests = 0;
+    const maxPageRequests = Math.max(1, Math.ceil(requestedLimit / 10));
 
-    if (employmentType) {
-      serpParams.chips = `employment_type:${employmentType}`;
+    while (listings.length < requestedLimit && pageRequests < maxPageRequests) {
+      // Google Jobs is paged via next_page_token and returns up to 10 jobs per page.
+      const serpParams: Record<string, string | number> = {
+        engine: 'google_jobs',
+        q: query,
+        location,
+        api_key: SERPAPI_KEY,
+      };
+
+      if (employmentType) {
+        serpParams.chips = `employment_type:${employmentType}`;
+      }
+
+      if (nextPageToken) {
+        serpParams.next_page_token = nextPageToken;
+      }
+
+      const response = await axios.get<SerpAPIJobsResponse>('https://serpapi.com/search', {
+        params: serpParams,
+        timeout: 10000,
+      });
+
+      const jobs = response.data.jobs_results || [];
+      if (jobs.length === 0) {
+        break;
+      }
+
+      for (const job of jobs) {
+        const stableId = job.job_id || `${job.title}-${job.company_name}-${job.location}`;
+        if (seenIds.has(stableId)) {
+          continue;
+        }
+
+        seenIds.add(stableId);
+        listings.push({
+          title: job.title,
+          company: job.company_name,
+          location: job.location,
+          description: job.description || '',
+          employmentType: job.detected_extensions?.schedule_type || null,
+          salary: job.detected_extensions?.salary || null,
+          externalId: job.job_id || `serp-${Date.now()}-${Math.random()}`,
+          applyLink: job.apply_link || null,
+          postedDate: job.detected_extensions?.posted_at || null,
+          searchQuery: query,
+          searchLocation: location,
+        });
+
+        if (listings.length >= requestedLimit) {
+          break;
+        }
+      }
+
+      nextPageToken = response.data.serpapi_pagination?.next_page_token;
+      pageRequests += 1;
+
+      if (!nextPageToken) {
+        break;
+      }
     }
-
-    const response = await axios.get('https://serpapi.com/search', {
-      params: serpParams,
-      timeout: 10000,
-    });
-
-    const jobs: SerpAPIJobResult[] = response.data.jobs_results || [];
-
-    // Transform to our format
-    const listings: JobListing[] = jobs.map((job) => ({
-      title: job.title,
-      company: job.company_name,
-      location: job.location,
-      description: job.description || '',
-      employmentType: job.detected_extensions?.schedule_type || null,
-      salary: job.detected_extensions?.salary || null,
-      externalId: job.job_id || `serp-${Date.now()}-${Math.random()}`,
-      applyLink: job.apply_link || null,
-      postedDate: job.detected_extensions?.posted_at || null,
-      searchQuery: query,
-      searchLocation: location,
-    }));
 
     return listings;
   } catch (error: any) {
