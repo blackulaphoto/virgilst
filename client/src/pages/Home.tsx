@@ -4,11 +4,10 @@ import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import ActionPathCard from "@/components/ActionPathCard";
 import StatPill from "@/components/StatPill";
-import SurfaceCard from "@/components/SurfaceCard";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
 import {
   ArrowRight,
@@ -19,42 +18,14 @@ import {
   MessageSquare,
   ShieldCheck,
   CheckCircle2,
-  ListChecks,
   CalendarDays,
-  Heart,
   LogIn,
   LogOut,
   User,
   MapPin,
+  Grid2x2,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-
-const resourceHighlights = [
-  {
-    title: "Housing Assistance",
-    description: "Shelter access, prevention, rapid rehousing, and supportive housing pathways.",
-    href: "/resources/housing",
-    tag: "Housing",
-  },
-  {
-    title: "Food and Grocery Support",
-    description: "Food pantries, hot meal distribution, and verified food service programs.",
-    href: "/resources/food",
-    tag: "Food",
-  },
-  {
-    title: "Jobs and Training",
-    description: "Entry-level work, hiring-now categories, and realistic next-step opportunities.",
-    href: "/jobs",
-    tag: "Work",
-  },
-  {
-    title: "Healthcare and Medi-Cal",
-    description: "Find providers by specialty, city, language, and accepted network.",
-    href: "/medical-providers",
-    tag: "Healthcare",
-  },
-];
 
 export default function Home() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -178,7 +149,7 @@ export default function Home() {
 
       <SectionBlock title="How it works" subtitle="Clarity first. Action next.">
         <div className="grid gap-4 md:grid-cols-3">
-          <SurfaceCard>
+          <div className="surface-card">
             <CardHeader>
               <Badge variant="secondary" className="w-fit">Step 1</Badge>
               <CardTitle className="mt-2 text-xl">Ask Virgil</CardTitle>
@@ -188,8 +159,8 @@ export default function Home() {
                 Describe what you need in plain language and get guided support instantly.
               </p>
             </CardContent>
-          </SurfaceCard>
-          <SurfaceCard>
+          </div>
+          <div className="surface-card">
             <CardHeader>
               <Badge variant="secondary" className="w-fit">Step 2</Badge>
               <CardTitle className="mt-2 text-xl">Get verified options</CardTitle>
@@ -199,8 +170,8 @@ export default function Home() {
                 We prioritize verified resources and practical next actions for your situation.
               </p>
             </CardContent>
-          </SurfaceCard>
-          <SurfaceCard>
+          </div>
+          <div className="surface-card">
             <CardHeader>
               <Badge variant="secondary" className="w-fit">Step 3</Badge>
               <CardTitle className="mt-2 text-xl">Take action today</CardTitle>
@@ -210,7 +181,7 @@ export default function Home() {
                 Call, apply, visit, or message with confidence, without bouncing between systems.
               </p>
             </CardContent>
-          </SurfaceCard>
+          </div>
         </div>
       </SectionBlock>
 
@@ -222,21 +193,33 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <SectionBlock title="Explore core services" subtitle="High-impact pathways designed for quick decisions and clear next moves." className="bg-card/60">
-        <div className="grid gap-4 md:grid-cols-2">
-          {resourceHighlights.map(item => (
-            <Link key={item.title} href={item.href}>
-              <SurfaceCard className="cursor-pointer">
-                <CardHeader>
-                  <Badge variant="outline" className="w-fit text-xs">
-                    {item.tag}
-                  </Badge>
-                  <CardTitle className="text-xl">{item.title}</CardTitle>
-                  <CardDescription className="text-muted-foreground">{item.description}</CardDescription>
-                </CardHeader>
-              </SurfaceCard>
-            </Link>
-          ))}
+      <SectionBlock
+        title="Everything is easy to find"
+        subtitle="Use the Explore menu in the header to jump to every module without cluttering this page."
+        className="bg-card/60"
+      >
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { href: "/treatment", label: "Treatment Centers" },
+              { href: "/meetings", label: "Recovery Meetings" },
+              { href: "/medical-providers", label: "Medi-Cal Providers" },
+              { href: "/events", label: "Community Events" },
+              { href: "/articles", label: "Resource Library" },
+              { href: "/forum", label: "Community Forum" },
+              { href: "/videos", label: "Video Library" },
+              { href: "/map", label: "Community Map" },
+              { href: "/resources/map", label: "Resource Map" },
+            ].map((item) => (
+              <Link key={item.href} href={item.href}>
+                <Button variant="outline" size="sm">{item.label}</Button>
+              </Link>
+            ))}
+          </div>
+          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Grid2x2 className="h-4 w-4 text-primary" />
+            Desktop: click Explore in the header. Mobile: open the top-right menu.
+          </p>
         </div>
       </SectionBlock>
 
