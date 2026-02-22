@@ -119,7 +119,7 @@ export default function FloatingAIAssistant() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50"
+          className="floating-assistant-pulse fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg transition-transform hover:scale-110"
           size="icon"
         >
           <MessageCircle className="h-6 w-6" />

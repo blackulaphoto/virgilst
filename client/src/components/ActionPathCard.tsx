@@ -11,6 +11,13 @@ const toneClasses: Record<Tone, string> = {
   slate: "bg-secondary text-secondary-foreground",
 };
 
+const toneBorderClasses: Record<Tone, string> = {
+  teal: "border-t-primary/70",
+  sky: "border-t-emerald-500/70",
+  coral: "border-t-[var(--cta)]/80",
+  slate: "border-t-cyan-700/60",
+};
+
 export interface ActionPathCardProps {
   title: string;
   description: string;
@@ -28,7 +35,9 @@ export default function ActionPathCard({
 }: ActionPathCardProps) {
   return (
     <Link href={href}>
-      <Card className="surface-card h-full cursor-pointer">
+      <Card
+        className={`surface-card h-full cursor-pointer border-t-2 ${toneBorderClasses[tone]} transition-transform hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(15,118,110,0.12)]`}
+      >
         <CardHeader>
           <div className={`mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl ${toneClasses[tone]}`}>
             <Icon className="h-6 w-6" />

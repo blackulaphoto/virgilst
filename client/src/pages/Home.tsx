@@ -66,7 +66,7 @@ export default function Home() {
       title="Help, without the runaround."
       subtitle="Find housing, food, healthcare, legal guidance, and work opportunities across Los Angeles County in minutes."
     >
-      <SectionBlock className="pt-10 md:pt-16">
+      <SectionBlock className="hero-atmosphere pt-10 md:pt-16">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="fade-rise">
             <p className="mb-5 max-w-2xl text-lg text-muted-foreground">
@@ -108,12 +108,28 @@ export default function Home() {
             </ul>
           </div>
         </div>
+        <div className="pointer-events-none absolute right-6 top-6 hidden h-36 w-64 opacity-[0.04] lg:block">
+          <svg viewBox="0 0 320 160" className="h-full w-full fill-primary">
+            <rect x="14" y="88" width="18" height="52" rx="2" />
+            <rect x="40" y="70" width="24" height="70" rx="2" />
+            <rect x="70" y="94" width="16" height="46" rx="2" />
+            <rect x="93" y="60" width="26" height="80" rx="2" />
+            <rect x="127" y="78" width="20" height="62" rx="2" />
+            <rect x="154" y="46" width="28" height="94" rx="2" />
+            <rect x="189" y="82" width="20" height="58" rx="2" />
+            <rect x="216" y="64" width="24" height="76" rx="2" />
+            <rect x="247" y="90" width="16" height="50" rx="2" />
+            <rect x="269" y="74" width="24" height="66" rx="2" />
+            <rect x="300" y="84" width="12" height="56" rx="2" />
+            <path d="M0 140 H320" stroke="currentColor" strokeWidth="3" fill="none" />
+          </svg>
+        </div>
       </SectionBlock>
 
       <SectionBlock
         title="Choose your next step"
         subtitle="Start with the need you have right now. Each path takes you directly to verified programs and actionable options."
-        className="bg-card/60"
+        className="rounded-t-[40px] border-t border-primary/10 bg-card/60"
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <ActionPathCard
@@ -147,7 +163,7 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <SectionBlock title="How it works" subtitle="Clarity first. Action next.">
+      <SectionBlock title="How it works" subtitle="Clarity first. Action next." className="rounded-t-[40px] border-t border-primary/10">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="surface-card">
             <CardHeader>
@@ -185,7 +201,7 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <SectionBlock title="Trusted public service footprint" subtitle="Real coverage, real activity, real support.">
+      <SectionBlock title="Trusted public service footprint" subtitle="Real coverage, real activity, real support." className="rounded-t-[40px] border-t border-primary/10">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map(stat => (
             <StatPill key={stat.label} label={stat.label} value={stat.value} icon={stat.icon} />
@@ -196,7 +212,7 @@ export default function Home() {
       <SectionBlock
         title="Everything is easy to find"
         subtitle="Use the Explore menu in the header to jump to every module without cluttering this page."
-        className="bg-card/60"
+        className="rounded-t-[40px] border-t border-primary/10 bg-card/60"
       >
         <div className="rounded-2xl border border-border bg-card p-6">
           <div className="flex flex-wrap gap-2">
@@ -223,7 +239,7 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <SectionBlock className="pt-0">
+      <SectionBlock className="rounded-t-[40px] border-t border-primary/10 pt-0">
         <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm md:p-12">
           <div className="mx-auto max-w-2xl">
             <h2 className="text-foreground">Public infrastructure, redesigned for dignity.</h2>
