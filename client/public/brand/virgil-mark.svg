@@ -1,0 +1,23 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="36" y1="24" x2="220" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5CB1AD"/>
+      <stop offset="1" stop-color="#2F7E7A"/>
+    </linearGradient>
+    <radialGradient id="lampGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(147 112) rotate(90) scale(72 56)">
+      <stop offset="0" stop-color="#F8E27A" stop-opacity="0.74"/>
+      <stop offset="1" stop-color="#F8E27A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="20" y="20" width="216" height="216" rx="44" fill="url(#bg)"/>
+  <path d="M66 74C77 64 96 60 118 60H151" stroke="#F7F9FB" stroke-width="14" stroke-linecap="round"/>
+  <rect x="58" y="52" width="14" height="126" rx="7" fill="#F7F9FB"/>
+  <circle cx="65" cy="44" r="8" fill="#F7F9FB"/>
+
+  <circle cx="146" cy="112" r="58" fill="url(#lampGlow)"/>
+  <path d="M125 94H153C156 94 159 96 161 99L166 107H112L117 99C119 96 122 94 125 94Z" fill="#F7F9FB"/>
+  <rect x="127" y="107" width="24" height="28" rx="12" fill="#FFEFB0"/>
+
+  <path d="M58 178H72L76 214H54L58 178Z" fill="#F7F9FB" fill-opacity="0.95"/>
+</svg>

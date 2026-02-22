@@ -161,8 +161,11 @@ export default function PublicLayout({ title, subtitle, actions, children }: Pub
         <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
           <Link href="/">
             <a className="inline-flex items-center gap-2 text-foreground">
-              <Heart className="h-5 w-5 text-primary" />
-              <span className="text-base font-semibold">Virgil St</span>
+              <img
+                src="/brand/virgil-logo.svg"
+                alt="Virgil St"
+                className="h-8 w-auto sm:h-9"
+              />
             </a>
           </Link>
 
