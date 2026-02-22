@@ -84,7 +84,7 @@ function App() {
     <ErrorBoundary>
       <HelmetProvider>
         <ThemeProvider
-          defaultTheme="dark"
+          defaultTheme="light"
           // switchable
         >
           <TooltipProvider>

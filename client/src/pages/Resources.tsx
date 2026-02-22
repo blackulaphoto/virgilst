@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft,
   UtensilsCrossed,
   Home,
   Bus,
@@ -15,74 +14,74 @@ import {
   Phone,
   MapPin,
   ExternalLink,
-  ThumbsUp,
-  ThumbsDown,
   Flag,
   CheckCircle,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const resourceCategories = [
   {
     type: "food",
-    title: "Food & Grocery Programs",
-    description: "179 food banks, pantries, and meal programs across LA County",
+    title: "Food and Grocery Programs",
+    description: "Food banks, pantry services, and meal programs across LA County",
     icon: UtensilsCrossed,
-    color: "text-green-400",
-    bgColor: "bg-green-400/10",
-    borderColor: "border-green-400/50",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    borderColor: "border-primary/40",
   },
   {
     type: "housing",
     title: "Housing Assistance",
-    description: "45 programs for shelter, Section 8, rental assistance, and permanent housing",
+    description: "Shelter, Section 8, prevention, and permanent housing pathways",
     icon: Home,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400/10",
-    borderColor: "border-blue-400/50",
+    color: "text-accent-foreground",
+    bgColor: "bg-accent/20",
+    borderColor: "border-accent/50",
   },
   {
     type: "transportation",
     title: "Transportation",
-    description: "10 programs for free bus passes, Metro access, and travel assistance",
+    description: "Bus passes, transit support, and mobility assistance",
     icon: Bus,
-    color: "text-purple-400",
-    bgColor: "bg-purple-400/10",
-    borderColor: "border-purple-400/50",
+    color: "text-primary",
+    bgColor: "bg-secondary",
+    borderColor: "border-primary/35",
   },
   {
     type: "dental",
-    title: "Healthcare & Dental",
-    description: "12 dental clinics and healthcare services",
+    title: "Healthcare and Dental",
+    description: "Medical and dental support services",
     icon: Stethoscope,
-    color: "text-red-400",
-    bgColor: "bg-red-400/10",
-    borderColor: "border-red-400/50",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    borderColor: "border-primary/40",
   },
   {
     type: "legal",
     title: "Legal Services",
-    description: "5 free legal aid programs for housing, eviction, and benefits",
+    description: "Legal aid for housing, benefits, and documentation issues",
     icon: Scale,
-    color: "text-amber-400",
-    bgColor: "bg-amber-400/10",
-    borderColor: "border-amber-400/50",
+    color: "text-accent-foreground",
+    bgColor: "bg-accent/20",
+    borderColor: "border-accent/50",
   },
   {
     type: "shelter",
     title: "Emergency Shelter",
-    description: "3 emergency shelter and crisis housing programs",
+    description: "Emergency shelter and crisis housing programs",
     icon: Building,
-    color: "text-orange-400",
-    bgColor: "bg-orange-400/10",
-    borderColor: "border-orange-400/50",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    borderColor: "border-primary/40",
   },
 ];
 
 export default function Resources() {
   const { category } = useParams<{ category?: string }>();
-  const isValidCategory = !!category && resourceCategories.some((cat) => cat.type === category);
+  const isValidCategory = !!category && resourceCategories.some(cat => cat.type === category);
   const [selectedType, setSelectedType] = useState<string | null>(isValidCategory ? category! : null);
 
   useEffect(() => {
@@ -97,34 +96,21 @@ export default function Resources() {
 
   if (selectedType && selectedCategory) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b border-border bg-card sticky top-0 z-10">
-          <div className="container flex items-center justify-between py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => setSelectedType(null)}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className={`inline-flex h-10 w-10 items-center justify-center rounded-lg ${selectedCategory.bgColor}`}>
-                  <selectedCategory.icon className={`h-5 w-5 ${selectedCategory.color}`} />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-card-foreground">{selectedCategory.title}</h1>
-                  <p className="text-sm text-muted-foreground">{resources.length} resources available</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Resource List */}
-        <div className="container py-8">
+      <PublicLayout
+        title={selectedCategory.title}
+        subtitle={`${resources.length} resources found in this category.`}
+        actions={
+          <Button variant="outline" size="sm" onClick={() => setSelectedType(null)}>
+            Browse all categories
+          </Button>
+        }
+      >
+        <SectionBlock>
           <div className="mb-6 flex flex-wrap gap-2">
             {resourceCategories
-              .filter((cat) => cat.type !== selectedType)
+              .filter(cat => cat.type !== selectedType)
               .slice(0, 5)
-              .map((cat) => (
+              .map(cat => (
                 <Link key={cat.type} href={`/resources/${cat.type}`}>
                   <Button variant="outline" size="sm">
                     {cat.title}
@@ -132,114 +118,99 @@ export default function Resources() {
                 </Link>
               ))}
           </div>
+
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="surface-card animate-pulse">
                   <CardContent className="p-6">
-                    <div className="h-6 w-3/4 rounded bg-muted mb-3" />
-                    <div className="h-4 w-full rounded bg-muted mb-2" />
+                    <div className="mb-3 h-6 w-3/4 rounded bg-muted" />
+                    <div className="mb-2 h-4 w-full rounded bg-muted" />
                     <div className="h-4 w-2/3 rounded bg-muted" />
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : resources.length === 0 ? (
-            <Card className="p-12 text-center">
+            <Card className="surface-card p-12 text-center">
               <p className="text-muted-foreground">No resources found in this category.</p>
             </Card>
           ) : (
             <div className="space-y-4">
-              {resources.map((resource) => (
-                <Card
-                  key={resource.id}
-                  className={`border-zinc-800 hover:${selectedCategory.borderColor} transition-all`}
-                >
+              {resources.map(resource => (
+                <Card key={resource.id} className={`surface-card border ${selectedCategory.borderColor}`}>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <CardTitle className="text-white mb-2 flex items-center gap-2">
+                        <CardTitle className="mb-2 flex items-center gap-2 text-foreground">
                           {resource.name}
                           {resource.isVerified === 1 && (
-                            <Badge variant="outline" className="border-green-500 text-green-400 text-xs">
+                            <Badge variant="outline" className="border-primary/60 text-primary text-xs">
                               Verified
                             </Badge>
                           )}
                         </CardTitle>
                         {resource.description && (
-                          <CardDescription className="text-zinc-400 mb-4">
+                          <CardDescription className="mb-4 text-muted-foreground">
                             {resource.description}
                           </CardDescription>
                         )}
 
                         <div className="space-y-2">
                           {resource.address && (
-                            <div className="flex items-start gap-2 text-sm text-zinc-300">
-                              <MapPin className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                            <div className="flex items-start gap-2 text-sm text-foreground">
+                              <MapPin className="mt-0.5 h-4 w-4 text-primary shrink-0" />
                               <span>{resource.address}</span>
                             </div>
                           )}
 
                           {resource.phone && (
-                            <div className="flex items-center gap-2 text-sm text-zinc-300">
-                              <Phone className="w-4 h-4 text-green-400 flex-shrink-0" />
-                              <a href={`tel:${resource.phone}`} className="hover:text-white transition-colors">
+                            <div className="flex items-center gap-2 text-sm text-foreground">
+                              <Phone className="h-4 w-4 text-primary shrink-0" />
+                              <a href={`tel:${resource.phone}`} className="hover:text-primary transition-colors">
                                 {resource.phone}
                               </a>
                             </div>
                           )}
 
                           {resource.website && (
-                            <div className="flex items-center gap-2 text-sm text-zinc-300">
-                              <ExternalLink className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                            <div className="flex items-center gap-2 text-sm text-foreground">
+                              <ExternalLink className="h-4 w-4 text-primary shrink-0" />
                               <a
-                                href={resource.website.startsWith('http') ? resource.website : `https://${resource.website}`}
+                                href={resource.website.startsWith("http") ? resource.website : `https://${resource.website}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-white transition-colors hover:underline"
+                                className="hover:text-primary transition-colors hover:underline"
                               >
-                                Visit Website
+                                Visit website
                               </a>
                             </div>
                           )}
 
                           {resource.hours && (
-                            <div className="flex items-start gap-2 text-sm text-zinc-400 mt-2">
-                              <span className="font-medium">Hours:</span>
+                            <div className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+                              <span className="font-medium text-foreground">Hours:</span>
                               <span>{resource.hours}</span>
                             </div>
                           )}
                         </div>
 
-                        {/* Community Feedback */}
-                        <div className="mt-6 pt-4 border-t border-zinc-800">
-                          <p className="text-xs text-zinc-500 mb-3">
-                            Have you visited this location? Help keep info accurate:
+                        <div className="mt-6 border-t border-border pt-4">
+                          <p className="mb-3 text-xs text-muted-foreground">
+                            Have you visited this location? Help keep this up to date:
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-green-700 text-green-400 hover:bg-green-900/20"
-                            >
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Still Open
+                            <Button variant="outline" size="sm">
+                              <CheckCircle className="mr-1 h-3 w-3" />
+                              Still open
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-red-700 text-red-400 hover:bg-red-900/20"
-                            >
-                              <XCircle className="w-3 h-3 mr-1" />
+                            <Button variant="outline" size="sm">
+                              <XCircle className="mr-1 h-3 w-3" />
                               Closed
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-amber-700 text-amber-400 hover:bg-amber-900/20"
-                            >
-                              <Flag className="w-3 h-3 mr-1" />
-                              Report Issue
+                            <Button variant="outline" size="sm">
+                              <Flag className="mr-1 h-3 w-3" />
+                              Report issue
                             </Button>
                           </div>
                         </div>
@@ -250,80 +221,58 @@ export default function Resources() {
               ))}
             </div>
           )}
-        </div>
-      </div>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-card-foreground">Resource Directory</h1>
-              <p className="text-sm text-muted-foreground">Browse by category</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Category Grid */}
-      <div className="container py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">What do you need?</h2>
-          <p className="text-muted-foreground">
-            Click a category to browse verified resources across Los Angeles County
-          </p>
-        </div>
-
+    <PublicLayout
+      title="Resource Directory"
+      subtitle="Find verified support across housing, food, healthcare, legal services, transportation, and shelter."
+    >
+      <SectionBlock title="What do you need right now?" subtitle="Choose a category to see verified resources across Los Angeles County.">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {resourceCategories.map((category) => {
+          {resourceCategories.map(category => {
             const Icon = category.icon;
             return (
               <Card
                 key={category.type}
-                className={`cursor-pointer border-zinc-800 hover:${category.borderColor} transition-all group`}
+                className={`surface-card cursor-pointer border ${category.borderColor}`}
                 onClick={() => setSelectedType(category.type)}
               >
                 <CardHeader>
-                  <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${category.bgColor} mb-4 group-hover:scale-110 transition-transform`}>
+                  <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${category.bgColor}`}>
                     <Icon className={`h-6 w-6 ${category.color}`} />
                   </div>
-                  <CardTitle className="text-white text-xl mb-2">{category.title}</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    {category.description}
-                  </CardDescription>
+                  <CardTitle className="text-xl">{category.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground">{category.description}</CardDescription>
                 </CardHeader>
               </Card>
             );
           })}
         </div>
+      </SectionBlock>
 
-        {/* Quick Links */}
-        <div className="mt-12 p-6 bg-card border border-border rounded-lg">
-          <h3 className="text-lg font-bold text-card-foreground mb-4">Can't find what you need?</h3>
-          <div className="flex flex-col sm:flex-row gap-4">
+      <SectionBlock className="pt-0">
+        <Card className="surface-card p-6">
+          <h3 className="text-lg font-bold text-foreground">Need help choosing?</h3>
+          <p className="mt-2 text-muted-foreground">
+            Ask Virgil for a guided recommendation based on your immediate needs.
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Link href="/chat">
-              <Button className="w-full sm:w-auto">
-                <Heart className="w-4 h-4 mr-2" />
-                Ask Virgil AI
+              <Button className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+                <Heart className="mr-2 h-4 w-4" />
+                Ask Virgil
               </Button>
             </Link>
             <Link href="/search">
-              <Button variant="outline" className="w-full sm:w-auto">
-                Search Everything
-              </Button>
+              <Button variant="outline">Search everything</Button>
             </Link>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { MEDI_CAL_CATEGORY_DEFS, type MediCalCategoryKey } from "@shared/mediCalTaxonomy";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 export default function MediCalProviders() {
   const { city } = useParams<{ city?: string }>();
@@ -72,33 +74,19 @@ export default function MediCalProviders() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/10">
-                <Stethoscope className="h-5 w-5 text-blue-400" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-card-foreground">Medi-Cal Providers</h1>
-                <p className="text-sm text-muted-foreground">
-                  {providers.length} providers available
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Search & Filters */}
-      <div className="border-b border-border bg-card/50">
+    <PublicLayout
+      title="Medi-Cal Providers"
+      subtitle={`${providers.length} providers available by city, specialty, and category.`}
+      actions={
+        <Link href="/">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back home
+          </Button>
+        </Link>
+      }
+    >
+      <div className="border-b border-border bg-card/60">
         <div className="container py-4 space-y-3">
           {/* Category Navigation */}
           <div className="space-y-2">
@@ -237,8 +225,8 @@ export default function MediCalProviders() {
         </div>
       </div>
 
-      {/* Provider List */}
-      <div className="container py-8">
+      <SectionBlock className="pt-8">
+      <div className="container py-0">
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -281,11 +269,11 @@ export default function MediCalProviders() {
               }
 
               return (
-                <Card key={provider.id} className="border-zinc-800 hover:border-blue-400/50 transition-all">
+                <Card key={provider.id} className="surface-card transition-all">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <CardTitle className="text-white mb-2 flex items-center gap-2">
+                        <CardTitle className="mb-2 flex items-center gap-2 text-foreground">
                           {provider.providerName}
                           {provider.isVerified === 1 && (
                             <Badge variant="outline" className="border-green-500 text-green-400 text-xs">
@@ -295,7 +283,7 @@ export default function MediCalProviders() {
                         </CardTitle>
 
                         {provider.facilityName && (
-                          <div className="flex items-center gap-2 text-sm text-zinc-400 mb-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                             <Building2 className="h-4 w-4" />
                             <span>{provider.facilityName}</span>
                           </div>
@@ -308,7 +296,7 @@ export default function MediCalProviders() {
                               <Badge
                                 key={idx}
                                 variant="outline"
-                                className="border-blue-500/30 text-blue-400 text-xs"
+                                className="border-primary/40 text-primary text-xs"
                               >
                                 {specialty}
                               </Badge>
@@ -329,10 +317,10 @@ export default function MediCalProviders() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {provider.address && (
                         <div className="flex items-start gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-zinc-500 mt-0.5 flex-shrink-0" />
+                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="text-zinc-300">{provider.address}</div>
-                            <div className="text-zinc-500">
+                            <div className="text-foreground">{provider.address}</div>
+                            <div className="text-muted-foreground">
                               {provider.city}, {provider.state} {provider.zipCode}
                             </div>
                           </div>
@@ -341,23 +329,23 @@ export default function MediCalProviders() {
 
                       {provider.phone && (
                         <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-4 w-4 text-zinc-500" />
-                          <a href={`tel:${provider.phone}`} className="text-blue-400 hover:underline">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <a href={`tel:${provider.phone}`} className="text-primary hover:underline">
                             {provider.phone}
                           </a>
                         </div>
                       )}
 
                       {provider.gender && (
-                        <div className="flex items-center gap-2 text-sm text-zinc-400">
-                          <User className="h-4 w-4 text-zinc-500" />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <User className="h-4 w-4 text-muted-foreground" />
                           <span>Gender: {provider.gender}</span>
                         </div>
                       )}
 
                       {languages.length > 0 && (
-                        <div className="flex items-center gap-2 text-sm text-zinc-400">
-                          <Languages className="h-4 w-4 text-zinc-500" />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Languages className="h-4 w-4 text-muted-foreground" />
                           <span>
                             Languages: {languages.slice(0, 2).join(", ")}
                             {languages.length > 2 && ` +${languages.length - 2}`}
@@ -368,8 +356,8 @@ export default function MediCalProviders() {
 
                     {/* Provider IDs */}
                     {(provider.npi || provider.stateLicense) && (
-                      <div className="pt-3 border-t border-zinc-800">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-zinc-500">
+                      <div className="pt-3 border-t border-border">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-muted-foreground">
                           {provider.npi && (
                             <div>
                               <span className="font-medium">NPI:</span> {provider.npi}
@@ -386,11 +374,11 @@ export default function MediCalProviders() {
 
                     {/* Networks & Affiliations */}
                     {(networks.length > 0 || hospitals.length > 0 || medicalGroups.length > 0) && (
-                      <div className="pt-3 border-t border-zinc-800 space-y-2">
+                      <div className="pt-3 border-t border-border space-y-2">
                         {networks.length > 0 && (
                           <div className="text-xs">
-                            <span className="font-medium text-zinc-400">Networks:</span>
-                            <div className="text-zinc-500 mt-1">
+                            <span className="font-medium text-muted-foreground">Networks:</span>
+                            <div className="text-muted-foreground mt-1">
                               {networks.slice(0, 2).join(", ")}
                               {networks.length > 2 && ` +${networks.length - 2} more`}
                             </div>
@@ -399,8 +387,8 @@ export default function MediCalProviders() {
 
                         {hospitals.length > 0 && (
                           <div className="text-xs">
-                            <span className="font-medium text-zinc-400">Hospital Affiliations:</span>
-                            <div className="text-zinc-500 mt-1">
+                            <span className="font-medium text-muted-foreground">Hospital Affiliations:</span>
+                            <div className="text-muted-foreground mt-1">
                               {hospitals.slice(0, 2).join(", ")}
                               {hospitals.length > 2 && ` +${hospitals.length - 2} more`}
                             </div>
@@ -409,8 +397,8 @@ export default function MediCalProviders() {
 
                         {medicalGroups.length > 0 && (
                           <div className="text-xs">
-                            <span className="font-medium text-zinc-400">Medical Groups:</span>
-                            <div className="text-zinc-500 mt-1">
+                            <span className="font-medium text-muted-foreground">Medical Groups:</span>
+                            <div className="text-muted-foreground mt-1">
                               {medicalGroups.slice(0, 2).join(", ")}
                               {medicalGroups.length > 2 && ` +${medicalGroups.length - 2} more`}
                             </div>
@@ -421,7 +409,7 @@ export default function MediCalProviders() {
 
                     {/* Distance (if available) */}
                     {provider.distance && (
-                      <div className="pt-2 text-xs text-zinc-500">
+                      <div className="pt-2 text-xs text-muted-foreground">
                         Distance: {provider.distance}
                       </div>
                     )}
@@ -432,6 +420,7 @@ export default function MediCalProviders() {
           </div>
         )}
       </div>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

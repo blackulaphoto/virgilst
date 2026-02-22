@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const jobCategories = [
   {
@@ -170,15 +172,12 @@ export default function Jobs() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8 pb-24">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Job Search</h1>
-          <p className="text-muted-foreground">
-            Find employment opportunities in Los Angeles County
-          </p>
-        </div>
+    <PublicLayout
+      title="Job Search"
+      subtitle="Find employment opportunities in Los Angeles County and expand listings as needed."
+    >
+      <SectionBlock className="pt-8">
+      <div className="max-w-7xl mx-auto pb-24">
 
         {/* Search Form */}
         <Card className="mb-8">
@@ -376,6 +375,7 @@ export default function Jobs() {
           </>
         )}
       </div>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

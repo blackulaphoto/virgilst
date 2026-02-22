@@ -1,442 +1,268 @@
+import { useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
+import ActionPathCard from "@/components/ActionPathCard";
+import StatPill from "@/components/StatPill";
+import SurfaceCard from "@/components/SurfaceCard";
 import { getLoginUrl } from "@/const";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Link } from "wouter";
 import {
-  MessageSquare,
-  BookOpen,
-  Map,
-  Users,
-  Video,
-  Search,
   ArrowRight,
-  MapPin,
-  Heart,
-  Shield,
-  Building2,
-  CalendarDays,
-  UtensilsCrossed,
   Home as HomeIcon,
-  Bus,
+  UtensilsCrossed,
+  Briefcase,
   Stethoscope,
+  MessageSquare,
+  ShieldCheck,
+  CheckCircle2,
+  ListChecks,
+  CalendarDays,
+  Heart,
   LogIn,
   LogOut,
   User,
-  Briefcase,
+  MapPin,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+const resourceHighlights = [
+  {
+    title: "Housing Assistance",
+    description: "Shelter access, prevention, rapid rehousing, and supportive housing pathways.",
+    href: "/resources/housing",
+    tag: "Housing",
+  },
+  {
+    title: "Food and Grocery Support",
+    description: "Food pantries, hot meal distribution, and verified food service programs.",
+    href: "/resources/food",
+    tag: "Food",
+  },
+  {
+    title: "Jobs and Training",
+    description: "Entry-level work, hiring-now categories, and realistic next-step opportunities.",
+    href: "/jobs",
+    tag: "Work",
+  },
+  {
+    title: "Healthcare and Medi-Cal",
+    description: "Find providers by specialty, city, language, and accepted network.",
+    href: "/medical-providers",
+    tag: "Healthcare",
+  },
+];
 
 export default function Home() {
   const { isAuthenticated, user, logout } = useAuth();
 
+  const { data: statsData } = trpc.system.publicStats.useQuery();
+
+  const stats = useMemo(
+    () => [
+      { label: "Verified resources", value: statsData?.resourcesCount ?? "...", icon: ShieldCheck },
+      { label: "Recovery meetings", value: statsData?.meetingsCount ?? "...", icon: CalendarDays },
+      { label: "Medi-Cal providers", value: statsData?.mediCalProvidersCount ?? "3,326+", icon: Stethoscope },
+      { label: "Open job listings", value: statsData?.jobsCount ?? "...", icon: Briefcase },
+    ],
+    [statsData]
+  );
+
+  const authActions = isAuthenticated ? (
+    <>
+      <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+        <User className="h-4 w-4" />
+        <span>{user?.name || "User"}</span>
+      </div>
+      <Button variant="outline" size="sm" onClick={() => logout()}>
+        <LogOut className="mr-2 h-4 w-4" />
+        Sign out
+      </Button>
+    </>
+  ) : (
+    <Button size="sm" onClick={() => (window.location.href = getLoginUrl())}>
+      <LogIn className="mr-2 h-4 w-4" />
+      Sign in
+    </Button>
+  );
+
   return (
-    <div className="min-h-screen">
-      {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">Virgil St</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {isAuthenticated ? (
-              <>
-                <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-                  <User className="h-4 w-4" />
-                  <span>{user?.name || 'User'}</span>
-                </div>
-                {user?.role === "admin" && (
-                  <Link href="/admin">
-                    <Button variant="ghost" size="sm">
-                      Admin
-                    </Button>
-                  </Link>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => logout()}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <Button
-                size="sm"
-                onClick={() => {
-                  window.location.href = getLoginUrl();
-                }}
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background via-background/95 to-card py-20 md:py-32">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(0.75_0.18_85),transparent)]" />
-        </div>
-        
-        <div className="container relative z-10">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="mb-6 text-5xl font-black tracking-tight text-foreground md:text-7xl">
-              SIMPLIFY THE{" "}
-              <span className="text-primary">SYSTEM</span>
-            </h1>
-            <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
-              Social Services — Housing — Food Banks — Healthcare
+    <PublicLayout
+      actions={authActions}
+      title="Help, without the runaround."
+      subtitle="Find housing, food, healthcare, legal guidance, and work opportunities across Los Angeles County in minutes."
+    >
+      <SectionBlock className="pt-10 md:pt-16">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="fade-rise">
+            <p className="mb-5 max-w-2xl text-lg text-muted-foreground">
+              Virgil is public infrastructure redesigned for dignity. Ask one question and get verified options you can act on today.
             </p>
-            <p className="mb-12 text-lg text-muted-foreground">
-              Your digital survival companion for navigating social services, homelessness, and community support.
-            </p>
-            
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <div className="flex flex-wrap gap-3">
               <Link href="/chat">
-                <Button 
-                  size="lg" 
-                  className="group w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
-                >
-                  Talk to Virgil
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button size="lg" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+                  Get Help Now
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/resources">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="w-full border-primary/50 text-foreground hover:bg-primary/10 sm:w-auto"
-                >
-                  Find Resources
+                <Button size="lg" variant="outline">
+                  Explore Resources
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span>Serving Los Angeles County</span>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border bg-gradient-to-br from-secondary/70 to-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">What Virgil helps with</p>
+            <ul className="mt-4 space-y-3">
+              {[
+                "Housing placement and shelter access",
+                "Food resources and meal programs",
+                "Medi-Cal and healthcare navigation",
+                "Recovery meetings and treatment support",
+                "Job search and next-step planning",
+              ].map(item => (
+                <li key={item} className="flex items-start gap-2 text-sm text-foreground">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </SectionBlock>
+
+      <SectionBlock
+        title="Choose your next step"
+        subtitle="Start with the need you have right now. Each path takes you directly to verified programs and actionable options."
+        className="bg-card/60"
+      >
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <ActionPathCard
+            title="I need housing"
+            description="Shelter tonight, housing applications, and stability pathways."
+            icon={HomeIcon}
+            href="/resources/housing"
+            tone="teal"
+          />
+          <ActionPathCard
+            title="I need food"
+            description="Pantries, meal sites, and immediate nourishment options."
+            icon={UtensilsCrossed}
+            href="/resources/food"
+            tone="sky"
+          />
+          <ActionPathCard
+            title="I need work"
+            description="Hiring-now listings and practical job opportunities."
+            icon={Briefcase}
+            href="/jobs"
+            tone="coral"
+          />
+          <ActionPathCard
+            title="I need healthcare"
+            description="Medi-Cal providers, clinics, and specialty access."
+            icon={Stethoscope}
+            href="/medical-providers"
+            tone="slate"
+          />
+        </div>
+      </SectionBlock>
+
+      <SectionBlock title="How it works" subtitle="Clarity first. Action next.">
+        <div className="grid gap-4 md:grid-cols-3">
+          <SurfaceCard>
+            <CardHeader>
+              <Badge variant="secondary" className="w-fit">Step 1</Badge>
+              <CardTitle className="mt-2 text-xl">Ask Virgil</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Describe what you need in plain language and get guided support instantly.
+              </p>
+            </CardContent>
+          </SurfaceCard>
+          <SurfaceCard>
+            <CardHeader>
+              <Badge variant="secondary" className="w-fit">Step 2</Badge>
+              <CardTitle className="mt-2 text-xl">Get verified options</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                We prioritize verified resources and practical next actions for your situation.
+              </p>
+            </CardContent>
+          </SurfaceCard>
+          <SurfaceCard>
+            <CardHeader>
+              <Badge variant="secondary" className="w-fit">Step 3</Badge>
+              <CardTitle className="mt-2 text-xl">Take action today</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Call, apply, visit, or message with confidence, without bouncing between systems.
+              </p>
+            </CardContent>
+          </SurfaceCard>
+        </div>
+      </SectionBlock>
+
+      <SectionBlock title="Trusted public service footprint" subtitle="Real coverage, real activity, real support.">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map(stat => (
+            <StatPill key={stat.label} label={stat.label} value={stat.value} icon={stat.icon} />
+          ))}
+        </div>
+      </SectionBlock>
+
+      <SectionBlock title="Explore core services" subtitle="High-impact pathways designed for quick decisions and clear next moves." className="bg-card/60">
+        <div className="grid gap-4 md:grid-cols-2">
+          {resourceHighlights.map(item => (
+            <Link key={item.title} href={item.href}>
+              <SurfaceCard className="cursor-pointer">
+                <CardHeader>
+                  <Badge variant="outline" className="w-fit text-xs">
+                    {item.tag}
+                  </Badge>
+                  <CardTitle className="text-xl">{item.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground">{item.description}</CardDescription>
+                </CardHeader>
+              </SurfaceCard>
+            </Link>
+          ))}
+        </div>
+      </SectionBlock>
+
+      <SectionBlock className="pt-0">
+        <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm md:p-12">
+          <div className="mx-auto max-w-2xl">
+            <h2 className="text-foreground">Public infrastructure, redesigned for dignity.</h2>
+            <p className="mt-3 text-muted-foreground">
+              Start now and get a clear path to help today.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Link href="/chat">
+                <Button size="lg" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+                  Talk to Virgil
+                  <MessageSquare className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/resources">
+                <Button size="lg" variant="outline">
+                  Browse services
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* SEO Hub Links */}
-      <section className="border-t border-border bg-card/30 py-12">
-        <div className="container">
-          <h2 className="mb-4 text-2xl font-bold text-foreground">Browse Popular Resource Hubs</h2>
-          <div className="grid gap-3 md:grid-cols-3">
-            <Link href="/resources/food">
-              <Button variant="outline" className="w-full justify-start">Food Resources</Button>
-            </Link>
-            <Link href="/resources/housing">
-              <Button variant="outline" className="w-full justify-start">Housing Assistance</Button>
-            </Link>
-            <Link href="/resources/legal">
-              <Button variant="outline" className="w-full justify-start">Legal Services</Button>
-            </Link>
-            <Link href="/meetings/aa">
-              <Button variant="outline" className="w-full justify-start">AA Meetings</Button>
-            </Link>
-            <Link href="/treatment/sober-living">
-              <Button variant="outline" className="w-full justify-start">Sober Living Programs</Button>
-            </Link>
-            <Link href="/medical-providers/los-angeles">
-              <Button variant="outline" className="w-full justify-start">Los Angeles Medi-Cal Providers</Button>
-            </Link>
-            <Link href="/jobs/category/entry-level">
-              <Button variant="outline" className="w-full justify-start">Entry Level Jobs Los Angeles - No Experience</Button>
-            </Link>
-            <Link href="/jobs/category/warehouse">
-              <Button variant="outline" className="w-full justify-start">Warehouse Jobs Los Angeles - Immediate Hire</Button>
-            </Link>
-            <Link href="/jobs/category/delivery">
-              <Button variant="outline" className="w-full justify-start">Delivery Driver Jobs Los Angeles</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="py-20">
-        <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
-              Everything You Need to Navigate
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Built for people in chaos. Fast, clear, and always available.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* AI Case Manager */}
-            <Link href="/chat">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <MessageSquare className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">AI Case Manager</h3>
-                  <p className="text-muted-foreground">
-                    Get instant answers about benefits, housing, legal issues, and more. Virgil knows the system.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Resource Library */}
-            <Link href="/articles">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">Resource Library</h3>
-                  <p className="text-muted-foreground">
-                    Step-by-step guides for GR, Medi-Cal, Section 8, and everything else you need to know.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Camp Map */}
-            <Link href="/map">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Map className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">Camp Map</h3>
-                  <p className="text-muted-foreground">
-                    Find safe zones, resources, food, water, and community-shared locations near you.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Community Forum */}
-            <Link href="/forum">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">Community Forum</h3>
-                  <p className="text-muted-foreground">
-                    Share tips, warnings, and support. Connect with others who understand.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Food Resources */}
-            <Link href="/resources">
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-green-500 transition-all cursor-pointer group">
-                <CardHeader>
-                  <UtensilsCrossed className="w-12 h-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-white text-2xl mb-2">FOOD & GROCERIES</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    179 food banks, pantries, and meal programs across LA County
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            {/* Housing Resources */}
-            <Link href="/resources">
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-blue-500 transition-all cursor-pointer group">
-                <CardHeader>
-                  <HomeIcon className="w-12 h-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-white text-2xl mb-2">HOUSING HELP</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Section 8, shelter, rental assistance, and permanent housing programs
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            {/* Transportation */}
-            <Link href="/resources">
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-purple-500 transition-all cursor-pointer group">
-                <CardHeader>
-                  <Bus className="w-12 h-12 text-purple-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-white text-2xl mb-2">TRANSPORTATION</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Free bus passes, Metro access, and travel assistance programs
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            {/* Healthcare */}
-            <Link href="/resources">
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-red-500 transition-all cursor-pointer group">
-                <CardHeader>
-                  <Stethoscope className="w-12 h-12 text-red-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-white text-2xl mb-2">HEALTHCARE & DENTAL</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Free and low-cost medical and dental clinics
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            {/* Medi-Cal Providers */}
-            <Link href="/medical-providers">
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-blue-500 transition-all cursor-pointer group">
-                <CardHeader>
-                  <Stethoscope className="w-12 h-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-white text-2xl mb-2">MEDI-CAL PROVIDERS</CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    3,326 verified Medi-Cal providers across LA County - find doctors by specialty, location, and language
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            {/* Treatment Directory */}
-              <Link href="/treatment">
-                <Card className="bg-zinc-900 border-zinc-800 hover:border-amber-500 transition-all cursor-pointer group">
-                  <CardHeader>
-                    <Building2 className="w-12 h-12 text-amber-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <CardTitle className="text-white text-2xl mb-2">TREATMENT DIRECTORY</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      Sober living, detox, and treatment centers that accept Medi-Cal
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/meetings">
-                <Card className="bg-zinc-900 border-zinc-800 hover:border-amber-500 transition-all cursor-pointer group">
-                  <CardHeader>
-                    <Users className="w-12 h-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <CardTitle className="text-white text-2xl mb-2">RECOVERY MEETINGS</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      Find AA, NA, CMA, and SMART Recovery meetings in San Fernando Valley
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/events">
-                <Card className="bg-zinc-900 border-zinc-800 hover:border-amber-500 transition-all cursor-pointer group">
-                  <CardHeader>
-                    <CalendarDays className="w-12 h-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <CardTitle className="text-white text-2xl mb-2">COMMUNITY EVENTS</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      Find monthly resource fairs, workshops, and service events
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/jobs">
-                <Card className="bg-zinc-900 border-zinc-800 hover:border-cyan-500 transition-all cursor-pointer group">
-                  <CardHeader>
-                    <Briefcase className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <CardTitle className="text-white text-2xl mb-2">JOB SEARCH</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      Find entry-level, warehouse, retail, and other employment opportunities
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/videos">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Video className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">Video Library</h3>
-                  <p className="text-muted-foreground">
-                    Watch how-to guides, legal help videos, and recovery stories from people who've been there.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Search */}
-            <Link href="/search">
-              <Card className="group cursor-pointer border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Search className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-bold text-card-foreground">Search Everything</h3>
-                  <p className="text-muted-foreground">
-                    Find what you need across articles, forum posts, and resources in one place.
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="border-t border-border bg-card/50 py-20">
-        <div className="container">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-12 text-3xl font-bold text-card-foreground md:text-4xl">
-              Built with Respect
-            </h2>
-            
-            <div className="grid gap-8 md:grid-cols-3">
-              <div className="flex flex-col items-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Shield className="h-8 w-8" />
-                </div>
-                <h3 className="mb-2 text-lg font-bold text-card-foreground">Dignity First</h3>
-                <p className="text-sm text-muted-foreground">
-                  No judgment. No stigma. Just real help for real people.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <MapPin className="h-8 w-8" />
-                </div>
-                <h3 className="mb-2 text-lg font-bold text-card-foreground">Always Accessible</h3>
-                <p className="text-sm text-muted-foreground">
-                  Works on cheap phones, slow connections, and offline when needed.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Heart className="h-8 w-8" />
-                </div>
-                <h3 className="mb-2 text-lg font-bold text-card-foreground">Community Powered</h3>
-                <p className="text-sm text-muted-foreground">
-                  Your experiences help others. Together we're stronger.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="mx-auto max-w-2xl rounded-lg border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-8 text-center md:p-12">
-            <h2 className="mb-4 text-3xl font-bold text-card-foreground">
-              Ready to Get Started?
-            </h2>
-            <p className="mb-8 text-lg text-muted-foreground">
-              Talk to Virgil now and get the help you need.
-            </p>
-            <Link href="/chat">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Start Conversation
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

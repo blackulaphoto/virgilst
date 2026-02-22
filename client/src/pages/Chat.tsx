@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { skipToken } from "@tanstack/react-query";
-import { Loader2, Send, MessageSquare, ArrowLeft } from "lucide-react";
+import { Loader2, Send, MessageSquare } from "lucide-react";
 import { Streamdown } from "streamdown";
-import { Link } from "wouter";
 import { getLoginUrl } from "@/const";
+import PublicLayout from "@/components/PublicLayout";
 
 const SUGGESTED_PROMPTS = [
   "How do I apply for General Relief (GR)?",
@@ -78,44 +78,29 @@ export default function Chat() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container flex min-h-screen items-center justify-center py-20">
-        <Card className="max-w-md p-8 text-center">
-          <MessageSquare className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h2 className="mb-4 text-2xl font-bold text-card-foreground">
-            Sign In to Talk to Virgil
-          </h2>
-          <p className="mb-6 text-muted-foreground">
-            Create an account to save your conversations and get personalized help.
-          </p>
-          <Button asChild className="w-full">
-            <a href={getLoginUrl()}>Sign In</a>
-          </Button>
-        </Card>
-      </div>
+      <PublicLayout title="Ask Virgil" subtitle="Direct guidance for social services, legal navigation, and recovery support.">
+        <div className="container section-space">
+          <Card className="surface-card mx-auto max-w-md p-8 text-center">
+            <MessageSquare className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <h2 className="mb-4 text-2xl font-bold text-card-foreground">
+              Sign In to Talk to Virgil
+            </h2>
+            <p className="mb-6 text-muted-foreground">
+              Create an account to save your conversations and get personalized help.
+            </p>
+            <Button asChild className="w-full bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+              <a href={getLoginUrl()}>Sign In</a>
+            </Button>
+          </Card>
+        </div>
+      </PublicLayout>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-card-foreground">Virgil AI</h1>
-              <p className="text-sm text-muted-foreground">Your case manager</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto bg-background">
+    <PublicLayout title="Ask Virgil" subtitle="Your case manager for housing, benefits, healthcare, legal support, and practical next steps.">
+      <div className="flex min-h-[calc(100vh-11rem)] flex-col">
+        <div className="flex-1 overflow-y-auto bg-background">
         <div className="container max-w-4xl py-8">
           {!messages || messages.length === 0 ? (
             <div className="space-y-8">
@@ -215,7 +200,7 @@ export default function Chat() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-card">
+      <div className="border-t border-border bg-card/80">
         <div className="container max-w-4xl py-4">
           <div className="flex gap-2">
             <Textarea
@@ -244,6 +229,7 @@ export default function Chat() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </PublicLayout>
   );
 }
