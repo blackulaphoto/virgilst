@@ -1150,6 +1150,7 @@ export const appRouter = router({
         type: z.enum(["sober_living", "detox", "residential", "outpatient", "iop_php", "dual_diagnosis"]).optional(),
         city: z.string().optional(),
         acceptsMediCal: z.boolean().optional(),
+        acceptsPrivateInsurance: z.boolean().optional(),
         acceptsCouples: z.boolean().optional(),
         servesPopulation: z.enum(["men", "women", "coed", "lgbtq", "women_with_children"]).optional(),
       }).optional())

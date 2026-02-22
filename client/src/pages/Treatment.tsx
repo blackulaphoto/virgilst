@@ -26,6 +26,7 @@ export default function Treatment() {
   const [selectedCity, setSelectedCity] = useState<string | undefined>();
   const [selectedPopulation, setSelectedPopulation] = useState<string | undefined>();
   const [mediCalOnly, setMediCalOnly] = useState(false);
+  const [privateInsuranceOnly, setPrivateInsuranceOnly] = useState(false);
   const [couplesOnly, setCouplesOnly] = useState(false);
   const [selectedTreatmentType, setSelectedTreatmentType] = useState<string | undefined>(
     initialProgramType && initialProgramType !== "sober_living" ? initialProgramType : undefined
@@ -49,6 +50,7 @@ export default function Treatment() {
     city: selectedCity,
     servesPopulation: selectedPopulation as any,
     acceptsMediCal: mediCalOnly || undefined,
+    acceptsPrivateInsurance: privateInsuranceOnly || undefined,
     acceptsCouples: couplesOnly || undefined,
   });
 
@@ -56,6 +58,7 @@ export default function Treatment() {
     city: selectedCity,
     servesPopulation: selectedPopulation as any,
     acceptsMediCal: mediCalOnly || undefined,
+    acceptsPrivateInsurance: privateInsuranceOnly || undefined,
     acceptsCouples: couplesOnly || undefined,
   });
 
@@ -153,6 +156,7 @@ export default function Treatment() {
 
         <div className="flex flex-wrap gap-2">
           <Button variant={mediCalOnly ? "default" : "outline"} size="sm" onClick={() => setMediCalOnly(!mediCalOnly)}>Medi-Cal</Button>
+          <Button variant={privateInsuranceOnly ? "default" : "outline"} size="sm" onClick={() => setPrivateInsuranceOnly(!privateInsuranceOnly)}>Private Insurance</Button>
           <Button variant={couplesOnly ? "default" : "outline"} size="sm" onClick={() => setCouplesOnly(!couplesOnly)}>Couples</Button>
         </div>
       </CardContent>

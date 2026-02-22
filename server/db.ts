@@ -980,6 +980,7 @@ export async function getAllTreatmentCenters(filters?: {
   type?: string;
   city?: string;
   acceptsMediCal?: boolean;
+  acceptsPrivateInsurance?: boolean;
   acceptsCouples?: boolean;
   servesPopulation?: string;
 }): Promise<TreatmentCenter[]> {
@@ -997,6 +998,9 @@ export async function getAllTreatmentCenters(filters?: {
   }
   if (filters?.acceptsMediCal !== undefined) {
     conditions.push(eq(treatmentCenters.acceptsMediCal, filters.acceptsMediCal ? 1 : 0));
+  }
+  if (filters?.acceptsPrivateInsurance !== undefined) {
+    conditions.push(eq(treatmentCenters.acceptsPrivateInsurance, filters.acceptsPrivateInsurance ? 1 : 0));
   }
   if (filters?.acceptsCouples !== undefined) {
     conditions.push(eq(treatmentCenters.acceptsCouples, filters.acceptsCouples ? 1 : 0));
