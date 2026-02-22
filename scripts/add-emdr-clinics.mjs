@@ -1,6 +1,34 @@
-import postgres from 'postgres';
+﻿import postgres from 'postgres';
 
-const sql = postgres(process.env.DATABASE_URL);
+function resolveDatabaseUrl() {
+  const privateUrl = process.env.DATABASE_URL;
+  const publicUrl = process.env.DATABASE_PUBLIC_URL;
+
+  if (!privateUrl && !publicUrl) {
+    throw new Error('DATABASE_URL or DATABASE_PUBLIC_URL is required');
+  }
+
+  if (!privateUrl) return { url: publicUrl, source: "DATABASE_PUBLIC_URL" };
+
+  try {
+    const hostname = new URL(privateUrl).hostname.toLowerCase();
+    const usesInternalHost =
+      hostname.endsWith('.railway.internal') || hostname === 'postgres.railway.internal';
+
+    // When running from a local machine (for example `railway run`),
+    // Railway internal DNS cannot be resolved.
+    if (usesInternalHost && publicUrl) {
+      return { url: publicUrl, source: "DATABASE_PUBLIC_URL" };
+    }
+  } catch {
+    // If URL parsing fails, fall back to private URL.
+  }
+
+  return { url: privateUrl, source: "DATABASE_URL" };
+}
+
+const resolvedDb = resolveDatabaseUrl();
+const sql = postgres(resolvedDb.url);
 
 const clinics = [
   {
@@ -63,12 +91,31 @@ const clinics = [
 
 async function addClinics() {
   console.log('Adding EMDR therapy clinics...\n');
+  try {
+    const dbHost = new URL(resolvedDb.url).hostname;
+    console.log(`Using ${resolvedDb.source} (${dbHost})\n`);
+  } catch {
+    console.log(`Using ${resolvedDb.source}\n`);
+  }
 
   let added = 0;
   let skipped = 0;
 
   for (const clinic of clinics) {
     try {
+      const existingByPhone = await sql`
+        SELECT id
+        FROM medi_cal_providers
+        WHERE phone = ${clinic.phone}
+        LIMIT 1
+      `;
+
+      if (existingByPhone.length > 0) {
+        console.log(`[SKIP] ${clinic.name} - already exists`);
+        skipped++;
+        continue;
+      }
+
       const searchTerms = [
         clinic.name,
         clinic.city,
@@ -93,32 +140,30 @@ async function addClinics() {
           ${searchTerms},
           1
         )
-        ON CONFLICT (phone) DO NOTHING
         RETURNING id
       `;
 
-      if (result.length === 0) {
-        console.log(`⏭️  ${clinic.name} - already exists`);
-        skipped++;
-      } else {
+      if (result.length > 0) {
         const providerId = result[0].id;
 
-        // Add mental_health category
         await sql`
           INSERT INTO provider_categories ("providerId", "categoryKey")
           VALUES (${providerId}, 'mental_health')
           ON CONFLICT DO NOTHING
         `;
 
-        console.log(`✅ ${clinic.name}`);
+        console.log(`[ADDED] ${clinic.name}`);
         added++;
+      } else {
+        console.log(`[SKIP] ${clinic.name} - already exists`);
+        skipped++;
       }
     } catch (error) {
-      console.error(`❌ ${clinic.name}: ${error.message}`);
+      console.error(`[ERROR] ${clinic.name}: ${error.message}`);
     }
   }
 
-  console.log(`\n📊 Summary: ${added} added, ${skipped} skipped`);
+  console.log(`\nSummary: ${added} added, ${skipped} skipped`);
   await sql.end();
 }
 
