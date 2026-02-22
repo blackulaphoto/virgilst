@@ -5,46 +5,52 @@ description: Specification for legal case management workflows, status tracking,
 
 # case-management-flow
 
-## Case Status Workflow
-- Progressive status tracking from intake through resolution
-- Milestone sequencing based on case type:
-  - Custody reunification path
-  - Record expungement path
-- Auto-advancement logic based on document verification
-- Required document checklist generation by case type
+## Case Management Workflows
+
+Legal case workflows are structured around two primary case types:
+
+1. Custody Reunification Cases
+Importance Score: 95
+- Sequential milestone tracking:
+  - Initial Assessment
+  - Parenting Classes
+  - Home Study
+  - Supervised Visits
+  - Court Appearances
+- Automatic milestone initialization based on case requirements
+- Document verification states for each milestone
+
+2. Record Expungement Cases
+Importance Score: 90
+- Linear progression through required steps:
+  - Eligibility Check
+  - Records Collection
+  - Form Completion
+  - Court Filing
+  - Follow-up
+- Document requirement templates specific to case type
+
+## Calendar Integration
+
 Importance Score: 85
+Specialized event management for legal proceedings:
+- Court date tracking
+- Legal deadline management
+- Case appointment coordination
+- Integration with milestone system
+- Reminder workflow based on case status
 
 ## Document Verification States
-- Staged verification process for legal documents
-- Document requirements matrix by case type
-- Auto-validation of document completeness
-- Version control for legal document revisions
+
 Importance Score: 80
+Documents move through defined states:
+1. Required
+2. Submitted
+3. Under Review
+4. Verified
+5. Rejected (with reason)
 
-## Case Milestone Tracking
-- Sequential milestone completion enforcement
-- Dependency mapping between milestones
-- Deadline calculation and tracking
-- Required action prompts based on milestone state
-Importance Score: 75
-
-## Legal Process Automation
-- Template generation based on case parameters
-- Required fields validation per document type
-- Auto-population of standard legal forms
-- Case-specific checklist management
-Importance Score: 90
-
-Core Implementation Files:
-server/legalCases.ts
-server/case-management/milestones.ts
-server/case-management/documents.ts
-
-Primary Focus:
-- Case type-specific workflow management
-- Document verification state machines
-- Milestone dependency tracking
-- Legal process automation
+Each state triggers appropriate notifications and workflow updates within the case management system.
 
 $END$
 

@@ -1,5 +1,5 @@
 ---
-description: Defines data models, relationships, and verification workflows for treatment facilities, legal cases, and support resources
+description: Documentation and analysis of data models and their relationships for treatment facilities, resources, and verification workflows
 ---
 
 
@@ -7,50 +7,66 @@ description: Defines data models, relationships, and verification workflows for 
 
 ## Core Data Models
 
-### Treatment Facilities
-- Dual categorization system: treatment centers and sober living facilities
-- Verification status tracking with multi-step approval workflow
-- Provider network affiliations and insurance acceptance patterns
-- Geographic service area boundaries and coverage mapping
-- Specialty service flagging (detox, residential, outpatient)
-Importance Score: 85
+### Treatment Facility Model
+Importance Score: 95
+- Multi-tiered classification system:
+  - Population served (coed, gender-specific, families)
+  - Treatment levels (detox, residential, outpatient)
+  - Insurance acceptance (Medi-Cal, Medicare, private)
+- County-specific jurisdictional relationships
+- Verification status workflow tracking
 
-### Legal Cases
-- Case type classification for custody reunification and expungement
-- Document requirements mapped to case milestones
-- Auto-generated legal document templates by case type
-- Custom milestone sequencing for different legal processes
+### Legal Case Model 
 Importance Score: 90
+- Case type taxonomy:
+  - Custody reunification 
+  - Record expungement
+  - Benefits appeals
+- Milestone tracking with type-specific templates
+- Document requirements by case stage
+- Relationship mapping to appointments/deadlines
 
-### Community Resources
-- Multi-category resource classification (housing, food, medical)
-- Verification status tracking for community-submitted resources
-- Service eligibility criteria mapping
-- Geographic coverage area definition
-Importance Score: 80
-
-## Relationships
-
-### Provider Networks
-- Treatment facility network memberships
-- Insurance acceptance relationships
-- Service area overlaps
-- Referral pathway tracking
-Importance Score: 75
-
-### Resource Verification
-- Community-driven verification workflow
-- Multi-step approval process
-- User role-based verification permissions
-- Verification history tracking
+### Resource Location Model
 Importance Score: 85
+- Hierarchical categorization:
+  - Safe zones
+  - Resource centers
+  - Basic needs (food/water)
+  - Emergency services
+- Community verification status tracking
+- Real-time availability updates
+- Geographic relationship mapping
 
-### Service Availability
-- Resource capacity tracking
-- Service scheduling relationships
-- Eligibility criteria mapping
-- Population-specific service matching
-Importance Score: 70
+### Medical Provider Model
+Importance Score: 80
+- Specialty taxonomy mapping
+- Network affiliation tracking
+- Language service relationships
+- Insurance acceptance verification
+- Geographic service area definitions
+
+## Key Relationships
+
+### Verification Workflows
+- Three-tier verification system:
+  1. Community submission
+  2. Peer verification
+  3. Official validation
+- Status tracking across all resource types
+- Change history maintenance
+- Update authority levels
+
+### Service Area Mappings
+- County-level jurisdiction tracking
+- Resource coverage analysis
+- Service overlap detection
+- Accessibility relationship scoring
+
+### Crisis Response Integration
+- Emergency resource availability links
+- Service provider on-call status
+- Response team jurisdiction mapping
+- Resource allocation relationships
 
 $END$
 

@@ -13,59 +13,47 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Core Platform Organization:
+The platform implements specialized business logic for homeless services, recovery support, and social services management across interconnected components:
 
-1. Community Resource Mapping
-- Location-based pin system with moderated submissions
-- Resource categorization: safe zones, services, warnings, sweep alerts
-- Community verification through comment threading and upvoting
-Importance Score: 85
+1. Resource Discovery & Safety (85/100)
+- Community-driven map system tracking homeless resources
+- Multi-layered verification for submitted locations
+- Real-time status tracking and sweep alerts
+- Categorized pin system:
+  - Safe zones
+  - Resource centers
+  - Food/water sources
+  - Charging stations
 
-2. Recovery Service Coordination
-- Multi-program meeting aggregation (AA, NA, CMA, SMART)
-- Accessibility classification system
-- Format handling: hybrid/online/in-person
-- Meeting recurrence management
-Importance Score: 80
+2. Treatment Facility Management (85/100)
+- Complex facility classification system
+- Population-specific service matching
+- Insurance acceptance validation (MediCal, Medicare)
+- County-specific organization
+- Multi-step matching wizard with decision tree logic
 
-3. Healthcare Provider Network
-- Medical provider directory with specialty filtering
-- Verification status tracking system
-- Network affiliation management
-- Geographic service coverage mapping
-Importance Score: 75
+3. Crisis Resource System (80/100)
+- Structured intervention workflows
+- Emergency shelter protocols
+- Benefits application procedures
+- ID recovery processes
+- Mental health crisis response
 
-4. Crisis Management System
-- AI case management with context awareness
-- Domain-specific resource recommendations
-- Source attribution and verification
-- Conversation history tracking
-Importance Score: 90
+4. Recovery Meeting Organization (75/100)
+- Meeting type classification (AA, NA, CMA, SMART)
+- Format detection algorithms
+- Multi-language support
+- Accessibility-based filtering
+- Hybrid/online/in-person classifications
 
-5. Treatment Matching Engine
-- Multi-criteria facility matching:
-  * Geographic constraints
-  * Insurance coverage
-  * Treatment requirements
-  * Population specifics
-- Progressive filtering system
-Importance Score: 85
+5. Social Services Navigation (70/100)
+- AI-powered case management
+- Domain-specific knowledge base
+- Anonymous support systems
+- Appointment coordination
+- Service provider verification
 
-6. Knowledge Management
-- Domain-specific document categorization
-- Legal/social services content organization
-- Intelligent content chunking
-- Custom embedding generation
-Importance Score: 90
-
-Integration Architecture:
-- Community-driven resource verification
-- Multi-service provider coordination
-- Location-based service discovery
-- Moderated content contribution
-- AI-assisted case routing
-
-Platform focuses on comprehensive social service coordination with strong emphasis on community verification, crisis response, and treatment accessibility.
+The system's core value stems from its comprehensive approach to crisis resource management, treatment facility accessibility, and community-driven verification systems, with particular emphasis on California-specific social services integration.
 
 $END$
 

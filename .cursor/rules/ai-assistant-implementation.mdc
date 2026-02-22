@@ -1,52 +1,48 @@
 ---
-description: Defines AI assistance system behavior, context awareness, and knowledge base integration for homeless services platform
+description: AI assistant integration specification for context-aware chat and knowledge base integration
 ---
 
 
 # ai-assistant-implementation
 
-The AI assistance system consists of several interconnected components:
+## Core AI Assistant Components
 
-## Context-Aware Assistant
-Path: client/src/components/FloatingAIAssistant.tsx
-Importance Score: 85
-- Dynamically adapts responses based on current page context
-- Maintains awareness of user journey and navigation state 
-- Generates contextual greetings and suggestions based on viewed resources
-- Provides quick action shortcuts relevant to current section
-
-## Chat Implementation
+### Context-Aware Chat System
 Path: client/src/components/AIChatBox.tsx
-Importance Score: 90
-- Specialized message handling for social services domain
-- Context preservation across conversation sessions
-- Dynamic suggestion system based on user intent
-- Source attribution for knowledge base references
-- Privacy-aware data handling for sensitive information
-
-## Knowledge Base Integration
-Path: server/knowledgeIngestion.ts
 Importance Score: 85
-- Domain-specific document categorization for social services
-- Custom chunking optimized for service provider information
-- Specialized embedding generation for legal/benefits content
-- Category-specific organization (housing, health, legal, benefits)
+- Domain-specific prompt engineering for social services queries
+- Knowledge base integration with source attribution for legal/medical advice
+- Context preservation across chat sessions for complex service navigation
+- Automatic detection and handling of urgent/crisis situations
+- Real-time resource suggestion based on conversation context
 
-## RAG Search System
-Path: server/ragSearch.ts
+### Floating Assistant Interface
+Path: client/src/components/FloatingAIAssistant.tsx
 Importance Score: 80
-- Specialized similarity search for social services knowledge
-- Custom ranking for service provider relevance
-- Context formatting optimized for social service queries
-- Prioritized local resource matching
+- Quick action suggestions based on user location and context
+- Proactive resource recommendations based on page content
+- Crisis intervention workflow triggers
+- Multi-step guidance for complex service applications
 
-## AI Tools Framework
-Path: server/virgilTools.ts
+### Knowledge Base Integration
+Path: client/src/lib/ai/knowledgeBase.ts
 Importance Score: 75
-- Function definitions for social service assistance
-- Tiered search strategy prioritizing local resources
-- Domain-specific tool selection for assistance requests
+- Social services taxonomy for query classification
+- Resource verification status tracking
+- Authority source linking for medical/legal advice
+- Geographic service area validation
+- Real-time resource availability checks
+
+### Chat State Management
+Path: client/src/components/Chat.tsx
+Importance Score: 70
+- Anonymous session handling for sensitive topics
+- Message threading with service provider attribution
+- Crisis flag detection and escalation
 - Integration with case management system
+- Resource bookmark and follow-up system
+
+The AI assistance system is specifically designed for social services navigation, with strong emphasis on crisis detection, resource verification, and proper attribution of medical/legal advice.
 
 $END$
 
