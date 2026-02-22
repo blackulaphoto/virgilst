@@ -56,7 +56,8 @@
       "Bash(then source .env)",
       "Bash(else echo \"No .env file\")",
       "Bash(fi)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:QFsLqjNDmbNyLEUfDnHsyTRJfKdBsDov@metro.proxy.rlwy.net:37297/railway\" pnpm exec drizzle-kit:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:QFsLqjNDmbNyLEUfDnHsyTRJfKdBsDov@metro.proxy.rlwy.net:37297/railway\" pnpm exec drizzle-kit:*)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []
