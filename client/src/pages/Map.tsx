@@ -292,7 +292,7 @@ export default function Map() {
             <div>
               <h1 className="text-lg font-bold text-card-foreground">Community Map</h1>
               <p className="text-xs text-muted-foreground">
-                {pins?.length || 0} locations â€¢ {selectedTypes.length > 0 ? `${selectedTypes.length} filters active` : "All types"}
+                {pins?.length || 0} locations • {selectedTypes.length > 0 ? `${selectedTypes.length} filters active` : "All types"}
               </p>
             </div>
           </div>
@@ -599,7 +599,7 @@ export default function Map() {
                   <span>
                     Submitted by {selectedPin.submitter?.displayName || "Community Member"}
                   </span>
-                  <span>â€¢</span>
+                  <span>•</span>
                   <span>{new Date(selectedPin.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
@@ -681,7 +681,7 @@ export default function Map() {
                               ? "Anonymous"
                               : comment.author?.displayName || "Community Member"}
                           </span>
-                          <span className="text-xs text-muted-foreground">â€¢</span>
+                          <span className="text-xs text-muted-foreground">•</span>
                           <span className="text-xs text-muted-foreground">
                             {new Date(comment.createdAt).toLocaleDateString()}
                           </span>
@@ -703,3 +703,4 @@ export default function Map() {
     </div>
   );
 }
+

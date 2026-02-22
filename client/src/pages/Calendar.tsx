@@ -24,6 +24,8 @@ import { Calendar as CalendarIcon, Plus, Clock, MapPin, Bell } from "lucide-reac
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const eventTypeColors = {
   court_date: "bg-red-500",
@@ -64,7 +66,9 @@ export default function Calendar() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container py-12">
+      <PublicLayout title="Calendar" subtitle="Track court dates, deadlines, and important appointments.">
+      <SectionBlock className="pt-8">
+      <div className="container py-0">
         <Card>
           <CardContent className="p-12 text-center">
             <CalendarIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -78,11 +82,15 @@ export default function Calendar() {
           </CardContent>
         </Card>
       </div>
+      </SectionBlock>
+      </PublicLayout>
     );
   }
 
   return (
-    <div className="container py-8">
+    <PublicLayout title="Calendar" subtitle="Track court dates, deadlines, and important appointments.">
+    <SectionBlock className="pt-8">
+    <div className="container py-0">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Calendar</h1>
@@ -232,6 +240,8 @@ export default function Calendar() {
         )}
       </div>
     </div>
+    </SectionBlock>
+    </PublicLayout>
   );
 }
 

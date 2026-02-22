@@ -6,18 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { ArrowLeft, Loader2, Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const CATEGORIES = [
   { value: "survival_tips", label: "Survival Tips", description: "Share practical advice for daily survival" },
@@ -75,50 +71,38 @@ export default function ForumNewPost() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container flex min-h-screen items-center justify-center py-20">
-        <Card className="max-w-md p-8 text-center">
-          <h2 className="mb-4 text-2xl font-bold text-card-foreground">
-            Sign In to Post
-          </h2>
-          <p className="mb-6 text-muted-foreground">
-            Create an account to share with the community
-          </p>
-          <Button asChild className="w-full">
-            <a href={getLoginUrl()}>Sign In</a>
-          </Button>
-        </Card>
-      </div>
+      <PublicLayout title="Create New Post" subtitle="Share your experience and support the community.">
+        <SectionBlock>
+          <Card className="surface-card mx-auto max-w-md p-8 text-center">
+            <h2 className="mb-4 text-2xl font-bold text-card-foreground">Sign in to post</h2>
+            <p className="mb-6 text-muted-foreground">Create an account to share with the community.</p>
+            <Button asChild className="w-full">
+              <a href={getLoginUrl()}>Sign In</a>
+            </Button>
+          </Card>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/forum">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-card-foreground">Create New Post</h1>
-              <p className="text-sm text-muted-foreground">Share with the community</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container py-8">
+    <PublicLayout
+      title="Create New Post"
+      subtitle="Share your question, tip, or update with the community."
+      actions={
+        <Link href="/forum">
+          <Button variant="outline" size="sm">Back to Forum</Button>
+        </Link>
+      }
+    >
+      <SectionBlock>
         <div className="mx-auto max-w-3xl">
-          <Card>
+          <Card className="surface-card">
             <CardHeader>
               <CardTitle>New Forum Post</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
                   <Select value={category} onValueChange={setCategory}>
@@ -130,9 +114,7 @@ export default function ForumNewPost() {
                         <SelectItem key={cat.value} value={cat.value}>
                           <div>
                             <div className="font-semibold">{cat.label}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {cat.description}
-                            </div>
+                            <div className="text-xs text-muted-foreground">{cat.description}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -140,22 +122,18 @@ export default function ForumNewPost() {
                   </Select>
                 </div>
 
-                {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="What's your post about?"
+                    placeholder="What is your post about?"
                     maxLength={500}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {title.length}/500 characters
-                  </p>
+                  <p className="text-xs text-muted-foreground">{title.length}/500 characters</p>
                 </div>
 
-                {/* Content */}
                 <div className="space-y-2">
                   <Label htmlFor="content">Content *</Label>
                   <Textarea
@@ -165,35 +143,23 @@ export default function ForumNewPost() {
                     placeholder="Share your thoughts, questions, or experiences..."
                     className="min-h-[200px]"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Be respectful and helpful. This is a community support space.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Be respectful and helpful in this community space.</p>
                 </div>
 
-                {/* Anonymous Option */}
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="anonymous"
                     checked={isAnonymous}
                     onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
                   />
-                  <Label htmlFor="anonymous" className="text-sm">
-                    Post anonymously
-                  </Label>
+                  <Label htmlFor="anonymous" className="text-sm">Post anonymously</Label>
                 </div>
 
-                {/* Submit */}
                 <div className="flex gap-4">
                   <Link href="/forum">
-                    <Button type="button" variant="outline">
-                      Cancel
-                    </Button>
+                    <Button type="button" variant="outline">Cancel</Button>
                   </Link>
-                  <Button
-                    type="submit"
-                    disabled={createPostMutation.isPending}
-                    className="gap-2"
-                  >
+                  <Button type="submit" disabled={createPostMutation.isPending} className="gap-2">
                     {createPostMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -206,7 +172,7 @@ export default function ForumNewPost() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

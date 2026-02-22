@@ -7,7 +7,6 @@ import { Link } from "wouter";
 import {
   BookOpen,
   Search,
-  ArrowLeft,
   FileText,
   Home,
   Scale,
@@ -17,15 +16,17 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const CATEGORIES = [
   { value: "benefits", label: "Benefits", icon: CreditCard, color: "bg-primary/10 text-primary" },
-  { value: "housing", label: "Housing", icon: Home, color: "bg-blue-500/10 text-blue-500" },
-  { value: "legal", label: "Legal", icon: Scale, color: "bg-purple-500/10 text-purple-500" },
-  { value: "health", label: "Health", icon: Heart, color: "bg-red-500/10 text-red-500" },
-  { value: "employment", label: "Employment", icon: Briefcase, color: "bg-green-500/10 text-green-500" },
-  { value: "identification", label: "ID & Docs", icon: FileText, color: "bg-orange-500/10 text-orange-500" },
-  { value: "emergency", label: "Emergency", icon: AlertCircle, color: "bg-red-600/10 text-red-600" },
+  { value: "housing", label: "Housing", icon: Home, color: "bg-accent/20 text-accent-foreground" },
+  { value: "legal", label: "Legal", icon: Scale, color: "bg-secondary text-secondary-foreground" },
+  { value: "health", label: "Health", icon: Heart, color: "bg-primary/10 text-primary" },
+  { value: "employment", label: "Employment", icon: Briefcase, color: "bg-secondary text-secondary-foreground" },
+  { value: "identification", label: "ID and Docs", icon: FileText, color: "bg-accent/20 text-accent-foreground" },
+  { value: "emergency", label: "Emergency", icon: AlertCircle, color: "bg-[var(--cta)]/15 text-[var(--cta)]" },
 ];
 
 export default function Library() {
@@ -40,26 +41,8 @@ export default function Library() {
   const filteredArticles = articles || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-card-foreground">Resource Library</h1>
-              <p className="text-sm text-muted-foreground">Step-by-step guides</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container py-8">
-        {/* Search */}
+    <PublicLayout title="Resource Library" subtitle="Step-by-step guides for benefits, housing, legal issues, healthcare, and practical survival workflows.">
+      <SectionBlock className="pt-8">
         <div className="mb-8">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -67,35 +50,22 @@ export default function Library() {
               type="text"
               placeholder="Search articles..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>
         </div>
 
-        {/* Categories */}
         <div className="mb-8">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Categories
-          </h2>
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Categories</h2>
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant={!selectedCategory ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(undefined)}
-            >
+            <Button variant={!selectedCategory ? "default" : "outline"} size="sm" onClick={() => setSelectedCategory(undefined)}>
               All
             </Button>
-            {CATEGORIES.map((cat) => {
+            {CATEGORIES.map(cat => {
               const Icon = cat.icon;
               return (
-                <Button
-                  key={cat.value}
-                  variant={selectedCategory === cat.value ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.value)}
-                  className="gap-2"
-                >
+                <Button key={cat.value} variant={selectedCategory === cat.value ? "default" : "outline"} size="sm" onClick={() => setSelectedCategory(cat.value)} className="gap-2">
                   <Icon className="h-4 w-4" />
                   {cat.label}
                 </Button>
@@ -104,11 +74,10 @@ export default function Library() {
           </div>
         </div>
 
-        {/* Articles Grid */}
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="surface-card animate-pulse">
                 <CardHeader>
                   <div className="h-6 w-3/4 rounded bg-muted" />
                 </CardHeader>
@@ -122,24 +91,22 @@ export default function Library() {
             ))}
           </div>
         ) : filteredArticles.length === 0 ? (
-          <Card className="p-12 text-center">
+          <Card className="surface-card p-12 text-center">
             <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="mb-2 text-lg font-semibold text-card-foreground">No articles found</h3>
             <p className="text-muted-foreground">
-              {searchQuery
-                ? "Try a different search term"
-                : "No articles available in this category"}
+              {searchQuery ? "Try a different search term" : "No articles available in this category"}
             </p>
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.map((article) => {
-              const category = CATEGORIES.find((c) => c.value === article.category);
+            {filteredArticles.map(article => {
+              const category = CATEGORIES.find(c => c.value === article.category);
               const Icon = category?.icon || FileText;
 
               return (
-            <Link key={article.id} href={`/articles/${article.slug}`}>
-                  <Card className="group h-full cursor-pointer transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+                <Link key={article.id} href={`/articles/${article.slug}`}>
+                  <Card className="surface-card group h-full cursor-pointer">
                     <CardHeader>
                       <div className="mb-2 flex items-center gap-2">
                         <div className={`inline-flex rounded-lg p-2 ${category?.color}`}>
@@ -149,16 +116,10 @@ export default function Library() {
                           {category?.label}
                         </Badge>
                       </div>
-                      <CardTitle className="line-clamp-2 text-lg group-hover:text-primary">
-                        {article.title}
-                      </CardTitle>
+                      <CardTitle className="line-clamp-2 text-lg group-hover:text-primary">{article.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {article.summary && (
-                        <p className="line-clamp-3 text-sm text-muted-foreground">
-                          {article.summary}
-                        </p>
-                      )}
+                      {article.summary && <p className="line-clamp-3 text-sm text-muted-foreground">{article.summary}</p>}
                       <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>{article.viewCount} views</span>
                         <span>•</span>
@@ -171,7 +132,7 @@ export default function Library() {
             })}
           </div>
         )}
-      </div>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

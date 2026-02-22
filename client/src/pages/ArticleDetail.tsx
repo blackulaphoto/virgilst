@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Link, useParams } from "wouter";
-import { ArrowLeft, BookOpen, Eye, Calendar, BookmarkIcon } from "lucide-react";
+import { BookOpen, Eye, Calendar, BookmarkIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Streamdown } from "streamdown";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { useSeo } from "@/lib/seo";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const BASE_URL = "https://www.virgilst.com";
 
@@ -138,13 +140,8 @@ export default function ArticleDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card">
-          <div className="container py-4">
-            <div className="h-8 w-48 animate-pulse rounded bg-muted" />
-          </div>
-        </header>
-        <div className="container py-8">
+      <PublicLayout title="Loading article...">
+        <SectionBlock>
           <div className="mx-auto max-w-3xl space-y-4">
             <div className="h-12 w-3/4 animate-pulse rounded bg-muted" />
             <div className="h-6 w-1/2 animate-pulse rounded bg-muted" />
@@ -154,63 +151,53 @@ export default function ArticleDetail() {
               ))}
             </div>
           </div>
-        </div>
-      </div>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   if (!article) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Card className="max-w-md p-8 text-center">
-          <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h2 className="mb-2 text-2xl font-bold text-card-foreground">Article Not Found</h2>
-          <p className="mb-6 text-muted-foreground">
-            The article you're looking for doesn't exist or has been removed.
-          </p>
-          <Link href="/articles">
-            <Button>Back to Articles</Button>
-          </Link>
-        </Card>
-      </div>
+      <PublicLayout title="Article Not Found">
+        <SectionBlock>
+          <div className="flex items-center justify-center">
+            <Card className="surface-card max-w-md p-8 text-center">
+              <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h2 className="mb-2 text-2xl font-bold text-card-foreground">Article Not Found</h2>
+              <p className="mb-6 text-muted-foreground">
+                The article you are looking for does not exist or has been removed.
+              </p>
+              <Link href="/articles">
+                <Button>Back to Articles</Button>
+              </Link>
+            </Card>
+          </div>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <Link href="/articles">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          {article && (
-            <Button
-              variant={isFavorited ? "default" : "outline"}
-              size="sm"
-              onClick={handleToggleFavorite}
-              disabled={addFavoriteMutation.isPending || removeFavoriteMutation.isPending}
-            >
-              <BookmarkIcon className={`h-4 w-4 mr-2 ${isFavorited ? "fill-current" : ""}`} />
-              {isFavorited ? "Bookmarked" : "Bookmark"}
-            </Button>
-          )}
-        </div>
-      </header>
-
-      {/* Article Content */}
-      <article className="container py-8">
-        <div className="mx-auto max-w-3xl">
-          {/* Meta */}
+    <PublicLayout
+      actions={
+        <Button
+          variant={isFavorited ? "default" : "outline"}
+          size="sm"
+          onClick={handleToggleFavorite}
+          disabled={addFavoriteMutation.isPending || removeFavoriteMutation.isPending}
+        >
+          <BookmarkIcon className={`mr-2 h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
+          {isFavorited ? "Bookmarked" : "Bookmark"}
+        </Button>
+      }
+    >
+      <SectionBlock>
+        <article className="mx-auto max-w-3xl">
           <div className="mb-6">
             <Badge variant="secondary" className="mb-4 capitalize">
               {article.category.replace("_", " ")}
             </Badge>
-            <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
-              {article.title}
-            </h1>
+            <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">{article.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />
@@ -224,21 +211,18 @@ export default function ArticleDetail() {
             </div>
           </div>
 
-          {/* Summary */}
           {article.summary && (
-            <Card className="mb-8 border-l-4 border-l-primary bg-card/50 p-6">
+            <Card className="surface-card mb-8 border-l-4 border-l-primary p-6">
               <p className="text-lg text-card-foreground">{article.summary}</p>
             </Card>
           )}
 
-          {/* Content */}
-          <div className="prose prose-invert max-w-none">
+          <div className="prose prose-slate max-w-none">
             <Streamdown>{article.content}</Streamdown>
           </div>
 
-          {/* Footer Actions */}
           {relatedLinks.length > 0 && (
-            <div className="mb-8 rounded-lg border border-border bg-card/40 p-4">
+            <div className="mt-8 rounded-lg border border-border bg-card/40 p-4">
               <h2 className="mb-3 text-lg font-semibold text-card-foreground">Related Help Hubs</h2>
               <div className="flex flex-wrap gap-2">
                 {relatedLinks.map((item) => (
@@ -252,24 +236,18 @@ export default function ArticleDetail() {
             </div>
           )}
 
-          {/* Footer Actions */}
           <div className="mt-12 border-t border-border pt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
               <Link href="/articles">
-                <Button variant="outline">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Articles
-                </Button>
+                <Button variant="outline">Back to Articles</Button>
               </Link>
               <Link href="/chat">
-                <Button>
-                  Ask Virgil About This
-                </Button>
+                <Button>Ask Virgil About This</Button>
               </Link>
             </div>
           </div>
-        </div>
-      </article>
-    </div>
+        </article>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Loader2, User, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 export default function Onboarding() {
   const { user } = useAuth();
@@ -37,8 +39,10 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md p-8">
+    <PublicLayout title="Welcome to Virgil St" subtitle="Set up your profile so the community can recognize you.">
+      <SectionBlock className="pt-8">
+      <div className="flex items-center justify-center p-4">
+      <Card className="surface-card w-full max-w-md p-8">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <User className="h-8 w-8" />
@@ -116,6 +120,8 @@ export default function Onboarding() {
           You can always update your profile later from the settings
         </p>
       </Card>
-    </div>
+      </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }

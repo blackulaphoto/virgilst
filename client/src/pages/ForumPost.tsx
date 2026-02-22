@@ -23,6 +23,8 @@ import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { useSeo } from "@/lib/seo";
+import PublicLayout from "@/components/PublicLayout";
+import SectionBlock from "@/components/SectionBlock";
 
 const BASE_URL = "https://www.virgilst.com";
 
@@ -74,24 +76,26 @@ function ReplyItem({ reply, onReply }: { reply: Reply; onReply: (replyId: number
   };
 
   return (
-    <Card className="border-l-2 border-l-primary/30">
+    <Card className="surface-card border-l-2 border-l-primary/30">
       <CardContent className="p-4">
         <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
           {reply.isAnonymous ? (
             <span>Anonymous</span>
           ) : reply.authorId && (reply.authorDisplayName || reply.authorName) ? (
             <Link href={`/profile/${reply.authorId}`}>
-              <div className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-                {reply.authorAvatar ? (
-                  <img
-                    src={reply.authorAvatar}
-                    alt={reply.authorDisplayName || reply.authorName || ""}
-                    className="h-4 w-4 rounded-full object-cover"
-                  />
-                ) : (
-                  <User className="h-3 w-3" />
-                )}
-                <span>{reply.authorDisplayName || reply.authorName}</span>
+              <div className="cursor-pointer transition-colors hover:text-primary">
+                <div className="flex items-center gap-1">
+                  {reply.authorAvatar ? (
+                    <img
+                      src={reply.authorAvatar}
+                      alt={reply.authorDisplayName || reply.authorName || ""}
+                      className="h-4 w-4 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-3 w-3" />
+                  )}
+                  <span>{reply.authorDisplayName || reply.authorName}</span>
+                </div>
               </div>
             </Link>
           ) : (
@@ -114,12 +118,7 @@ function ReplyItem({ reply, onReply }: { reply: Reply; onReply: (replyId: number
             <ThumbsUp className="h-3 w-3" />
             <span>{reply.upvotes}</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onReply(reply.id)}
-            className="gap-1 text-xs"
-          >
+          <Button variant="ghost" size="sm" onClick={() => onReply(reply.id)} className="gap-1 text-xs">
             <MessageCircle className="h-3 w-3" />
             Reply
           </Button>
@@ -166,7 +165,6 @@ export default function ForumPost() {
       toast.error("Please sign in to follow threads");
       return;
     }
-
     if (isFollowing) {
       unfollowMutation.mutate({ postId });
     } else {
@@ -248,7 +246,7 @@ export default function ForumPost() {
             dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
             author: {
               "@type": "Person",
-              name: post.isAnonymous ? "Anonymous" : (post.authorDisplayName || post.authorName || "Community Member"),
+              name: post.isAnonymous ? "Anonymous" : post.authorDisplayName || post.authorName || "Community Member",
             },
           },
         ]
@@ -257,99 +255,91 @@ export default function ForumPost() {
 
   if (postLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card">
-          <div className="container py-4">
-            <div className="h-8 w-48 animate-pulse rounded bg-muted" />
-          </div>
-        </header>
-        <div className="container py-8">
+      <PublicLayout title="Loading discussion...">
+        <SectionBlock>
           <div className="mx-auto max-w-3xl space-y-4">
             <div className="h-12 w-3/4 animate-pulse rounded bg-muted" />
             <div className="h-32 w-full animate-pulse rounded bg-muted" />
           </div>
-        </div>
-      </div>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   if (!post) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Card className="max-w-md p-8 text-center">
-          <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h2 className="mb-2 text-2xl font-bold text-card-foreground">Post Not Found</h2>
-          <p className="mb-6 text-muted-foreground">
-            This post doesn't exist or has been removed.
-          </p>
-          <Link href="/forum">
-            <Button>Back to Forum</Button>
-          </Link>
-        </Card>
-      </div>
+      <PublicLayout title="Post Not Found">
+        <SectionBlock>
+          <div className="flex items-center justify-center">
+            <Card className="surface-card max-w-md p-8 text-center">
+              <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h2 className="mb-2 text-2xl font-bold text-card-foreground">Post Not Found</h2>
+              <p className="mb-6 text-muted-foreground">This post does not exist or has been removed.</p>
+              <Link href="/forum">
+                <Button>Back to Forum</Button>
+              </Link>
+            </Card>
+          </div>
+        </SectionBlock>
+      </PublicLayout>
     );
   }
 
   const category = CATEGORIES.find((c) => c.value === post.category);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
+    <PublicLayout
+      title={post.title}
+      subtitle="Read the thread and post a reply."
+      actions={
+        <div className="flex gap-2">
           <Link href="/forum">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Button>
           </Link>
-          <div className="flex gap-2">
-            <Button
-              variant={isFollowing ? "default" : "outline"}
-              size="sm"
-              onClick={handleToggleFollow}
-              disabled={followMutation.isPending || unfollowMutation.isPending}
-            >
-              <BellIcon className={`h-4 w-4 mr-2 ${isFollowing ? "fill-current" : ""}`} />
-              {isFollowing ? "Following" : "Follow"}
-            </Button>
-            <Button onClick={handleAskVirgil} variant="outline" size="sm">
-              Ask Virgil About This
-            </Button>
-          </div>
+          <Button
+            variant={isFollowing ? "default" : "outline"}
+            size="sm"
+            onClick={handleToggleFollow}
+            disabled={followMutation.isPending || unfollowMutation.isPending}
+          >
+            <BellIcon className={`mr-2 h-4 w-4 ${isFollowing ? "fill-current" : ""}`} />
+            {isFollowing ? "Following" : "Follow"}
+          </Button>
+          <Button onClick={handleAskVirgil} variant="outline" size="sm">
+            Ask Virgil
+          </Button>
         </div>
-      </header>
-
-      {/* Post Content */}
-      <div className="container py-8">
+      }
+    >
+      <SectionBlock>
         <div className="mx-auto max-w-3xl">
-          {/* Post */}
-          <Card className="mb-8">
+          <Card className="surface-card mb-8">
             <CardContent className="p-6">
               <div className="mb-4 flex items-center gap-2">
                 <Badge variant="secondary">{category?.label}</Badge>
-                {post.isAnonymous && (
-                  <Badge variant="outline">Anonymous</Badge>
-                )}
-                {post.isPinned && (
-                  <Badge variant="default">Pinned</Badge>
-                )}
+                {post.isAnonymous && <Badge variant="outline">Anonymous</Badge>}
+                {post.isPinned && <Badge variant="default">Pinned</Badge>}
               </div>
 
-              {/* Author Info */}
               {!post.isAnonymous && post.authorId && (post.authorDisplayName || post.authorName) && (
                 <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <Link href={`/profile/${post.authorId}`}>
-                    <div className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
-                      {post.authorAvatar ? (
-                        <img
-                          src={post.authorAvatar}
-                          alt={post.authorDisplayName || post.authorName || ""}
-                          className="h-6 w-6 rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-5 w-5" />
-                      )}
-                      <span className="font-medium">{post.authorDisplayName || post.authorName}</span>
+                    <div className="cursor-pointer transition-colors hover:text-primary">
+                      <div className="flex items-center gap-2">
+                        {post.authorAvatar ? (
+                          <img
+                            src={post.authorAvatar}
+                            alt={post.authorDisplayName || post.authorName || ""}
+                            className="h-6 w-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
+                        <span className="font-medium">{post.authorDisplayName || post.authorName}</span>
+                      </div>
                     </div>
                   </Link>
                   <span>•</span>
@@ -357,9 +347,7 @@ export default function ForumPost() {
                 </div>
               )}
 
-              <h1 className="mb-4 text-3xl font-bold text-card-foreground">
-                {post.title}
-              </h1>
+              <h1 className="mb-4 text-3xl font-bold text-card-foreground">{post.title}</h1>
 
               <div className="mb-6 whitespace-pre-wrap text-card-foreground">
                 <Streamdown>{post.content}</Streamdown>
@@ -390,9 +378,8 @@ export default function ForumPost() {
             </CardContent>
           </Card>
 
-          {/* Reply Form */}
           {isAuthenticated ? (
-            <Card className="mb-8">
+            <Card className="surface-card mb-8">
               <CardContent className="p-6">
                 <h3 className="mb-4 text-lg font-semibold text-card-foreground">
                   {replyingTo ? "Reply to Comment" : "Add a Reply"}
@@ -410,16 +397,11 @@ export default function ForumPost() {
                       checked={isAnonymous}
                       onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
                     />
-                    <Label htmlFor="anonymous" className="text-sm">
-                      Post anonymously
-                    </Label>
+                    <Label htmlFor="anonymous" className="text-sm">Post anonymously</Label>
                   </div>
                   <div className="flex gap-2">
                     {replyingTo && (
-                      <Button
-                        variant="outline"
-                        onClick={() => setReplyingTo(null)}
-                      >
+                      <Button variant="outline" onClick={() => setReplyingTo(null)}>
                         Cancel
                       </Button>
                     )}
@@ -440,23 +422,20 @@ export default function ForumPost() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="mb-8 p-6 text-center">
-              <p className="mb-4 text-muted-foreground">Sign in to reply to this post</p>
+            <Card className="surface-card mb-8 p-6 text-center">
+              <p className="mb-4 text-muted-foreground">Sign in to reply to this post.</p>
               <Button asChild>
                 <a href={getLoginUrl()}>Sign In</a>
               </Button>
             </Card>
           )}
 
-          {/* Replies */}
           <div>
-            <h3 className="mb-4 text-xl font-bold text-foreground">
-              Replies ({post.replyCount})
-            </h3>
+            <h3 className="mb-4 text-xl font-bold text-foreground">Replies ({post.replyCount})</h3>
             {repliesLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
-                  <Card key={i} className="animate-pulse">
+                  <Card key={i} className="surface-card animate-pulse">
                     <CardContent className="p-4">
                       <div className="h-4 w-1/4 rounded bg-muted" />
                       <div className="mt-2 h-16 w-full rounded bg-muted" />
@@ -467,22 +446,18 @@ export default function ForumPost() {
             ) : replies && replies.length > 0 ? (
               <div className="space-y-4">
                 {replies.map((reply) => (
-                  <ReplyItem
-                    key={reply.id}
-                    reply={reply}
-                    onReply={setReplyingTo}
-                  />
+                  <ReplyItem key={reply.id} reply={reply} onReply={setReplyingTo} />
                 ))}
               </div>
             ) : (
-              <Card className="p-8 text-center">
+              <Card className="surface-card p-8 text-center">
                 <MessageCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                 <p className="text-muted-foreground">No replies yet. Be the first to respond!</p>
               </Card>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </SectionBlock>
+    </PublicLayout>
   );
 }
