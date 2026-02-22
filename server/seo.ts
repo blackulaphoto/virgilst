@@ -15,6 +15,7 @@ const CORE_ROUTES = [
   "/search",
   "/forum",
   "/map",
+  "/jobs",
 ];
 
 const RESOURCE_CATEGORIES = ["food", "housing", "transportation", "dental", "legal", "shelter"];
@@ -29,6 +30,16 @@ const PROVIDER_CITIES = [
   "northridge",
   "culver-city",
   "mission-hills",
+];
+const JOB_CATEGORIES = [
+  "entry-level",
+  "warehouse",
+  "retail",
+  "construction",
+  "delivery",
+  "security",
+  "food-service",
+  "janitorial",
 ];
 
 type SitemapEntry = {
@@ -108,6 +119,12 @@ export function registerSeoRoutes(app: Express) {
       "/sitemaps/articles.xml",
       "/sitemaps/forum.xml",
       "/sitemaps/city-category.xml",
+      "/sitemaps/jobs.xml",
+      "/sitemaps/jobs-categories.xml",
+      "/sitemaps/treatment-centers.xml",
+      "/sitemaps/meetings.xml",
+      "/sitemaps/events.xml",
+      "/sitemaps/videos.xml",
     ]);
     res.type("application/xml").send(xml);
   });
@@ -180,6 +197,102 @@ export function registerSeoRoutes(app: Express) {
     ];
 
     res.type("application/xml").send(buildUrlSet(entries));
+  });
+
+  // Job categories sitemap
+  app.get("/sitemaps/jobs-categories.xml", (_req, res) => {
+    const entries: SitemapEntry[] = JOB_CATEGORIES.map((category) => ({
+      loc: `${BASE_URL}/jobs/category/${category}`,
+      changefreq: "daily",
+      priority: "0.8",
+    }));
+
+    res.type("application/xml").send(buildUrlSet(entries));
+  });
+
+  // Individual job listings sitemap
+  app.get("/sitemaps/jobs.xml", async (_req, res) => {
+    try {
+      const jobs = await db.getJobs({ limit: 1000 });
+      const entries = jobs.map((job) => ({
+        loc: `${BASE_URL}/jobs/${job.slug}`,
+        lastmod: toLastmod(job.createdAt),
+        changefreq: "daily",
+        priority: "0.7",
+      }));
+      res.type("application/xml").send(buildUrlSet(entries));
+    } catch (error) {
+      console.error("[SEO] Failed to build jobs sitemap", error);
+      res.type("application/xml").send(buildUrlSet([]));
+    }
+  });
+
+  // Treatment centers sitemap
+  app.get("/sitemaps/treatment-centers.xml", async (_req, res) => {
+    try {
+      const centers = await db.getAllTreatmentCenters();
+      const entries = centers.map((center) => ({
+        loc: `${BASE_URL}/treatment/${center.id}`,
+        lastmod: toLastmod(center.updatedAt || center.createdAt),
+        changefreq: "monthly",
+        priority: "0.7",
+      }));
+      res.type("application/xml").send(buildUrlSet(entries));
+    } catch (error) {
+      console.error("[SEO] Failed to build treatment centers sitemap", error);
+      res.type("application/xml").send(buildUrlSet([]));
+    }
+  });
+
+  // Meetings sitemap
+  app.get("/sitemaps/meetings.xml", async (_req, res) => {
+    try {
+      const meetings = await db.getMeetings({});
+      const entries = meetings.map((meeting) => ({
+        loc: `${BASE_URL}/meetings/${meeting.id}`,
+        lastmod: toLastmod(meeting.updatedAt || meeting.createdAt),
+        changefreq: "weekly",
+        priority: "0.6",
+      }));
+      res.type("application/xml").send(buildUrlSet(entries));
+    } catch (error) {
+      console.error("[SEO] Failed to build meetings sitemap", error);
+      res.type("application/xml").send(buildUrlSet([]));
+    }
+  });
+
+  // Events sitemap
+  app.get("/sitemaps/events.xml", async (_req, res) => {
+    try {
+      const events = await db.getEvents({});
+      const entries = events.map((event) => ({
+        loc: `${BASE_URL}/events/${event.id}`,
+        lastmod: toLastmod(event.updatedAt || event.createdAt),
+        changefreq: "weekly",
+        priority: "0.6",
+      }));
+      res.type("application/xml").send(buildUrlSet(entries));
+    } catch (error) {
+      console.error("[SEO] Failed to build events sitemap", error);
+      res.type("application/xml").send(buildUrlSet([]));
+    }
+  });
+
+  // Videos sitemap
+  app.get("/sitemaps/videos.xml", async (_req, res) => {
+    try {
+      const videos = await db.getVideos({});
+      const entries = videos.map((video) => ({
+        loc: `${BASE_URL}/videos/${video.id}`,
+        lastmod: toLastmod(video.createdAt),
+        changefreq: "monthly",
+        priority: "0.6",
+      }));
+      res.type("application/xml").send(buildUrlSet(entries));
+    } catch (error) {
+      console.error("[SEO] Failed to build videos sitemap", error);
+      res.type("application/xml").send(buildUrlSet([]));
+    }
   });
 }
 
