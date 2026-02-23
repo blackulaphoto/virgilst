@@ -16,6 +16,7 @@ import {
   Building2,
   CalendarDays,
   Star,
+  PlusCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +65,7 @@ const mapModules = [
   { href: "/resources/map", label: "Resource Map", icon: MapIcon },
   { href: "/favorites", label: "Favorites", icon: Star },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/submit-service", label: "Submit a Service", icon: PlusCircle },
 ];
 
 function MobileMenu() {

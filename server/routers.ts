@@ -201,6 +201,149 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next({ ctx });
 });
 
+const serviceSubmissionCategorySchema = z.enum([
+  "resource",
+  "treatment_center",
+  "recovery_meeting",
+  "medi_cal_provider",
+  "community_event",
+]);
+
+const serviceSubmissionInputSchema = z.discriminatedUnion("category", [
+  z.object({
+    category: z.literal("resource"),
+    title: z.string().min(2),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional(),
+    website: z.string().optional(),
+    submitterName: z.string().min(2),
+    submitterEmail: z.string().email(),
+    submitterPhone: z.string().optional(),
+    data: z.object({
+      resourceType: z.enum(["shelter", "food", "medical", "legal", "employment", "clothing", "hygiene", "housing", "transportation", "other"]),
+      hours: z.string().optional(),
+      filters: z.array(z.string()).optional(),
+      phone: z.string().optional(),
+    }),
+  }),
+  z.object({
+    category: z.literal("treatment_center"),
+    title: z.string().min(2),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional(),
+    website: z.string().optional(),
+    submitterName: z.string().min(2),
+    submitterEmail: z.string().email(),
+    submitterPhone: z.string().optional(),
+    data: z.object({
+      type: z.enum(["sober_living", "detox", "residential", "outpatient", "iop_php", "dual_diagnosis"]),
+      servesPopulation: z.enum(["men", "women", "coed", "lgbtq", "women_with_children"]),
+      acceptsCouples: z.boolean().optional(),
+      acceptsMediCal: z.boolean().optional(),
+      acceptsMedicare: z.boolean().optional(),
+      acceptsPrivateInsurance: z.boolean().optional(),
+      acceptsRBH: z.boolean().optional(),
+      isJointCommission: z.boolean().optional(),
+      priceRange: z.string().optional(),
+      servicesOffered: z.array(z.string()).optional(),
+      amenities: z.array(z.string()).optional(),
+      phone: z.string().optional(),
+    }),
+  }),
+  z.object({
+    category: z.literal("recovery_meeting"),
+    title: z.string().min(2),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional(),
+    website: z.string().optional(),
+    submitterName: z.string().min(2),
+    submitterEmail: z.string().email(),
+    submitterPhone: z.string().optional(),
+    data: z.object({
+      meetingType: z.enum(["aa", "na", "cma", "smart"]),
+      dayOfWeek: z.enum(["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]),
+      time: z.string().min(2),
+      format: z.string().min(2),
+      meetingMode: z.enum(["in_person", "online", "hybrid"]),
+      duration: z.number().optional(),
+      venueName: z.string().optional(),
+      zoomId: z.string().optional(),
+      zoomPassword: z.string().optional(),
+      language: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+      notes: z.string().optional(),
+      phone: z.string().optional(),
+    }),
+  }),
+  z.object({
+    category: z.literal("medi_cal_provider"),
+    title: z.string().min(2),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional(),
+    website: z.string().optional(),
+    submitterName: z.string().min(2),
+    submitterEmail: z.string().email(),
+    submitterPhone: z.string().optional(),
+    data: z.object({
+      facilityName: z.string().optional(),
+      npi: z.string().optional(),
+      stateLicense: z.string().optional(),
+      state: z.string().optional(),
+      phone: z.string().optional(),
+      specialties: z.union([z.array(z.string()), z.string()]).optional(),
+      languagesSpoken: z.union([z.array(z.string()), z.string()]).optional(),
+      gender: z.string().optional(),
+      networks: z.union([z.array(z.string()), z.string()]).optional(),
+      hospitalAffiliations: z.union([z.array(z.string()), z.string()]).optional(),
+      medicalGroups: z.union([z.array(z.string()), z.string()]).optional(),
+      boardCertifications: z.array(z.string()).optional(),
+    }),
+  }),
+  z.object({
+    category: z.literal("community_event"),
+    title: z.string().min(2),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional(),
+    website: z.string().optional(),
+    submitterName: z.string().min(2),
+    submitterEmail: z.string().email(),
+    submitterPhone: z.string().optional(),
+    data: z.object({
+      eventType: z.string().optional(),
+      category: z.string().optional(),
+      startDate: z.number().optional(),
+      endDate: z.number().optional(),
+      startTime: z.string().optional(),
+      endTime: z.string().optional(),
+      isRecurring: z.boolean().optional(),
+      recurrencePattern: z.string().optional(),
+      recurrenceDetails: z.record(z.string(), z.any()).optional(),
+      venueName: z.string().optional(),
+      isOnline: z.boolean().optional(),
+      onlineUrl: z.string().optional(),
+      registrationUrl: z.string().optional(),
+      servicesOffered: z.array(z.string()).optional(),
+      tags: z.array(z.string()).optional(),
+      eligibility: z.string().optional(),
+      registrationRequired: z.boolean().optional(),
+      cost: z.string().optional(),
+      organizerName: z.string().optional(),
+      phone: z.string().optional(),
+      email: z.string().optional(),
+    }),
+  }),
+]);
+
 export const appRouter = router({
   system: systemRouter,
 
@@ -288,6 +431,45 @@ export const appRouter = router({
         .input(z.object({ replyId: z.number() }))
         .mutation(async ({ input }) => {
           await db.deleteForumReply(input.replyId);
+          return { success: true };
+        }),
+    }),
+
+    submissions: router({
+      list: adminProcedure
+        .input(z.object({
+          status: z.enum(["pending", "approved", "rejected"]).optional(),
+          category: serviceSubmissionCategorySchema.optional(),
+          limit: z.number().optional(),
+          offset: z.number().optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return await db.getServiceSubmissions(input || {});
+        }),
+
+      review: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          action: z.enum(["approve", "reject"]),
+          reviewNotes: z.string().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (input.action === "approve") {
+            const result = await db.approveServiceSubmission({
+              id: input.id,
+              reviewedBy: ctx.user.id,
+              reviewNotes: input.reviewNotes,
+            });
+            return { success: true, ...result };
+          }
+
+          await db.reviewServiceSubmission({
+            id: input.id,
+            status: "rejected",
+            reviewedBy: ctx.user.id,
+            reviewNotes: input.reviewNotes,
+          });
+
           return { success: true };
         }),
     }),
@@ -429,6 +611,31 @@ export const appRouter = router({
             message,
           });
         }
+      }),
+  }),
+
+  // ============ PUBLIC SERVICE SUBMISSIONS ============
+  serviceSubmissions: router({
+    create: publicProcedure
+      .input(serviceSubmissionInputSchema)
+      .mutation(async ({ input, ctx }) => {
+        const submission = await db.createServiceSubmission({
+          category: input.category,
+          title: input.title,
+          description: input.description,
+          address: input.address,
+          city: input.city,
+          zipCode: input.zipCode,
+          website: input.website,
+          submitterName: input.submitterName,
+          submitterEmail: input.submitterEmail,
+          submitterPhone: input.submitterPhone,
+          payload: JSON.stringify(input.data),
+          submittedBy: ctx.user?.id,
+          status: "pending",
+        });
+
+        return { success: true, submissionId: submission.id };
       }),
   }),
 
@@ -1712,8 +1919,8 @@ export const appRouter = router({
 
         await db.saveJobSearch({
           query: input.query,
-          location: input.location || null,
-          employmentType: input.employmentType || null,
+          location: input.location || undefined,
+          employmentType: input.employmentType || undefined,
           cacheKey,
           resultCount: jobsWithSlugs.length,
           expiresAt,

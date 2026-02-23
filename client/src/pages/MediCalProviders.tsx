@@ -80,12 +80,19 @@ export default function MediCalProviders() {
       title="Medi-Cal Providers"
       subtitle={`${providers.length} providers available by city, specialty, and category.`}
       actions={
-        <Link href="/">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back home
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/submit-service/medi_cal_provider">
+            <Button size="sm" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+              Submit a provider
+            </Button>
+          </Link>
+          <Link href="/">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back home
+            </Button>
+          </Link>
+        </div>
       }
     >
       <div className="border-b border-border bg-card/60">

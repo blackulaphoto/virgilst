@@ -27,7 +27,8 @@ import {
   Unlock,
   Pin,
   PinOff,
-  UserCog
+  UserCog,
+  Inbox
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -100,6 +101,7 @@ export default function AdminDashboard() {
   const { data: allResources } = trpc.resources.list.useQuery({});
   const { data: forumPosts } = trpc.admin.forum.posts.useQuery({});
   const { data: allUsers } = trpc.admin.users.list.useQuery({});
+  const { data: pendingSubmissions } = trpc.admin.submissions.list.useQuery({ status: "pending", limit: 200 });
 
   // Mutations
   const createArticleMutation = trpc.articles.create.useMutation({
@@ -169,6 +171,21 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast.error("Failed to approve pin");
+    },
+  });
+
+  const reviewSubmissionMutation = trpc.admin.submissions.review.useMutation({
+    onSuccess: () => {
+      utils.admin.submissions.list.invalidate();
+      utils.resources.list.invalidate();
+      utils.treatmentCenters.list.invalidate();
+      utils.meetings.list.invalidate();
+      utils.events.list.invalidate();
+      utils.mediCalProviders.list.invalidate();
+      toast.success("Submission reviewed");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to review submission");
     },
   });
 
@@ -315,7 +332,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="container py-8">
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto">
             <TabsTrigger value="guides">
               <BookOpen className="mr-2 h-4 w-4" />
               Guides
@@ -334,6 +351,15 @@ export default function AdminDashboard() {
               {pendingPins && pendingPins.length > 0 && (
                 <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                   {pendingPins.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="submissions">
+              <Inbox className="mr-2 h-4 w-4" />
+              Submissions
+              {pendingSubmissions && pendingSubmissions.length > 0 && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                  {pendingSubmissions.length}
                 </span>
               )}
             </TabsTrigger>
@@ -413,6 +439,90 @@ export default function AdminDashboard() {
                   ) : (
                     <p className="py-8 text-center text-sm text-muted-foreground">
                       No guides yet. Create your first one!
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Public Service Submissions */}
+          <TabsContent value="submissions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Public Submission Queue</CardTitle>
+                <CardDescription>
+                  Review and approve user-submitted services before publishing to the site.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pendingSubmissions && pendingSubmissions.length > 0 ? (
+                    pendingSubmissions.map((submission: any) => {
+                      let payload: Record<string, any> = {};
+                      try {
+                        payload = submission.payload ? JSON.parse(submission.payload) : {};
+                      } catch {
+                        payload = {};
+                      }
+
+                      return (
+                        <div key={submission.id} className="rounded-lg border border-border p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 space-y-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="font-semibold text-card-foreground">{submission.title}</h3>
+                                <span className="rounded-full bg-secondary px-2 py-1 text-xs capitalize text-secondary-foreground">
+                                  {submission.category.replaceAll("_", " ")}
+                                </span>
+                              </div>
+                              {submission.description && (
+                                <p className="text-sm text-muted-foreground">{submission.description}</p>
+                              )}
+                              <div className="text-xs text-muted-foreground">
+                                Contact: {submission.submitterName || "Unknown"} • {submission.submitterEmail || "No email"}
+                                {submission.submitterPhone ? ` • ${submission.submitterPhone}` : ""}
+                              </div>
+                              {(submission.address || submission.city || submission.zipCode) && (
+                                <div className="text-xs text-muted-foreground">
+                                  {submission.address || ""} {submission.city || ""} {submission.zipCode || ""}
+                                </div>
+                              )}
+                              {submission.website && (
+                                <a href={submission.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                                  {submission.website}
+                                </a>
+                              )}
+                              {Object.keys(payload).length > 0 && (
+                                <pre className="overflow-auto rounded-md bg-muted p-2 text-xs text-muted-foreground">
+                                  {JSON.stringify(payload, null, 2)}
+                                </pre>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => reviewSubmissionMutation.mutate({ id: submission.id, action: "approve" })}
+                                disabled={reviewSubmissionMutation.isPending}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => reviewSubmissionMutation.mutate({ id: submission.id, action: "reject" })}
+                                disabled={reviewSubmissionMutation.isPending}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No pending service submissions
                     </p>
                   )}
                 </div>

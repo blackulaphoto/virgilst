@@ -82,9 +82,14 @@ export default function Meetings() {
       title="Recovery Meetings"
       subtitle="Find AA, NA, CMA, and SMART Recovery meetings by day, city, and format."
       actions={
-        <Link href="/">
-          <Button variant="outline" size="sm">Back home</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/submit-service/recovery_meeting">
+            <Button size="sm" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">Submit a meeting</Button>
+          </Link>
+          <Link href="/">
+            <Button variant="outline" size="sm">Back home</Button>
+          </Link>
+        </div>
       }
     >
       <SectionBlock className="pt-8">

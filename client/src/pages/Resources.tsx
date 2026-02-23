@@ -101,9 +101,16 @@ export default function Resources() {
         title={selectedCategory.title}
         subtitle={`${resources.length} resources found in this category.`}
         actions={
-          <Button variant="outline" size="sm" onClick={() => setSelectedType(null)}>
-            Browse all categories
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSelectedType(null)}>
+              Browse all categories
+            </Button>
+            <Link href="/submit-service/resource">
+              <Button size="sm" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+                Submit a service
+              </Button>
+            </Link>
+          </div>
         }
       >
         <SectionBlock>
@@ -249,6 +256,13 @@ export default function Resources() {
     <PublicLayout
       title="Resource Directory"
       subtitle="Find verified support across housing, food, healthcare, legal services, transportation, and shelter."
+      actions={
+        <Link href="/submit-service/resource">
+          <Button size="sm" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+            Submit a service
+          </Button>
+        </Link>
+      }
     >
       <SectionBlock title="What do you need right now?" subtitle="Choose a category to see verified resources across Los Angeles County.">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

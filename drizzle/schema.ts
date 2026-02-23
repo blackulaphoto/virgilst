@@ -437,6 +437,40 @@ export type FollowedThread = typeof followedThreads.$inferSelect;
 export type InsertFollowedThread = typeof followedThreads.$inferInsert;
 
 /**
+ * Public service submissions pending admin moderation.
+ */
+export const serviceSubmissions = pgTable("service_submissions", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(), // resource | treatment_center | recovery_meeting | medi_cal_provider | community_event
+  status: text("status").default("pending").notNull(), // pending | approved | rejected
+  title: text("title").notNull(),
+  description: text("description"),
+  address: text("address"),
+  city: text("city"),
+  zipCode: text("zipCode"),
+  website: text("website"),
+  submitterName: text("submitterName"),
+  submitterEmail: text("submitterEmail"),
+  submitterPhone: text("submitterPhone"),
+  payload: text("payload"), // category-specific JSON
+  submittedBy: integer("submittedBy").references(() => users.id),
+  reviewedBy: integer("reviewedBy").references(() => users.id),
+  reviewNotes: text("reviewNotes"),
+  approvedEntityType: text("approvedEntityType"),
+  approvedEntityId: integer("approvedEntityId"),
+  reviewedAt: integer("reviewedAt"),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  categoryIdx: index("serviceSubmissions_category_idx").on(table.category),
+  statusIdx: index("serviceSubmissions_status_idx").on(table.status),
+  createdIdx: index("serviceSubmissions_created_idx").on(table.createdAt),
+}));
+
+export type ServiceSubmission = typeof serviceSubmissions.$inferSelect;
+export type InsertServiceSubmission = typeof serviceSubmissions.$inferInsert;
+
+/**
  * Knowledge base documents (source files for RAG)
  */
 export const knowledgeDocuments = pgTable("knowledge_documents", {

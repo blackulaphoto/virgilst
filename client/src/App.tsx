@@ -33,6 +33,7 @@ import Calendar from "./pages/Calendar";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
 import JobCategory from "./pages/JobCategory";
+import SubmitService from "./pages/SubmitService";
 import FloatingAIAssistant from "./components/FloatingAIAssistant";
 
 function Router() {
@@ -67,6 +68,8 @@ function Router() {
       <Route path="/jobs/category/:category" component={JobCategory} />
       <Route path="/jobs/:slug" component={JobDetail} />
       <Route path="/jobs" component={Jobs} />
+      <Route path="/submit-service/:category" component={SubmitService} />
+      <Route path="/submit-service" component={SubmitService} />
       <Route path={"/favorites"} component={Favorites} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/profile/:userId"} component={Profile} />

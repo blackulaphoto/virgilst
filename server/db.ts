@@ -21,6 +21,7 @@ import {
   events,
   mediCalProviders,
   providerCategories,
+  serviceSubmissions,
   type Article,
   type Resource,
   type MapPin,
@@ -34,6 +35,7 @@ import {
   type Meeting,
   type Event,
   type MediCalProvider,
+  type ServiceSubmission,
   type InsertArticle,
   type InsertResource,
   type InsertMapPin,
@@ -41,6 +43,7 @@ import {
   type InsertTreatmentCenter,
   type InsertMeeting,
   type InsertEvent,
+  type InsertServiceSubmission,
   type InsertForumPost,
   type InsertForumReply,
   type InsertVideo,
@@ -52,10 +55,12 @@ import {
   MEDI_CAL_CATEGORY_DEFS,
   type MediCalCategoryKey,
   expandMediCalSearchTerms,
+  categorizeSpecialties,
   isValidMediCalCategory,
 } from "../shared/mediCalTaxonomy";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _serviceSubmissionsEnsured = false;
 
 function normalizeEpochSeconds(value: unknown): number | undefined {
   if (value === undefined || value === null) return undefined;
@@ -136,6 +141,22 @@ function tokenizeSearchTerms(query: string): string[] {
   return Array.from(terms);
 }
 
+type ServiceSubmissionCategory =
+  | "resource"
+  | "treatment_center"
+  | "recovery_meeting"
+  | "medi_cal_provider"
+  | "community_event";
+
+function safeParseJson<T>(value: string | null | undefined, fallback: T): T {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -147,6 +168,44 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+async function ensureServiceSubmissionsTable(): Promise<void> {
+  if (_serviceSubmissionsEnsured) return;
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS service_submissions (
+      id SERIAL PRIMARY KEY,
+      category TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      title TEXT NOT NULL,
+      description TEXT,
+      address TEXT,
+      city TEXT,
+      "zipCode" TEXT,
+      website TEXT,
+      "submitterName" TEXT,
+      "submitterEmail" TEXT,
+      "submitterPhone" TEXT,
+      payload TEXT,
+      "submittedBy" INTEGER,
+      "reviewedBy" INTEGER,
+      "reviewNotes" TEXT,
+      "approvedEntityType" TEXT,
+      "approvedEntityId" INTEGER,
+      "reviewedAt" INTEGER,
+      "createdAt" INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::INTEGER,
+      "updatedAt" INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::INTEGER
+    )
+  `);
+
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "serviceSubmissions_status_idx" ON service_submissions (status)`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "serviceSubmissions_category_idx" ON service_submissions (category)`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "serviceSubmissions_created_idx" ON service_submissions ("createdAt")`);
+
+  _serviceSubmissionsEnsured = true;
 }
 
 // ============ USER HELPERS ============
@@ -1127,6 +1186,14 @@ export async function searchMeetings(query: string): Promise<Meeting[]> {
   return results;
 }
 
+export async function createMeeting(meeting: InsertMeeting): Promise<Meeting> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const results = await db.insert(meetings).values(meeting).returning();
+  return results[0];
+}
+
 // ============ EVENTS ============
 
 export async function getEvents(filters?: {
@@ -1555,6 +1622,301 @@ export async function getMediCalCategories(): Promise<Array<{ key: MediCalCatego
     label: category.label,
     count: countMap.get(category.key) || 0,
   }));
+}
+
+// ============ SERVICE SUBMISSIONS ============
+
+export async function createServiceSubmission(submission: InsertServiceSubmission): Promise<ServiceSubmission> {
+  await ensureServiceSubmissionsTable();
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(serviceSubmissions).values(submission).returning();
+  return result[0];
+}
+
+export async function getServiceSubmissions(filters?: {
+  status?: "pending" | "approved" | "rejected";
+  category?: ServiceSubmissionCategory;
+  limit?: number;
+  offset?: number;
+}) {
+  await ensureServiceSubmissionsTable();
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(serviceSubmissions);
+  const conditions = [];
+
+  if (filters?.status) {
+    conditions.push(eq(serviceSubmissions.status, filters.status));
+  }
+  if (filters?.category) {
+    conditions.push(eq(serviceSubmissions.category, filters.category));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  query = query.orderBy(desc(serviceSubmissions.createdAt)) as any;
+
+  if (filters?.limit) {
+    query = query.limit(filters.limit) as any;
+  }
+  if (filters?.offset) {
+    query = query.offset(filters.offset) as any;
+  }
+
+  return await query;
+}
+
+export async function getServiceSubmissionById(id: number): Promise<ServiceSubmission | undefined> {
+  await ensureServiceSubmissionsTable();
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(serviceSubmissions)
+    .where(eq(serviceSubmissions.id, id))
+    .limit(1);
+  return result[0];
+}
+
+export async function reviewServiceSubmission(input: {
+  id: number;
+  status: "approved" | "rejected";
+  reviewedBy: number;
+  reviewNotes?: string;
+}) {
+  await ensureServiceSubmissionsTable();
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(serviceSubmissions)
+    .set({
+      status: input.status,
+      reviewedBy: input.reviewedBy,
+      reviewNotes: input.reviewNotes,
+      reviewedAt: Math.floor(Date.now() / 1000),
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
+    .where(eq(serviceSubmissions.id, input.id));
+}
+
+export async function approveServiceSubmission(input: {
+  id: number;
+  reviewedBy: number;
+  reviewNotes?: string;
+}) {
+  await ensureServiceSubmissionsTable();
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const submission = await getServiceSubmissionById(input.id);
+  if (!submission) {
+    throw new Error("Submission not found");
+  }
+  if (submission.status !== "pending") {
+    throw new Error("Only pending submissions can be approved");
+  }
+
+  const payload = safeParseJson<Record<string, any>>(submission.payload, {});
+
+  let approvedEntityType: string | null = null;
+  let approvedEntityId: number | null = null;
+
+  if (submission.category === "resource") {
+    const created = await createResource({
+      name: submission.title,
+      description: submission.description || undefined,
+      type: (payload.resourceType || "other") as any,
+      address: submission.address || undefined,
+      phone: submission.submitterPhone || payload.phone || undefined,
+      website: submission.website || undefined,
+      hours: payload.hours || undefined,
+      zipCode: submission.zipCode || undefined,
+      filters: payload.filters ? JSON.stringify(payload.filters) : undefined,
+      isVerified: 0,
+    });
+    approvedEntityType = "resource";
+    approvedEntityId = created.id;
+  } else if (submission.category === "treatment_center") {
+    const created = await createTreatmentCenter({
+      name: submission.title,
+      type: (payload.type || "outpatient") as any,
+      address: submission.address || undefined,
+      city: submission.city || undefined,
+      zipCode: submission.zipCode || undefined,
+      phone: payload.phone || submission.submitterPhone || undefined,
+      website: submission.website || undefined,
+      description: submission.description || undefined,
+      servesPopulation: (payload.servesPopulation || "coed") as any,
+      acceptsCouples: payload.acceptsCouples ? 1 : 0,
+      acceptsMediCal: payload.acceptsMediCal ? 1 : 0,
+      acceptsMedicare: payload.acceptsMedicare ? 1 : 0,
+      acceptsPrivateInsurance: payload.acceptsPrivateInsurance ? 1 : 0,
+      acceptsRBH: payload.acceptsRBH ? 1 : 0,
+      priceRange: payload.priceRange || undefined,
+      servicesOffered: payload.servicesOffered ? JSON.stringify(payload.servicesOffered) : undefined,
+      amenities: payload.amenities ? JSON.stringify(payload.amenities) : undefined,
+      isJointCommission: payload.isJointCommission ? 1 : 0,
+      isVerified: 0,
+      isPublished: 1,
+      addedBy: input.reviewedBy,
+    });
+    approvedEntityType = "treatment_center";
+    approvedEntityId = created.id;
+  } else if (submission.category === "recovery_meeting") {
+    const created = await createMeeting({
+      name: submission.title,
+      type: (payload.meetingType || "aa") as any,
+      dayOfWeek: payload.dayOfWeek || "monday",
+      time: payload.time || "7:00 PM",
+      duration: payload.duration ? Number(payload.duration) : undefined,
+      venueName: payload.venueName || undefined,
+      address: submission.address || undefined,
+      city: submission.city || undefined,
+      zipCode: submission.zipCode || undefined,
+      format: payload.format || "discussion",
+      meetingMode: (payload.meetingMode || "in_person") as any,
+      zoomId: payload.zoomId || undefined,
+      zoomPassword: payload.zoomPassword || undefined,
+      tags: payload.tags ? JSON.stringify(payload.tags) : undefined,
+      language: payload.language || "en",
+      description: submission.description || undefined,
+      notes: payload.notes || undefined,
+      isVerified: 0,
+      isPublished: 1,
+    });
+    approvedEntityType = "meeting";
+    approvedEntityId = created.id;
+  } else if (submission.category === "medi_cal_provider") {
+    const specialties = Array.isArray(payload.specialties)
+      ? payload.specialties
+      : String(payload.specialties || "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+    const languages = Array.isArray(payload.languagesSpoken)
+      ? payload.languagesSpoken
+      : String(payload.languagesSpoken || "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+    const networks = Array.isArray(payload.networks)
+      ? payload.networks
+      : String(payload.networks || "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+    const hospitals = Array.isArray(payload.hospitalAffiliations)
+      ? payload.hospitalAffiliations
+      : String(payload.hospitalAffiliations || "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+    const medicalGroups = Array.isArray(payload.medicalGroups)
+      ? payload.medicalGroups
+      : String(payload.medicalGroups || "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+
+    const normalizedSpecialties = specialties.map((s: string) => s.toLowerCase());
+    const createdProvider = await db
+      .insert(mediCalProviders)
+      .values({
+        providerName: submission.title,
+        facilityName: payload.facilityName || undefined,
+        npi: payload.npi || undefined,
+        stateLicense: payload.stateLicense || undefined,
+        address: submission.address || undefined,
+        city: submission.city || undefined,
+        state: payload.state || "CA",
+        zipCode: submission.zipCode || undefined,
+        phone: payload.phone || submission.submitterPhone || undefined,
+        specialties: JSON.stringify(specialties),
+        normalizedSpecialties: JSON.stringify(normalizedSpecialties),
+        searchTerms: [...specialties, submission.title, submission.city || "", payload.facilityName || ""]
+          .join(" ")
+          .trim(),
+        gender: payload.gender || undefined,
+        languagesSpoken: JSON.stringify(languages),
+        boardCertifications: payload.boardCertifications ? JSON.stringify(payload.boardCertifications) : undefined,
+        networks: JSON.stringify(networks),
+        hospitalAffiliations: JSON.stringify(hospitals),
+        medicalGroups: JSON.stringify(medicalGroups),
+        isVerified: 0,
+      })
+      .returning();
+
+    const provider = createdProvider[0];
+    const categoryKeys = categorizeSpecialties(normalizedSpecialties);
+    if (categoryKeys.length > 0) {
+      await db
+        .insert(providerCategories)
+        .values(categoryKeys.map(categoryKey => ({ providerId: provider.id, categoryKey })))
+        .onConflictDoNothing();
+    }
+
+    approvedEntityType = "medi_cal_provider";
+    approvedEntityId = provider.id;
+  } else if (submission.category === "community_event") {
+    const created = await createEvent({
+      title: submission.title,
+      description: submission.description || undefined,
+      eventType: payload.eventType || "community_event",
+      category: payload.category || "general",
+      startDate: payload.startDate ? Number(payload.startDate) : undefined,
+      endDate: payload.endDate ? Number(payload.endDate) : undefined,
+      startTime: payload.startTime || undefined,
+      endTime: payload.endTime || undefined,
+      isRecurring: payload.isRecurring ? 1 : 0,
+      recurrencePattern: payload.recurrencePattern || undefined,
+      recurrenceDetails: payload.recurrenceDetails ? JSON.stringify(payload.recurrenceDetails) : undefined,
+      venueName: payload.venueName || undefined,
+      address: submission.address || undefined,
+      city: submission.city || undefined,
+      zipCode: submission.zipCode || undefined,
+      isOnline: payload.isOnline ? 1 : 0,
+      onlineUrl: payload.onlineUrl || undefined,
+      phone: payload.phone || submission.submitterPhone || undefined,
+      email: payload.email || submission.submitterEmail || undefined,
+      website: submission.website || undefined,
+      registrationUrl: payload.registrationUrl || undefined,
+      servicesOffered: payload.servicesOffered ? JSON.stringify(payload.servicesOffered) : undefined,
+      tags: payload.tags ? JSON.stringify(payload.tags) : undefined,
+      eligibility: payload.eligibility || undefined,
+      registrationRequired: payload.registrationRequired ? 1 : 0,
+      cost: payload.cost || "Free",
+      organizerName: payload.organizerName || submission.submitterName || undefined,
+      organizerId: input.reviewedBy,
+      isPublished: 1,
+      isFeatured: 0,
+    });
+    approvedEntityType = "event";
+    approvedEntityId = created.id;
+  } else {
+    throw new Error(`Unsupported submission category: ${submission.category}`);
+  }
+
+  await db
+    .update(serviceSubmissions)
+    .set({
+      status: "approved",
+      reviewedBy: input.reviewedBy,
+      reviewNotes: input.reviewNotes,
+      approvedEntityType,
+      approvedEntityId,
+      reviewedAt: Math.floor(Date.now() / 1000),
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
+    .where(eq(serviceSubmissions.id, input.id));
+
+  return { approvedEntityType, approvedEntityId };
 }
 
 // ============ ADMIN FUNCTIONS ============

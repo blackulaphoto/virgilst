@@ -251,9 +251,14 @@ export default function Treatment() {
       title="Treatment Directory"
       subtitle="Sober living, detox, and treatment centers in California."
       actions={
-        <Link href="/treatment/wizard">
-          <Button className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">Find treatment now</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/submit-service/treatment_center">
+            <Button variant="outline" size="sm">Submit a center</Button>
+          </Link>
+          <Link href="/treatment/wizard">
+            <Button className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">Find treatment now</Button>
+          </Link>
+        </div>
       }
     >
       <SectionBlock className="pt-8">

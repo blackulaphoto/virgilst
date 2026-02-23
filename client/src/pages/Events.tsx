@@ -8,6 +8,7 @@ import { Calendar, MapPin, Clock, Users, Phone, Globe, Tag, DollarSign, Repeat, 
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
+import { Link } from "wouter";
 
 type JsonArray = string[];
 
@@ -89,6 +90,11 @@ export default function Events() {
     <PublicLayout
       title="Community Events"
       subtitle="Find free resource fairs, workshops, and support events across Los Angeles County."
+      actions={
+        <Button asChild size="sm" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+          <Link href="/submit-service/community_event">Submit an event</Link>
+        </Button>
+      }
     >
       <SectionBlock>
         <div className="mb-6 space-y-4">
