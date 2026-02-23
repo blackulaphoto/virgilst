@@ -336,19 +336,19 @@ export default function JobCategory() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://virgilst.com/"
+        "item": "https://www.virgilst.com/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Jobs",
-        "item": "https://virgilst.com/jobs"
+        "item": "https://www.virgilst.com/jobs"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": categoryData.title,
-        "item": `https://virgilst.com/jobs/category/${category}`
+        "item": `https://www.virgilst.com/jobs/category/${category}`
       }
     ]
   };
@@ -359,7 +359,7 @@ export default function JobCategory() {
         <title>{categoryData.title}</title>
         <meta name="description" content={categoryData.metaDescription} />
         <meta name="keywords" content={categoryData.keywords.join(", ")} />
-        <link rel="canonical" href={`https://virgilst.com/jobs/category/${category}`} />
+        <link rel="canonical" href={`https://www.virgilst.com/jobs/category/${category}`} />
         <script type="application/ld+json">
           {JSON.stringify(breadcrumbSchema)}
         </script>

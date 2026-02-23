@@ -11,11 +11,14 @@ const CORE_ROUTES = [
   "/meetings",
   "/events",
   "/medical-providers",
+  "/healthcare",
+  "/healthcare/suboxone",
   "/videos",
   "/search",
   "/forum",
   "/map",
   "/jobs",
+  "/get-involved",
 ];
 
 const RESOURCE_CATEGORIES = ["food", "housing", "transportation", "dental", "legal", "shelter"];
@@ -121,10 +124,6 @@ export function registerSeoRoutes(app: Express) {
       "/sitemaps/city-category.xml",
       "/sitemaps/jobs.xml",
       "/sitemaps/jobs-categories.xml",
-      "/sitemaps/treatment-centers.xml",
-      "/sitemaps/meetings.xml",
-      "/sitemaps/events.xml",
-      "/sitemaps/videos.xml",
     ]);
     res.type("application/xml").send(xml);
   });
@@ -227,72 +226,4 @@ export function registerSeoRoutes(app: Express) {
     }
   });
 
-  // Treatment centers sitemap
-  app.get("/sitemaps/treatment-centers.xml", async (_req, res) => {
-    try {
-      const centers = await db.getAllTreatmentCenters();
-      const entries = centers.map((center) => ({
-        loc: `${BASE_URL}/treatment/${center.id}`,
-        lastmod: toLastmod(center.updatedAt || center.createdAt),
-        changefreq: "monthly",
-        priority: "0.7",
-      }));
-      res.type("application/xml").send(buildUrlSet(entries));
-    } catch (error) {
-      console.error("[SEO] Failed to build treatment centers sitemap", error);
-      res.type("application/xml").send(buildUrlSet([]));
-    }
-  });
-
-  // Meetings sitemap
-  app.get("/sitemaps/meetings.xml", async (_req, res) => {
-    try {
-      const meetings = await db.getMeetings({});
-      const entries = meetings.map((meeting) => ({
-        loc: `${BASE_URL}/meetings/${meeting.id}`,
-        lastmod: toLastmod(meeting.updatedAt || meeting.createdAt),
-        changefreq: "weekly",
-        priority: "0.6",
-      }));
-      res.type("application/xml").send(buildUrlSet(entries));
-    } catch (error) {
-      console.error("[SEO] Failed to build meetings sitemap", error);
-      res.type("application/xml").send(buildUrlSet([]));
-    }
-  });
-
-  // Events sitemap
-  app.get("/sitemaps/events.xml", async (_req, res) => {
-    try {
-      const events = await db.getEvents({});
-      const entries = events.map((event) => ({
-        loc: `${BASE_URL}/events/${event.id}`,
-        lastmod: toLastmod(event.updatedAt || event.createdAt),
-        changefreq: "weekly",
-        priority: "0.6",
-      }));
-      res.type("application/xml").send(buildUrlSet(entries));
-    } catch (error) {
-      console.error("[SEO] Failed to build events sitemap", error);
-      res.type("application/xml").send(buildUrlSet([]));
-    }
-  });
-
-  // Videos sitemap
-  app.get("/sitemaps/videos.xml", async (_req, res) => {
-    try {
-      const videos = await db.getVideos({});
-      const entries = videos.map((video) => ({
-        loc: `${BASE_URL}/videos/${video.id}`,
-        lastmod: toLastmod(video.createdAt),
-        changefreq: "monthly",
-        priority: "0.6",
-      }));
-      res.type("application/xml").send(buildUrlSet(entries));
-    } catch (error) {
-      console.error("[SEO] Failed to build videos sitemap", error);
-      res.type("application/xml").send(buildUrlSet([]));
-    }
-  });
 }
-
