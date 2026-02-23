@@ -26,6 +26,7 @@ import Resources from "./pages/Resources";
 import ResourceMap from "./pages/ResourceMap";
 import MediCalProviders from "./pages/MediCalProviders";
 import Healthcare from "./pages/Healthcare";
+import SuboxoneClinics from "./pages/SuboxoneClinics";
 import Favorites from "./pages/Favorites";
 import Map from "./pages/Map";
 import Profile from "./pages/Profile";
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/medical-providers/:city" component={MediCalProviders} />
       <Route path="/medical-providers" component={MediCalProviders} />
       <Route path="/healthcare" component={Healthcare} />
+      <Route path="/healthcare/suboxone" component={SuboxoneClinics} />
       <Route path="/map" component={Map} />
       <Route path="/jobs/category/:category" component={JobCategory} />
       <Route path="/jobs/:slug" component={JobDetail} />

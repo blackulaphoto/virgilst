@@ -27,7 +27,7 @@ const healthcarePaths = [
   {
     title: "Suboxone Clinics",
     description: "Find treatment centers and clinics that offer MAT and suboxone support.",
-    href: "/treatment?q=suboxone",
+    href: "/healthcare/suboxone",
     icon: HeartPulse,
   },
   {

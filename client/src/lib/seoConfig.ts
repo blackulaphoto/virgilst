@@ -204,6 +204,14 @@ export function buildSeoConfig(pathname: string): SeoConfig {
         "Find Medi-Cal providers, private-insurance clinics, urgent care, suboxone options, and harm-reduction services.",
     };
   }
+  if (pathname === "/healthcare/suboxone") {
+    return {
+      ...base,
+      title: "Suboxone Clinics in California | Virgil St",
+      description:
+        "Find Suboxone and Sublocade clinics, MAT programs, and telehealth options across California.",
+    };
+  }
   if (pathname.startsWith("/medical-providers/")) {
     const city = pathname.split("/")[2];
     if (city) {
