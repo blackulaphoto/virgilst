@@ -21,6 +21,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 const resourceCategories = [
   {
@@ -173,19 +174,37 @@ export default function Resources() {
                             </div>
                           )}
 
-                          {resource.website && (
-                            <div className="flex items-center gap-2 text-sm text-foreground">
-                              <ExternalLink className="h-4 w-4 text-primary shrink-0" />
-                              <a
-                                href={resource.website.startsWith("http") ? resource.website : `https://${resource.website}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-primary transition-colors hover:underline"
-                              >
-                                Visit website
-                              </a>
-                            </div>
-                          )}
+                          {(() => {
+                            const websiteUrl = normalizeExternalUrl(resource.website);
+                            const faviconUrl = getFaviconUrl(resource.website);
+                            const domain = getDisplayDomain(resource.website);
+
+                            if (!websiteUrl) return null;
+
+                            return (
+                              <div className="flex items-center gap-2 text-sm text-foreground">
+                                {faviconUrl ? (
+                                  <img
+                                    src={faviconUrl}
+                                    alt=""
+                                    className="h-5 w-5 rounded-sm border border-border object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : (
+                                  <ExternalLink className="h-4 w-4 text-primary shrink-0" />
+                                )}
+                                <a
+                                  href={websiteUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-primary transition-colors hover:underline"
+                                >
+                                  {domain ? `Visit ${domain}` : "Visit website"}
+                                </a>
+                              </div>
+                            );
+                          })()}
 
                           {resource.hours && (
                             <div className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">

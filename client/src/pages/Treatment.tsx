@@ -9,6 +9,7 @@ import { MapPin, Phone, ExternalLink, DollarSign, Users, CheckCircle2, Building2
 import { Link, useParams } from "wouter";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 export default function Treatment() {
   const { program } = useParams<{ program?: string }>();
@@ -209,14 +210,32 @@ export default function Treatment() {
             <span>{center.priceRange === "Free" ? "Free" : `${center.priceRange}/month`}</span>
           </div>
         )}
-        {center.website && (
-          <div className="flex items-center gap-2">
-            <ExternalLink className="h-4 w-4 text-primary" />
-            <a href={center.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              Visit website
-            </a>
-          </div>
-        )}
+        {(() => {
+          const websiteUrl = normalizeExternalUrl(center.website);
+          const faviconUrl = getFaviconUrl(center.website);
+          const domain = getDisplayDomain(center.website);
+
+          if (!websiteUrl) return null;
+
+          return (
+            <div className="flex items-center gap-2">
+              {faviconUrl ? (
+                <img
+                  src={faviconUrl}
+                  alt=""
+                  className="h-5 w-5 rounded-sm border border-border object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <ExternalLink className="h-4 w-4 text-primary" />
+              )}
+              <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                {domain ? `Visit ${domain}` : "Visit website"}
+              </a>
+            </div>
+          );
+        })()}
         <div className="flex flex-wrap gap-2 border-t border-border pt-2">
           {center.acceptsMediCal && <Badge className="bg-primary/15 text-primary">Medi-Cal</Badge>}
           {center.acceptsMedicare && <Badge variant="outline">Medicare</Badge>}

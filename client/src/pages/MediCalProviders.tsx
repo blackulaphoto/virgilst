@@ -15,11 +15,13 @@ import {
   Search,
   Filter,
   X,
+  ExternalLink,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { MEDI_CAL_CATEGORY_DEFS, type MediCalCategoryKey } from "@shared/mediCalTaxonomy";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 export default function MediCalProviders() {
   const { city } = useParams<{ city?: string }>();
@@ -252,6 +254,10 @@ export default function MediCalProviders() {
         ) : (
           <div className="space-y-4">
             {providers.map((provider) => {
+              const website = (provider as { website?: string | null }).website;
+              const websiteUrl = normalizeExternalUrl(website);
+              const faviconUrl = getFaviconUrl(website);
+              const domain = getDisplayDomain(website);
               let specialties: string[] = [];
               let languages: string[] = [];
               let networks: string[] = [];
@@ -332,6 +338,25 @@ export default function MediCalProviders() {
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           <a href={`tel:${provider.phone}`} className="text-primary hover:underline">
                             {provider.phone}
+                          </a>
+                        </div>
+                      )}
+
+                      {websiteUrl && (
+                        <div className="flex items-center gap-2 text-sm">
+                          {faviconUrl ? (
+                            <img
+                              src={faviconUrl}
+                              alt=""
+                              className="h-5 w-5 rounded-sm border border-border object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {domain ? `Visit ${domain}` : "Visit website"}
                           </a>
                         </div>
                       )}
