@@ -209,6 +209,9 @@ const serviceSubmissionCategorySchema = z.enum([
   "community_event",
 ]);
 
+const supportRequestTypeSchema = z.enum(["donation", "volunteer", "partner"]);
+const supportRequestStatusSchema = z.enum(["new", "reviewed", "closed"]);
+
 const serviceSubmissionInputSchema = z.discriminatedUnion("category", [
   z.object({
     category: z.literal("resource"),
@@ -473,6 +476,35 @@ export const appRouter = router({
           return { success: true };
         }),
     }),
+
+    support: router({
+      list: adminProcedure
+        .input(z.object({
+          status: supportRequestStatusSchema.optional(),
+          requestType: supportRequestTypeSchema.optional(),
+          limit: z.number().optional(),
+          offset: z.number().optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return await db.getCommunitySupportRequests(input || {});
+        }),
+
+      updateStatus: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          status: supportRequestStatusSchema,
+          reviewNotes: z.string().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          await db.updateCommunitySupportRequestStatus({
+            id: input.id,
+            status: input.status,
+            reviewNotes: input.reviewNotes,
+            reviewedBy: ctx.user.id,
+          });
+          return { success: true };
+        }),
+    }),
   }),
 
   // ============ USER PROFILE ============
@@ -636,6 +668,30 @@ export const appRouter = router({
         });
 
         return { success: true, submissionId: submission.id };
+      }),
+  }),
+
+  communitySupport: router({
+    create: publicProcedure
+      .input(z.object({
+        requestType: supportRequestTypeSchema,
+        name: z.string().min(2),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        organization: z.string().optional(),
+        message: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const created = await db.createCommunitySupportRequest({
+          requestType: input.requestType,
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          organization: input.organization,
+          message: input.message,
+          status: "new",
+        });
+        return { success: true, id: created.id };
       }),
   }),
 

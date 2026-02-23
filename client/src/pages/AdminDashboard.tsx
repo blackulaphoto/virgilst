@@ -28,7 +28,8 @@ import {
   Pin,
   PinOff,
   UserCog,
-  Inbox
+  Inbox,
+  HeartHandshake
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -102,6 +103,7 @@ export default function AdminDashboard() {
   const { data: forumPosts } = trpc.admin.forum.posts.useQuery({});
   const { data: allUsers } = trpc.admin.users.list.useQuery({});
   const { data: pendingSubmissions } = trpc.admin.submissions.list.useQuery({ status: "pending", limit: 200 });
+  const { data: supportRequests } = trpc.admin.support.list.useQuery({ status: "new", limit: 200 });
 
   // Mutations
   const createArticleMutation = trpc.articles.create.useMutation({
@@ -186,6 +188,16 @@ export default function AdminDashboard() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to review submission");
+    },
+  });
+
+  const updateSupportStatusMutation = trpc.admin.support.updateStatus.useMutation({
+    onSuccess: () => {
+      utils.admin.support.list.invalidate();
+      toast.success("Support request updated");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update support request");
     },
   });
 
@@ -332,7 +344,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="container py-8">
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
             <TabsTrigger value="guides">
               <BookOpen className="mr-2 h-4 w-4" />
               Guides
@@ -360,6 +372,15 @@ export default function AdminDashboard() {
               {pendingSubmissions && pendingSubmissions.length > 0 && (
                 <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                   {pendingSubmissions.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="support">
+              <HeartHandshake className="mr-2 h-4 w-4" />
+              Support
+              {supportRequests && supportRequests.length > 0 && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                  {supportRequests.length}
                 </span>
               )}
             </TabsTrigger>
@@ -439,6 +460,77 @@ export default function AdminDashboard() {
                   ) : (
                     <p className="py-8 text-center text-sm text-muted-foreground">
                       No guides yet. Create your first one!
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Donation / Get Involved Requests */}
+          <TabsContent value="support" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Donation and Get Involved Requests</CardTitle>
+                <CardDescription>
+                  New support requests from the Mission / Donate / Get Involved page.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {supportRequests && supportRequests.length > 0 ? (
+                    supportRequests.map((request: any) => (
+                      <div key={request.id} className="rounded-lg border border-border p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-card-foreground">{request.name}</h3>
+                              <span className="rounded-full bg-secondary px-2 py-1 text-xs capitalize text-secondary-foreground">
+                                {request.requestType}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {request.email}
+                              {request.phone ? ` • ${request.phone}` : ""}
+                              {request.organization ? ` • ${request.organization}` : ""}
+                            </p>
+                            {request.message && (
+                              <p className="text-sm text-muted-foreground">{request.message}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                updateSupportStatusMutation.mutate({
+                                  id: request.id,
+                                  status: "reviewed",
+                                })
+                              }
+                              disabled={updateSupportStatusMutation.isPending}
+                            >
+                              Mark Reviewed
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                updateSupportStatusMutation.mutate({
+                                  id: request.id,
+                                  status: "closed",
+                                })
+                              }
+                              disabled={updateSupportStatusMutation.isPending}
+                            >
+                              Close
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No new support requests
                     </p>
                   )}
                 </div>

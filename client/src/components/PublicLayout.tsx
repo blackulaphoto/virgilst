@@ -46,6 +46,7 @@ const primaryNavItems = [
 ];
 
 const supportModules = [
+  { href: "/get-involved", label: "Mission & Donate", icon: Heart },
   { href: "/treatment", label: "Treatment Centers", icon: Building2 },
   { href: "/events", label: "Community Events", icon: CalendarDays },
   { href: "/jobs", label: "Jobs", icon: Briefcase },

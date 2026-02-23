@@ -22,6 +22,7 @@ import {
   mediCalProviders,
   providerCategories,
   serviceSubmissions,
+  communitySupportRequests,
   type Article,
   type Resource,
   type MapPin,
@@ -36,6 +37,7 @@ import {
   type Event,
   type MediCalProvider,
   type ServiceSubmission,
+  type CommunitySupportRequest,
   type InsertArticle,
   type InsertResource,
   type InsertMapPin,
@@ -44,6 +46,7 @@ import {
   type InsertMeeting,
   type InsertEvent,
   type InsertServiceSubmission,
+  type InsertCommunitySupportRequest,
   type InsertForumPost,
   type InsertForumReply,
   type InsertVideo,
@@ -61,6 +64,7 @@ import {
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _serviceSubmissionsEnsured = false;
+let _communitySupportRequestsEnsured = false;
 
 function normalizeEpochSeconds(value: unknown): number | undefined {
   if (value === undefined || value === null) return undefined;
@@ -206,6 +210,36 @@ async function ensureServiceSubmissionsTable(): Promise<void> {
   await db.execute(sql`CREATE INDEX IF NOT EXISTS "serviceSubmissions_created_idx" ON service_submissions ("createdAt")`);
 
   _serviceSubmissionsEnsured = true;
+}
+
+async function ensureCommunitySupportRequestsTable(): Promise<void> {
+  if (_communitySupportRequestsEnsured) return;
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS community_support_requests (
+      id SERIAL PRIMARY KEY,
+      "requestType" TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'new',
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      organization TEXT,
+      message TEXT,
+      "reviewedBy" INTEGER,
+      "reviewNotes" TEXT,
+      "reviewedAt" INTEGER,
+      "createdAt" INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::INTEGER,
+      "updatedAt" INTEGER NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::INTEGER
+    )
+  `);
+
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "communitySupportRequests_type_idx" ON community_support_requests ("requestType")`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "communitySupportRequests_status_idx" ON community_support_requests (status)`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "communitySupportRequests_created_idx" ON community_support_requests ("createdAt")`);
+
+  _communitySupportRequestsEnsured = true;
 }
 
 // ============ USER HELPERS ============
@@ -1917,6 +1951,77 @@ export async function approveServiceSubmission(input: {
     .where(eq(serviceSubmissions.id, input.id));
 
   return { approvedEntityType, approvedEntityId };
+}
+
+// ============ COMMUNITY SUPPORT REQUESTS ============
+
+export async function createCommunitySupportRequest(
+  request: InsertCommunitySupportRequest
+): Promise<CommunitySupportRequest> {
+  await ensureCommunitySupportRequestsTable();
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(communitySupportRequests).values(request).returning();
+  return result[0];
+}
+
+export async function getCommunitySupportRequests(filters?: {
+  status?: "new" | "reviewed" | "closed";
+  requestType?: "donation" | "volunteer" | "partner";
+  limit?: number;
+  offset?: number;
+}) {
+  await ensureCommunitySupportRequestsTable();
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(communitySupportRequests);
+  const conditions = [];
+
+  if (filters?.status) {
+    conditions.push(eq(communitySupportRequests.status, filters.status));
+  }
+  if (filters?.requestType) {
+    conditions.push(eq(communitySupportRequests.requestType, filters.requestType));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  query = query.orderBy(desc(communitySupportRequests.createdAt)) as any;
+
+  if (filters?.limit) {
+    query = query.limit(filters.limit) as any;
+  }
+  if (filters?.offset) {
+    query = query.offset(filters.offset) as any;
+  }
+
+  return await query;
+}
+
+export async function updateCommunitySupportRequestStatus(input: {
+  id: number;
+  status: "new" | "reviewed" | "closed";
+  reviewedBy: number;
+  reviewNotes?: string;
+}) {
+  await ensureCommunitySupportRequestsTable();
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(communitySupportRequests)
+    .set({
+      status: input.status,
+      reviewedBy: input.reviewedBy,
+      reviewNotes: input.reviewNotes,
+      reviewedAt: Math.floor(Date.now() / 1000),
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
+    .where(eq(communitySupportRequests.id, input.id));
 }
 
 // ============ ADMIN FUNCTIONS ============

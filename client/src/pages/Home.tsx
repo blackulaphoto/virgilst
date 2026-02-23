@@ -24,6 +24,9 @@ import {
   User,
   MapPin,
   Grid2x2,
+  HeartHandshake,
+  HandHeart,
+  Users,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -206,6 +209,54 @@ export default function Home() {
           {stats.map(stat => (
             <StatPill key={stat.label} label={stat.label} value={stat.value} icon={stat.icon} />
           ))}
+        </div>
+      </SectionBlock>
+
+      <SectionBlock
+        title="Support the mission"
+        subtitle="Help keep Virgil St free, up to date, and available to the people who need it most."
+        className="rounded-t-[40px] border-t border-primary/10"
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          <Link href="/get-involved">
+            <div className="surface-card cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <HandHeart className="h-5 w-5 text-[var(--cta)]" />
+                  Donate
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Fund platform operations and direct community impact.</p>
+              </CardContent>
+            </div>
+          </Link>
+          <Link href="/get-involved">
+            <div className="surface-card cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Users className="h-5 w-5 text-primary" />
+                  Volunteer
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Contribute time, outreach, or lived-experience guidance.</p>
+              </CardContent>
+            </div>
+          </Link>
+          <Link href="/get-involved">
+            <div className="surface-card cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <HeartHandshake className="h-5 w-5 text-primary" />
+                  Partner
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Collaborate as a clinic, nonprofit, employer, or civic team.</p>
+              </CardContent>
+            </div>
+          </Link>
         </div>
       </SectionBlock>
 

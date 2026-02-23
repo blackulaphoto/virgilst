@@ -34,6 +34,7 @@ import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
 import JobCategory from "./pages/JobCategory";
 import SubmitService from "./pages/SubmitService";
+import GetInvolved from "./pages/GetInvolved";
 import FloatingAIAssistant from "./components/FloatingAIAssistant";
 
 function Router() {
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/jobs" component={Jobs} />
       <Route path="/submit-service/:category" component={SubmitService} />
       <Route path="/submit-service" component={SubmitService} />
+      <Route path="/get-involved" component={GetInvolved} />
       <Route path={"/favorites"} component={Favorites} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/profile/:userId"} component={Profile} />

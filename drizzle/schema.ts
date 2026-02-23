@@ -471,6 +471,32 @@ export type ServiceSubmission = typeof serviceSubmissions.$inferSelect;
 export type InsertServiceSubmission = typeof serviceSubmissions.$inferInsert;
 
 /**
+ * Public support inquiries for donation / volunteer / partnership.
+ */
+export const communitySupportRequests = pgTable("community_support_requests", {
+  id: serial("id").primaryKey(),
+  requestType: text("requestType").notNull(), // donation | volunteer | partner
+  status: text("status").default("new").notNull(), // new | reviewed | closed
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  organization: text("organization"),
+  message: text("message"),
+  reviewedBy: integer("reviewedBy").references(() => users.id),
+  reviewNotes: text("reviewNotes"),
+  reviewedAt: integer("reviewedAt"),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  typeIdx: index("communitySupportRequests_type_idx").on(table.requestType),
+  statusIdx: index("communitySupportRequests_status_idx").on(table.status),
+  createdIdx: index("communitySupportRequests_created_idx").on(table.createdAt),
+}));
+
+export type CommunitySupportRequest = typeof communitySupportRequests.$inferSelect;
+export type InsertCommunitySupportRequest = typeof communitySupportRequests.$inferInsert;
+
+/**
  * Knowledge base documents (source files for RAG)
  */
 export const knowledgeDocuments = pgTable("knowledge_documents", {
