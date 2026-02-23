@@ -23,6 +23,39 @@ import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
+function parseJsonArray(raw?: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function extractProviderWebsite(provider: any): string | undefined {
+  const direct = normalizeExternalUrl((provider as { website?: string | null }).website);
+  if (direct) return direct;
+
+  const candidates = [
+    ...parseJsonArray(provider.medicalGroups),
+    ...parseJsonArray(provider.networks),
+    ...parseJsonArray(provider.hospitalAffiliations),
+  ];
+
+  for (const candidate of candidates) {
+    const match = candidate.match(/https?:\/\/[^\s"')]+/i);
+    if (match) {
+      const normalized = normalizeExternalUrl(match[0]);
+      if (normalized) return normalized;
+    }
+    const normalized = normalizeExternalUrl(candidate);
+    if (normalized) return normalized;
+  }
+
+  return undefined;
+}
+
 export default function MediCalProviders() {
   const { city } = useParams<{ city?: string }>();
   const initialCategoryParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("category") || "" : "";
@@ -266,10 +299,9 @@ export default function MediCalProviders() {
         ) : (
           <div className="space-y-4">
             {providers.map((provider) => {
-              const website = (provider as { website?: string | null }).website;
-              const websiteUrl = normalizeExternalUrl(website);
-              const faviconUrl = getFaviconUrl(website);
-              const domain = getDisplayDomain(website);
+              const websiteUrl = extractProviderWebsite(provider);
+              const faviconUrl = getFaviconUrl(websiteUrl);
+              const domain = getDisplayDomain(websiteUrl);
               let specialties: string[] = [];
               let languages: string[] = [];
               let networks: string[] = [];
