@@ -3,8 +3,9 @@ import { MapView } from "@/components/Map";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Navigation, X } from "lucide-react";
+import { ExternalLink, MapPin, Navigation, X } from "lucide-react";
 import { Link } from "wouter";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 const RESOURCE_TYPES = [
   { value: "all", label: "All Resources", color: "#0E5E6F" },
@@ -111,6 +112,9 @@ export default function ResourceMap() {
   };
 
   const mapCenter = userLocation || { lat: 34.0522, lng: -118.2437 };
+  const selectedResourceWebsite = normalizeExternalUrl(selectedResource?.website);
+  const selectedResourceDomain = getDisplayDomain(selectedResource?.website);
+  const selectedResourceFavicon = getFaviconUrl(selectedResource?.website);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -119,7 +123,7 @@ export default function ResourceMap() {
           <div>
             <Link href="/">
               <Button variant="ghost" className="px-2 text-muted-foreground hover:text-foreground">
-                ← Back
+                â† Back
               </Button>
             </Link>
             <h1 className="mt-2 text-3xl font-bold">Resource Map</h1>
@@ -211,15 +215,26 @@ export default function ResourceMap() {
                 </div>
               )}
 
-              {selectedResource.website && (
+              {selectedResourceWebsite && (
                 <div>
                   <a
-                    href={selectedResource.website}
+                    href={selectedResourceWebsite}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
                   >
-                    Visit Website →
+                    {selectedResourceFavicon ? (
+                      <img
+                        src={selectedResourceFavicon}
+                        alt=""
+                        className="h-4 w-4 rounded-sm border border-border object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <ExternalLink className="h-4 w-4" />
+                    )}
+                    {selectedResourceDomain ? `Visit ${selectedResourceDomain}` : "Visit website"}
                   </a>
                 </div>
               )}

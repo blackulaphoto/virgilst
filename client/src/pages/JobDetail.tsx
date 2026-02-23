@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 export default function JobDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -110,6 +111,9 @@ export default function JobDetail() {
     : job.sourceUrl
       ? "Original source"
       : "Google search";
+  const normalizedOutboundUrl = normalizeExternalUrl(outboundUrl) ?? outboundUrl;
+  const outboundFavicon = getFaviconUrl(outboundUrl);
+  const outboundDomain = getDisplayDomain(outboundUrl);
 
   // Generate JobPosting schema markup for SEO
   const jobPostingSchema = {
@@ -218,16 +222,25 @@ export default function JobDetail() {
             <div className="flex flex-wrap items-center gap-2">
               <Button size="lg" asChild>
                 <a
-                  href={outboundUrl}
+                  href={normalizedOutboundUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  {outboundFavicon ? (
+                    <img
+                      src={outboundFavicon}
+                      alt=""
+                      className="mr-2 h-4 w-4 rounded-sm border border-border object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
                   {job.applyLink ? "Apply Now" : "Find Original Posting"}
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
               <Badge variant="outline" className="text-xs">
-                Source: {outboundSourceLabel}
+                Source: {outboundDomain ? `${outboundSourceLabel} • ${outboundDomain}` : outboundSourceLabel}
               </Badge>
 
               {user && (

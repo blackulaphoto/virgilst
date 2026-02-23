@@ -15,6 +15,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 // SEO-optimized category definitions
 const categoryDefinitions: Record<string, {
@@ -485,20 +486,32 @@ export default function JobCategory() {
                     <div className="flex gap-2">
                       {(() => {
                         const outbound = getJobOutboundInfo(job);
+                        const outboundUrl = normalizeExternalUrl(outbound.url) ?? outbound.url;
+                        const faviconUrl = getFaviconUrl(outbound.url);
+                        const domain = getDisplayDomain(outbound.url);
                         return (
                           <>
                             <Button size="sm" asChild>
                               <a
-                                href={outbound.url}
+                                href={outboundUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
+                                {faviconUrl ? (
+                                  <img
+                                    src={faviconUrl}
+                                    alt=""
+                                    className="mr-2 h-4 w-4 rounded-sm border border-border object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : null}
                                 {outbound.actionLabel}
                                 <ExternalLink className="w-3 h-3 ml-2" />
                               </a>
                             </Button>
                             <Badge variant="outline" className="text-xs">
-                              {outbound.sourceLabel}
+                              {domain ? `${outbound.sourceLabel} • ${domain}` : outbound.sourceLabel}
                             </Badge>
                           </>
                         );

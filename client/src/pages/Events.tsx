@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Calendar, MapPin, Clock, Users, Phone, Globe, Tag, DollarSign, Repeat, Star } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Phone, Globe, Tag, DollarSign, Repeat, Star, ExternalLink } from "lucide-react";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
+import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 type JsonArray = string[];
 
@@ -168,6 +169,15 @@ export default function Events() {
             {filteredEvents.map((event) => {
               const services = parseJsonArray(event.servicesOffered);
               const tags = parseJsonArray(event.tags);
+              const onlineUrl = normalizeExternalUrl(event.onlineUrl);
+              const onlineDomain = getDisplayDomain(event.onlineUrl);
+              const onlineFavicon = getFaviconUrl(event.onlineUrl);
+              const websiteUrl = normalizeExternalUrl(event.website);
+              const websiteDomain = getDisplayDomain(event.website);
+              const websiteFavicon = getFaviconUrl(event.website);
+              const registrationUrl = normalizeExternalUrl(event.registrationUrl);
+              const registrationDomain = getDisplayDomain(event.registrationUrl);
+              const registrationFavicon = getFaviconUrl(event.registrationUrl);
 
               return (
                 <Card
@@ -255,17 +265,68 @@ export default function Events() {
                       </div>
                     )}
 
-                    {event.isOnline === 1 && event.onlineUrl && (
+                    {event.isOnline === 1 && onlineUrl && (
                       <div className="flex items-start gap-2 text-foreground">
                         <Globe className="mt-0.5 h-5 w-5 shrink-0 text-accent-foreground" />
-                        <a
-                          href={event.onlineUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-accent-foreground hover:underline"
-                        >
-                          Join online
-                        </a>
+                        <div className="flex items-center gap-2">
+                          {onlineFavicon ? (
+                            <img
+                              src={onlineFavicon}
+                              alt=""
+                              className="h-5 w-5 rounded-sm border border-border object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : null}
+                          <a
+                            href={onlineUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent-foreground hover:underline"
+                          >
+                            {onlineDomain ? `Join online (${onlineDomain})` : "Join online"}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {websiteUrl && (
+                      <div className="flex items-start gap-2 text-foreground">
+                        <ExternalLink className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                        <div className="flex items-center gap-2">
+                          {websiteFavicon ? (
+                            <img
+                              src={websiteFavicon}
+                              alt=""
+                              className="h-5 w-5 rounded-sm border border-border object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : null}
+                          <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {websiteDomain ? `Event website (${websiteDomain})` : "Event website"}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {registrationUrl && (
+                      <div className="flex items-start gap-2 text-foreground">
+                        <ExternalLink className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                        <div className="flex items-center gap-2">
+                          {registrationFavicon ? (
+                            <img
+                              src={registrationFavicon}
+                              alt=""
+                              className="h-5 w-5 rounded-sm border border-border object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : null}
+                          <a href={registrationUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {registrationDomain ? `Register (${registrationDomain})` : "Register"}
+                          </a>
+                        </div>
                       </div>
                     )}
 
