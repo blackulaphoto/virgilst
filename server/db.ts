@@ -1341,29 +1341,29 @@ export async function searchTreatmentCenters(query: string): Promise<TreatmentCe
 
   const tokenConditions = terms.map(term =>
     or(
-      like(treatmentCenters.name, `%${term}%`),
-      like(treatmentCenters.description, `%${term}%`),
-      like(treatmentCenters.city, `%${term}%`),
-      like(treatmentCenters.address, `%${term}%`),
-      like(treatmentCenters.type, `%${term}%`),
-      like(treatmentCenters.servicesOffered, `%${term}%`)
+      ilike(treatmentCenters.name, `%${term}%`),
+      ilike(treatmentCenters.description, `%${term}%`),
+      ilike(treatmentCenters.city, `%${term}%`),
+      ilike(treatmentCenters.address, `%${term}%`),
+      ilike(treatmentCenters.type, `%${term}%`),
+      ilike(treatmentCenters.servicesOffered, `%${term}%`)
     )
   );
 
   const textMatcher =
     tokenConditions.length > 0
       ? or(
-          like(treatmentCenters.name, `%${query}%`),
-          like(treatmentCenters.description, `%${query}%`),
-          like(treatmentCenters.city, `%${query}%`),
-          like(treatmentCenters.address, `%${query}%`),
+          ilike(treatmentCenters.name, `%${query}%`),
+          ilike(treatmentCenters.description, `%${query}%`),
+          ilike(treatmentCenters.city, `%${query}%`),
+          ilike(treatmentCenters.address, `%${query}%`),
           ...tokenConditions
         )
       : or(
-          like(treatmentCenters.name, `%${query}%`),
-          like(treatmentCenters.description, `%${query}%`),
-          like(treatmentCenters.city, `%${query}%`),
-          like(treatmentCenters.address, `%${query}%`)
+          ilike(treatmentCenters.name, `%${query}%`),
+          ilike(treatmentCenters.description, `%${query}%`),
+          ilike(treatmentCenters.city, `%${query}%`),
+          ilike(treatmentCenters.address, `%${query}%`)
         );
 
   const conditions = [eq(treatmentCenters.isPublished, 1), textMatcher];
