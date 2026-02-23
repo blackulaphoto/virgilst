@@ -309,6 +309,12 @@ export default function Home() {
                   Browse services
                 </Button>
               </Link>
+              <Link href="/get-involved#donate">
+                <Button size="lg" variant="outline">
+                  Donate
+                  <HandHeart className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
