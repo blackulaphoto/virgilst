@@ -13,6 +13,8 @@ import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/ext
 
 export default function Treatment() {
   const { program } = useParams<{ program?: string }>();
+  const initialSearchQuery = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "";
+  const initialInsurance = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("insurance") || "" : "";
   const routeProgramMap: Record<string, string> = {
     "sober-living": "sober_living",
     detox: "detox",
@@ -23,11 +25,11 @@ export default function Treatment() {
   const initialProgramType = program ? routeProgramMap[program] : undefined;
   const initialTab = !initialProgramType || initialProgramType === "sober_living" ? "sober_living" : "treatment";
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCity, setSelectedCity] = useState<string | undefined>();
   const [selectedPopulation, setSelectedPopulation] = useState<string | undefined>();
   const [mediCalOnly, setMediCalOnly] = useState(false);
-  const [privateInsuranceOnly, setPrivateInsuranceOnly] = useState(false);
+  const [privateInsuranceOnly, setPrivateInsuranceOnly] = useState(initialInsurance === "private");
   const [couplesOnly, setCouplesOnly] = useState(false);
   const [selectedTreatmentType, setSelectedTreatmentType] = useState<string | undefined>(
     initialProgramType && initialProgramType !== "sober_living" ? initialProgramType : undefined

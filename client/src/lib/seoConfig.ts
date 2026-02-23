@@ -196,6 +196,14 @@ export function buildSeoConfig(pathname: string): SeoConfig {
         "Search Medi-Cal providers by city, specialty, and network across Los Angeles County and California.",
     };
   }
+  if (pathname === "/healthcare") {
+    return {
+      ...base,
+      title: "Healthcare Access in California | Virgil St",
+      description:
+        "Find Medi-Cal providers, private-insurance clinics, urgent care, suboxone options, and harm-reduction services.",
+    };
+  }
   if (pathname.startsWith("/medical-providers/")) {
     const city = pathname.split("/")[2];
     if (city) {
@@ -260,4 +268,3 @@ export function buildSeoConfig(pathname: string): SeoConfig {
   }
   return base;
 }
-

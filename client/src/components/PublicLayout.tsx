@@ -42,7 +42,7 @@ const primaryNavItems = [
   { href: "/resources", label: "Resources", icon: Heart },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
   { href: "/meetings", label: "Meetings", icon: Users },
-  { href: "/medical-providers", label: "Healthcare", icon: Stethoscope },
+  { href: "/healthcare", label: "Healthcare", icon: Stethoscope },
 ];
 
 const supportModules = [
@@ -51,6 +51,7 @@ const supportModules = [
   { href: "/events", label: "Community Events", icon: CalendarDays },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
   { href: "/meetings", label: "Recovery Meetings", icon: Users },
+  { href: "/healthcare", label: "Healthcare Hub", icon: Stethoscope },
   { href: "/medical-providers", label: "Medi-Cal Providers", icon: Stethoscope },
 ];
 

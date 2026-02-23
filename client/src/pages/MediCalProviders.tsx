@@ -25,6 +25,11 @@ import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/ext
 
 export default function MediCalProviders() {
   const { city } = useParams<{ city?: string }>();
+  const initialCategoryParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("category") || "" : "";
+  const initialCategory =
+    MEDI_CAL_CATEGORY_DEFS.some(def => def.key === initialCategoryParam)
+      ? (initialCategoryParam as MediCalCategoryKey)
+      : "";
   const citySlugMap: Record<string, string> = {
     "los-angeles": "LOS ANGELES",
     "van-nuys": "VAN NUYS",
@@ -39,7 +44,7 @@ export default function MediCalProviders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState(initialCity);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<MediCalCategoryKey | "">("");
+  const [selectedCategory, setSelectedCategory] = useState<MediCalCategoryKey | "">(initialCategory);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {

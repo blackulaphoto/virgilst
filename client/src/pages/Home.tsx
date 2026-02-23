@@ -160,7 +160,7 @@ export default function Home() {
             title="I need healthcare"
             description="Medi-Cal providers, clinics, and specialty access."
             icon={Stethoscope}
-            href="/medical-providers"
+            href="/healthcare"
             tone="slate"
           />
         </div>
@@ -270,6 +270,7 @@ export default function Home() {
             {[
               { href: "/treatment", label: "Treatment Centers" },
               { href: "/meetings", label: "Recovery Meetings" },
+              { href: "/healthcare", label: "Healthcare Hub" },
               { href: "/medical-providers", label: "Medi-Cal Providers" },
               { href: "/events", label: "Community Events" },
               { href: "/articles", label: "Resource Library" },

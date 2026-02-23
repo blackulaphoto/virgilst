@@ -11,8 +11,9 @@ import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 
 export default function Search() {
-  const [query, setQuery] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const initialQuery = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "";
+  const [query, setQuery] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
 
   const { data: results, isLoading } = trpc.search.global.useQuery(
     { query: searchQuery },
