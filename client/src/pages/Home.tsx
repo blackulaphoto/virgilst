@@ -129,6 +129,74 @@ export default function Home() {
         </div>
       </SectionBlock>
 
+      {/* ASK VIRGIL - Major Feature Section */}
+      <SectionBlock className="rounded-t-[40px] border-t border-primary/10 bg-gradient-to-br from-primary/5 to-card">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] items-center">
+          {/* Virgil Avatar/Visual */}
+          <div className="relative flex items-center justify-center">
+            <div className="relative h-64 w-64 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-4 border-primary/20 flex items-center justify-center">
+              <MessageSquare className="h-32 w-32 text-primary" />
+              <div className="absolute -bottom-2 -right-2 h-20 w-20 rounded-full bg-green-500/20 border-4 border-green-500/40 flex items-center justify-center">
+                <div className="h-4 w-4 rounded-full bg-green-500 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Virgil Description */}
+          <div>
+            <div className="mb-4">
+              <Badge variant="default" className="bg-primary text-primary-foreground mb-3">
+                AI-Powered Navigator
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Ask Virgil Anything
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Your 24/7 California social services navigator. Get direct answers, verified resources,
+                and step-by-step guidance in plain language—no forms, no phone trees, no runaround.
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Real-time help for urgent situations</p>
+                  <p className="text-sm text-muted-foreground">Being discharged? Need housing tonight? Get immediate options.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-1 h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Navigates Medi-Cal, insurance, and programs</p>
+                  <p className="text-sm text-muted-foreground">Anthem? Medi-Cal? We'll find in-network providers and verify coverage.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-1 h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Gives you exact steps and phone scripts</p>
+                  <p className="text-sm text-muted-foreground">"Call this number, say this, ask for that" — no guesswork.</p>
+                </div>
+              </div>
+            </div>
+
+            <Link href="/chat">
+              <Button size="lg" className="bg-[var(--cta)] text-[var(--cta-foreground)] hover:opacity-95">
+                Start Talking to Virgil
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </SectionBlock>
+
       <SectionBlock
         title="Choose your next step"
         subtitle="Start with the need you have right now. Each path takes you directly to verified programs and actionable options."
