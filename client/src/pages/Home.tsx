@@ -272,6 +272,47 @@ export default function Home() {
         </div>
       </SectionBlock>
 
+      {/* Mobile Menu Callout - Only visible on mobile */}
+      <div className="lg:hidden">
+        <SectionBlock className="rounded-t-[40px] border-t border-primary/10 bg-gradient-to-br from-orange-500/10 to-card">
+          <div className="rounded-2xl border-2 border-orange-500/30 bg-orange-500/5 p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                  <Grid2x2 className="h-6 w-6 text-orange-600" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  Don't Miss Out — Open the Menu! ☰
+                </h3>
+                <p className="text-muted-foreground mb-3">
+                  This homepage shows just a few features. Tap the <strong>menu icon (☰) at the top right</strong> to access:
+                </p>
+                <ul className="space-y-1.5 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <span>Treatment centers & recovery meetings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <span>Medi-Cal providers & healthcare hub</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <span>Community events & resource library</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <span>Interactive map & community forum</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </SectionBlock>
+      </div>
+
       <SectionBlock title="Trusted public service footprint" subtitle="Real coverage, real activity, real support." className="rounded-t-[40px] border-t border-primary/10">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map(stat => (
