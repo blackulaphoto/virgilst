@@ -34,15 +34,10 @@ export default function Chat() {
     conversationId ? { conversationId } : skipToken
   );
 
-  const [lastSources, setLastSources] = useState<any[]>([]);
-
   const sendMutation = trpc.chat.send.useMutation({
     onSuccess: async (data) => {
       setConversationId(data.conversationId);
       setMessage("");
-      if (data.sources) {
-        setLastSources(data.sources);
-      }
       await utils.chat.messages.invalidate({ conversationId: data.conversationId });
       await utils.chat.conversations.invalidate();
     },
@@ -148,38 +143,7 @@ export default function Chat() {
                     }`}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="space-y-3">
-                        <Streamdown>{msg.content}</Streamdown>
-                        {/* Show sources for the last assistant message */}
-                        {msg.id === messages[messages.length - 1]?.id && lastSources.length > 0 && (
-                          <div className="mt-4 border-t border-border pt-3">
-                            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                              Sources:
-                            </p>
-                            <div className="space-y-1">
-                              {lastSources.map((source, idx) => (
-                                <div key={idx} className="text-xs text-muted-foreground">
-                                  {source.url ? (
-                                    <a
-                                      href={source.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="hover:text-primary underline"
-                                    >
-                                      {source.title || source.filename}
-                                    </a>
-                                  ) : (
-                                    <span>{source.title || source.filename}</span>
-                                  )}
-                                  {source.category && (
-                                    <span className="ml-2 text-muted-foreground/70">({source.category})</span>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      <Streamdown>{msg.content}</Streamdown>
                     ) : (
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     )}
