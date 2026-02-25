@@ -561,6 +561,7 @@ export const treatmentCenters = pgTable("treatment_centers", {
   acceptsMediCal: integer("acceptsMediCal").default(0).notNull(),
   acceptsMedicare: integer("acceptsMedicare").default(0).notNull(),
   acceptsPrivateInsurance: integer("acceptsPrivateInsurance").default(0).notNull(),
+  acceptsAnthemInsurance: integer("acceptsAnthemInsurance").default(0).notNull(), // Anthem Blue Cross
   acceptsRBH: integer("acceptsRBH").default(0).notNull(), // Recovery Bridge Housing
   priceRange: text("priceRange"), // e.g., "$800-$1000", "Varies", "Free"
 
