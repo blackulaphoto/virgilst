@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   UtensilsCrossed,
   Home,
@@ -17,6 +18,7 @@ import {
   Flag,
   CheckCircle,
   XCircle,
+  Search,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
@@ -84,6 +86,8 @@ export default function Resources() {
   const { category } = useParams<{ category?: string }>();
   const isValidCategory = !!category && resourceCategories.some(cat => cat.type === category);
   const [selectedType, setSelectedType] = useState<string | null>(isValidCategory ? category! : null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [zipCodeFilter, setZipCodeFilter] = useState("");
 
   useEffect(() => {
     setSelectedType(isValidCategory ? category! : null);
@@ -95,11 +99,26 @@ export default function Resources() {
 
   const selectedCategory = resourceCategories.find(cat => cat.type === selectedType);
 
+  // Filter resources based on search and zip code
+  const filteredResources = useMemo(() => {
+    return resources.filter(resource => {
+      const matchesSearch = !searchQuery ||
+        resource.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        resource.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        resource.address?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesZip = !zipCodeFilter ||
+        resource.zipCode?.includes(zipCodeFilter);
+
+      return matchesSearch && matchesZip;
+    });
+  }, [resources, searchQuery, zipCodeFilter]);
+
   if (selectedType && selectedCategory) {
     return (
       <PublicLayout
         title={selectedCategory.title}
-        subtitle={`${resources.length} resources found in this category.`}
+        subtitle={`${filteredResources.length} ${filteredResources.length === resources.length ? 'resources' : `of ${resources.length} resources`} in this category.`}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelectedType(null)}>
@@ -127,6 +146,35 @@ export default function Resources() {
               ))}
           </div>
 
+          {/* Search and Filter Bar */}
+          <div className="mb-6 grid gap-4 md:grid-cols-[1fr_200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by name, address, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Input
+              type="text"
+              placeholder="Filter by zip code"
+              value={zipCodeFilter}
+              onChange={(e) => setZipCodeFilter(e.target.value)}
+              maxLength={5}
+            />
+          </div>
+
+          {searchQuery || zipCodeFilter ? (
+            <div className="mb-4 text-sm text-muted-foreground">
+              Showing {filteredResources.length} of {resources.length} resources
+              {searchQuery && ` matching "${searchQuery}"`}
+              {zipCodeFilter && ` in zip ${zipCodeFilter}`}
+            </div>
+          ) : null}
+
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -139,13 +187,30 @@ export default function Resources() {
                 </Card>
               ))}
             </div>
-          ) : resources.length === 0 ? (
+          ) : filteredResources.length === 0 ? (
             <Card className="surface-card p-12 text-center">
-              <p className="text-muted-foreground">No resources found in this category.</p>
+              <p className="text-muted-foreground">
+                {searchQuery || zipCodeFilter
+                  ? "No resources match your search. Try different keywords or zip code."
+                  : "No resources found in this category."}
+              </p>
+              {(searchQuery || zipCodeFilter) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setZipCodeFilter("");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              )}
             </Card>
           ) : (
             <div className="space-y-4">
-              {resources.map(resource => (
+              {filteredResources.map(resource => (
                 <Card key={resource.id} className={`surface-card border ${selectedCategory.borderColor}`}>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">

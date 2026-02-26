@@ -422,11 +422,13 @@ export default function JobCategory() {
         </div>
 
         {/* Job Listings */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-4">
-            Current {categoryData.h1} ({searchResults.length} positions{displayedResults.length < searchResults.length ? `, showing ${displayedResults.length}` : ''})
-          </h2>
-        </div>
+        {!isLoading && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-4">
+              Current {categoryData.h1} ({searchResults.length} positions{displayedResults.length < searchResults.length ? `, showing ${displayedResults.length}` : ''})
+            </h2>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
