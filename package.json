@@ -22,6 +22,7 @@
     "add-emdr-clinics": "node scripts/add-emdr-clinics.mjs",
     "add-anthem-couples": "node scripts/add-anthem-couples-centers.mjs",
     "add-north-hollywood-food": "node scripts/add-north-hollywood-food.mjs",
+    "add-domestic-violence": "node scripts/add-domestic-violence-resources.mjs",
     "migrate-emdr-clinics": "node scripts/migrate-emdr-clinics-to-treatment.mjs",
     "db:import:snapshot": "tsx scripts/import-db-snapshot.ts",
     "db:import:snapshot:safe": "tsx scripts/import-db-snapshot.ts",
