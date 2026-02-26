@@ -1,54 +1,47 @@
 ---
-description: Specification for semantic search implementation and document categorization for legal/social services content
+description: Specification for implementing semantic search, document categorization, and vector embeddings for legal/social services content
 ---
 
 
 # knowledge-base-algorithms
 
-Knowledge Base Core Components:
+Core knowledge base processing system with specialized handling of legal and social services content:
 
-1. Semantic Document Classification
-Path: server/knowledgeExtractor.ts
-- Domain-specific taxonomy for social services content:
-  - Benefits (CalFresh, GA, SSI, etc)
-  - Housing Programs
-  - Legal Services
-  - Crisis Resources
-  - Medical Access
-- Custom chunking algorithm optimized for legal/social services documents
-- Automatic tag generation based on service types and eligibility criteria
-Importance Score: 95
+## Semantic Search Implementation
+Importance Score: 90
+- Domain-specific semantic search optimized for legal/social services terminology
+- Custom ranking algorithm weighing:
+  - Service eligibility matches
+  - Geographic relevance
+  - Program compatibility
+  - Language accessibility
+- Context-aware citation generation for knowledge sources
+- Specialized document chunking based on service categories
 
-2. Vector Embedding Generation
-Path: server/knowledgeIngestion.ts
-- Specialized embedding model trained on social services terminology
-- Context-aware chunk size determination based on content type
-- Domain-specific stopword handling for legal/social content
-- Metadata enrichment for service eligibility and requirements
+## Document Categorization System
 Importance Score: 85
+- Multi-dimensional classification for social services content:
+  - Service type (housing, food, healthcare, etc.)
+  - Population served
+  - Eligibility requirements
+  - Geographic boundaries
+- Automated tagging system for service requirements
+- Hierarchical organization of legal resources and program information
 
-3. Search Query Processing
-Path: server/knowledgeSearch.ts
-- Query expansion for common social services abbreviations and terms
-- Multi-language support with focus on social services terminology
-- Relevance scoring weighted by:
-  - Service availability status
-  - Geographic applicability
-  - Income/eligibility requirements
-  - Documentation needs
+## Knowledge Processing
 Importance Score: 80
+- Specialized validation for treatment facility data
+- Service categorization for addiction treatment centers
+- Program type classification and relationship mapping
+- Custom normalization rules for medical specialties
+- Provider category inference from specialties
 
-4. Content Categorization Rules
-Path: server/categorization.ts
-- Automated classification of resources by:
-  - Service type (emergency, ongoing, referral)
-  - Required documentation
-  - Response time expectations
-  - Provider verification status
-- Custom validation rules for different resource categories
+## Vector Store Integration
 Importance Score: 75
-
-The knowledge base implementation emphasizes accuracy in social services content organization and retrieval, with particular focus on making complex eligibility requirements and program details easily discoverable.
+- Domain-specific vector embeddings optimized for social services terminology
+- Custom similarity metrics for service matching
+- Specialized indexing for legal document relationships
+- Context-aware embedding generation for program descriptions
 
 $END$
 

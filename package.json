@@ -21,6 +21,7 @@
     "db:export:snapshot": "tsx scripts/export-db-snapshot.ts",
     "add-emdr-clinics": "node scripts/add-emdr-clinics.mjs",
     "add-anthem-couples": "node scripts/add-anthem-couples-centers.mjs",
+    "add-north-hollywood-food": "node scripts/add-north-hollywood-food.mjs",
     "migrate-emdr-clinics": "node scripts/migrate-emdr-clinics-to-treatment.mjs",
     "db:import:snapshot": "tsx scripts/import-db-snapshot.ts",
     "db:import:snapshot:safe": "tsx scripts/import-db-snapshot.ts",

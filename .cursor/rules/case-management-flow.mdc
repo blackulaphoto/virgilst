@@ -1,56 +1,49 @@
 ---
-description: Specification for legal case management workflows, status tracking, and document verification states
+description: Defines core business logic for legal case management, status workflows, and document verification.
 ---
 
 
 # case-management-flow
 
-## Case Management Workflows
+## Case Type Workflows (Importance: 90)
 
-Legal case workflows are structured around two primary case types:
+Legal case management implements specialized workflows based on case type:
 
-1. Custody Reunification Cases
-Importance Score: 95
-- Sequential milestone tracking:
-  - Initial Assessment
-  - Parenting Classes
-  - Home Study
-  - Supervised Visits
-  - Court Appearances
-- Automatic milestone initialization based on case requirements
-- Document verification states for each milestone
+- Custody Reunification
+  - Required document verification stages
+  - Court hearing milestone tracking 
+  - Visitation scheduling requirements
+  - Service completion validation
 
-2. Record Expungement Cases
-Importance Score: 90
-- Linear progression through required steps:
-  - Eligibility Check
-  - Records Collection
-  - Form Completion
-  - Court Filing
-  - Follow-up
-- Document requirement templates specific to case type
+- Record Expungement
+  - Criminal record verification steps
+  - Required documentation checklist
+  - Court filing milestone tracking
+  - Background check validation points
 
-## Calendar Integration
+## Document Verification States (Importance: 85)
 
-Importance Score: 85
-Specialized event management for legal proceedings:
-- Court date tracking
-- Legal deadline management
-- Case appointment coordination
-- Integration with milestone system
-- Reminder workflow based on case status
+Document workflow states with required validation:
 
-## Document Verification States
+- Pending Review
+- Under Verification 
+- Requires Correction
+- Verified
+- Rejected
 
-Importance Score: 80
-Documents move through defined states:
-1. Required
-2. Submitted
-3. Under Review
-4. Verified
-5. Rejected (with reason)
+Each state transition requires specific validation rules based on document type and case requirements.
 
-Each state triggers appropriate notifications and workflow updates within the case management system.
+## Case Milestone Tracking (Importance: 80)
+
+Case progress tracking through defined milestones:
+
+- Initial Consultation
+- Document Collection
+- Court Filing
+- Hearing Scheduled
+- Final Resolution
+
+Milestones link to required documentation and validation checkpoints based on case type.
 
 $END$
 

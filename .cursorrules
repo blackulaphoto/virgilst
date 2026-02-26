@@ -10,47 +10,55 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The platform implements specialized business logic for homeless services, recovery support, and social services management across interconnected components:
+## Core Business Domains
 
-1. Resource Discovery & Safety (85/100)
-- Community-driven map system tracking homeless resources
-- Multi-layered verification for submitted locations
-- Real-time status tracking and sweep alerts
-- Categorized pin system:
-  - Safe zones
-  - Resource centers
-  - Food/water sources
-  - Charging stations
+The platform implements specialized social services coordination with five primary business domains:
 
-2. Treatment Facility Management (85/100)
-- Complex facility classification system
-- Population-specific service matching
-- Insurance acceptance validation (MediCal, Medicare)
-- County-specific organization
-- Multi-step matching wizard with decision tree logic
+### 1. Community Resource Mapping (Importance: 85)
+Location sharing system with verification workflows:
+- Pin categorization (safe zones, resources, warnings)
+- Community-driven verification system
+- Real-time location feed filtering
+- Resource reliability scoring
 
-3. Crisis Resource System (80/100)
-- Structured intervention workflows
-- Emergency shelter protocols
-- Benefits application procedures
-- ID recovery processes
-- Mental health crisis response
+### 2. Recovery Meeting Coordination (Importance: 75) 
+Meeting aggregation system with specialized program handling:
+- Multi-program support (AA, NA, CMA, SMART)
+- Meeting mode classification (in-person, online, hybrid)
+- Custom tagging for meeting characteristics
+- Recurring meeting pattern management
 
-4. Recovery Meeting Organization (75/100)
-- Meeting type classification (AA, NA, CMA, SMART)
-- Format detection algorithms
-- Multi-language support
-- Accessibility-based filtering
-- Hybrid/online/in-person classifications
+### 3. Healthcare Provider Management (Importance: 80)
+Medi-Cal provider system with:
+- Provider verification workflow
+- Healthcare taxonomy implementation
+- Multi-dimensional filtering
+- Network affiliation tracking
 
-5. Social Services Navigation (70/100)
-- AI-powered case management
-- Domain-specific knowledge base
-- Anonymous support systems
-- Appointment coordination
-- Service provider verification
+### 4. Social Services Employment (Importance: 70)
+Specialized job matching system:
+- Vulnerability-focused position matching
+- Social services job categorization
+- Category-specific content templates
+- Service-oriented SEO optimization
 
-The system's core value stems from its comprehensive approach to crisis resource management, treatment facility accessibility, and community-driven verification systems, with particular emphasis on California-specific social services integration.
+### 5. Community Event Coordination (Importance: 65)
+Social services event management:
+- Event categorization system
+- Community event recurrence handling
+- Service verification workflow
+- Resource fair specialization
+
+## Integration Architecture
+
+The business logic emphasizes:
+- Community-driven resource verification
+- Healthcare accessibility patterns
+- Recovery program coordination
+- Vulnerability-focused service matching
+- Social services event organization
+
+Critical paths implement verification workflows, accessibility patterns, and domain-specific categorization systems tailored to social services delivery.
 
 $END$
 

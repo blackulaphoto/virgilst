@@ -1,48 +1,47 @@
 ---
-description: AI assistant integration specification for context-aware chat and knowledge base integration
+description: Specifications for implementing context-aware AI assistance with chat capabilities and knowledge integration
 ---
 
 
 # ai-assistant-implementation
 
-## Core AI Assistant Components
+Core AI Assistant Components:
 
-### Context-Aware Chat System
-Path: client/src/components/AIChatBox.tsx
+1. Context-Aware Assistant Engine (client/src/components/AIChatBox.tsx)
+Importance Score: 90
+- Implements domain-specific context detection for social services navigation
+- Specialized prompt generation based on current page content/purpose
+- Real-time message queue management with custom prioritization
+- Integrated knowledge base retrieval with semantic relevance scoring
+
+2. Privacy-Focused Chat Implementation (client/src/components/FloatingAIAssistant.tsx)
 Importance Score: 85
-- Domain-specific prompt engineering for social services queries
-- Knowledge base integration with source attribution for legal/medical advice
-- Context preservation across chat sessions for complex service navigation
-- Automatic detection and handling of urgent/crisis situations
-- Real-time resource suggestion based on conversation context
+- Anonymous interaction system for sensitive assistance requests
+- Custom data masking for personal/medical information
+- Dynamic greeting system adapting to user journey context
+- Specialized response templates for crisis/emergency situations
 
-### Floating Assistant Interface
-Path: client/src/components/FloatingAIAssistant.tsx
+3. Knowledge Integration System
 Importance Score: 80
-- Quick action suggestions based on user location and context
-- Proactive resource recommendations based on page content
-- Crisis intervention workflow triggers
-- Multi-step guidance for complex service applications
+- Domain-specific categorization of social services knowledge
+- Crisis resource prioritization algorithm
+- Custom citation generation for legal/medical information
+- Treatment facility recommendation logic integration
 
-### Knowledge Base Integration
-Path: client/src/lib/ai/knowledgeBase.ts
-Importance Score: 75
-- Social services taxonomy for query classification
-- Resource verification status tracking
-- Authority source linking for medical/legal advice
-- Geographic service area validation
-- Real-time resource availability checks
+Key Features:
+- Crisis-aware response prioritization
+- Treatment resource suggestion system
+- Privacy-preserving conversation history
+- Location-aware service recommendations
+- Emergency resource quick-access prompts
+- Multi-language support with cultural context awareness
 
-### Chat State Management
-Path: client/src/components/Chat.tsx
-Importance Score: 70
-- Anonymous session handling for sensitive topics
-- Message threading with service provider attribution
-- Crisis flag detection and escalation
-- Integration with case management system
-- Resource bookmark and follow-up system
-
-The AI assistance system is specifically designed for social services navigation, with strong emphasis on crisis detection, resource verification, and proper attribution of medical/legal advice.
+Domain-Specific Prompts:
+- Treatment center matching assistance
+- Housing resource navigation
+- Crisis intervention guidance
+- Recovery meeting recommendations
+- Medical provider search assistance
 
 $END$
 
