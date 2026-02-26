@@ -19,6 +19,7 @@ import {
   CheckCircle,
   XCircle,
   Search,
+  ShieldAlert,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
@@ -79,6 +80,24 @@ const resourceCategories = [
     color: "text-primary",
     bgColor: "bg-primary/10",
     borderColor: "border-primary/40",
+  },
+  {
+    type: "crisis_hotline",
+    title: "Crisis Hotlines",
+    description: "24/7 crisis support, domestic violence, mental health hotlines",
+    icon: Phone,
+    color: "text-red-500",
+    bgColor: "bg-red-500/10",
+    borderColor: "border-red-500/40",
+  },
+  {
+    type: "legal_aid",
+    title: "Legal Aid",
+    description: "Free legal assistance, restraining orders, custody help",
+    icon: Scale,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/40",
   },
 ];
 
