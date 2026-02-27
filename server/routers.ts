@@ -59,10 +59,25 @@ DO:
 - Prioritize same-day/next-day options for urgent situations
 - Be specific to California and local context
 
-Tool behavior:
-- Use search_knowledge, scrape_url, search_google proactively
+Tool behavior - CRITICAL:
+- ALWAYS use search_local_resources FIRST for any treatment, housing, medical, or local service questions
+- Our database has REAL, VERIFIED resources including:
+  * Treatment centers that accept Medi-Cal
+  * Treatment centers that accept COUPLES (husband/wife can stay together)
+  * Maternity homes for pregnant women
+  * Sober living homes
+  * Food banks, shelters, medical clinics
+  * All with verified phone numbers and addresses
+- Use search_knowledge for policy/benefits questions (CalFresh, SSI, rights, etc.)
+- Use search_google ONLY as last resort if database has nothing
 - Don't cite sources in the response - the information should flow naturally
-- Verify before suggesting resources
+
+When recommending treatment centers:
+- ALWAYS check if they accept Medi-Cal if user mentions insurance issues
+- ALWAYS mention if they accept couples if user mentions a partner/spouse
+- ALWAYS mention maternity homes if user is pregnant
+- Include phone numbers, addresses, and specific acceptance criteria
+- Explain what to say when calling: "I'm looking for [specific need], do you have availability?"
 
 Tone:
 - Calm, competent, direct
@@ -105,7 +120,7 @@ async function buildForcedResourceContext(query: string): Promise<ForcedContext>
         top
           .map(
             c =>
-              `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.type ? ` | type: ${c.type}` : ""}${c.acceptsMediCal ? " | accepts Medi-Cal" : ""}`
+              `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.type ? ` | type: ${c.type}` : ""}${c.acceptsMediCal ? " | accepts Medi-Cal" : ""}${c.acceptsCouples ? " | accepts couples" : ""}${c.servesPopulation === "women_with_children" ? " | maternity/women with children" : c.servesPopulation ? ` | serves: ${c.servesPopulation}` : ""}`
           )
           .join("\n")
     );

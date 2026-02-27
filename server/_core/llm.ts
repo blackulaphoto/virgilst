@@ -218,7 +218,7 @@ const resolveApiUrl = () =>
     : "https://api.openai.com/v1/chat/completions";
 
 const MAX_COMPLETION_TOKENS = 16384;
-const DEFAULT_COMPLETION_TOKENS = 4096;
+const DEFAULT_COMPLETION_TOKENS = 8192; // Increased for comprehensive treatment center recommendations
 
 const resolveMaxTokens = (params: InvokeParams): number => {
   const requested = params.maxTokens ?? params.max_tokens;
@@ -299,6 +299,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   const payload: Record<string, unknown> = {
     model: "gpt-4o",
     messages: messages.map(normalizeMessage),
+    temperature: 0.7, // Balanced creativity and consistency
   };
 
   if (tools && tools.length > 0) {
@@ -378,6 +379,7 @@ export async function* invokeLLMStream(params: InvokeParams): AsyncGenerator<Str
     model: "gpt-4o",
     messages: messages.map(normalizeMessage),
     stream: true,
+    temperature: 0.7, // Balanced creativity and consistency
   };
 
   if (tools && tools.length > 0) {

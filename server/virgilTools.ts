@@ -26,13 +26,13 @@ export const virgilTools = [
     type: "function" as const,
     function: {
       name: "search_local_resources",
-      description: "Search our verified database of LOCAL treatment centers, shelters, food banks, medical providers, and LA County resources. ALWAYS use this FIRST when users ask about: treatment, rehab, detox, sober living, shelters, housing, food banks, medical care, doctors, clinics, or any LOCAL services/places. Returns real phone numbers, addresses, and details from our internal database.",
+      description: "Search our verified database of LOCAL treatment centers, shelters, food banks, medical providers, and LA County resources. CRITICAL: ALWAYS use this FIRST when users ask about: treatment, rehab, detox, sober living, maternity homes, couples treatment, shelters, housing, food banks, medical care, doctors, clinics, or any LOCAL services/places. Our database includes: treatment centers that accept Medi-Cal, centers that accept COUPLES, maternity homes for pregnant women, and all have VERIFIED phone numbers and addresses. Returns REAL contact info from our internal database.",
       parameters: {
         type: "object",
         properties: {
           query: {
             type: "string",
-            description: "The search query (e.g., 'treatment center', 'shelter near me', 'medi-cal doctor', 'food bank koreatown')",
+            description: "The search query. Include relevant details like 'treatment center couples', 'treatment center pregnant', 'treatment center medi-cal', 'shelter koreatown', etc.",
           },
         },
         required: ["query"],
