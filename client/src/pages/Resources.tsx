@@ -27,7 +27,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
-import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
+import { getDisplayDomain, getFaviconUrl, getWebsitePreviewImage, normalizeExternalUrl } from "@/lib/externalMedia";
 
 const resourceCategories = [
   {
@@ -145,12 +145,18 @@ export default function Resources() {
   const { data: resources = [], isLoading } = trpc.resources.list.useQuery(
     selectedType ? { type: selectedType } : {}
   );
+  const { data: featuredResources = [] } = trpc.resources.featured.useQuery(
+    selectedType ? { type: selectedType, limit: 8 } : { limit: 8 }
+  );
 
   const selectedCategory = resourceCategories.find(cat => cat.type === selectedType);
 
   // Filter resources based on search and zip code
   const filteredResources = useMemo(() => {
+    const featuredIds = new Set(featuredResources.map(resource => resource.id));
     return resources.filter(resource => {
+      if (featuredIds.has(resource.id)) return false;
+
       const matchesSearch = !searchQuery ||
         resource.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         resource.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,7 +167,7 @@ export default function Resources() {
 
       return matchesSearch && matchesZip;
     });
-  }, [resources, searchQuery, zipCodeFilter]);
+  }, [resources, featuredResources, searchQuery, zipCodeFilter]);
 
   if (selectedType && selectedCategory) {
     return (
@@ -182,6 +188,114 @@ export default function Resources() {
         }
       >
         <SectionBlock>
+          {featuredResources.length > 0 ? (
+            <div className="mb-8">
+              <div className="mb-4 flex items-center gap-2">
+                <Badge className="bg-primary/10 text-primary border-primary/30">
+                  Featured resources
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  Admin selected priority services with expanded details.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {featuredResources.map((resource) => {
+                  const websiteUrl = normalizeExternalUrl(resource.website);
+                  const previewImage = getWebsitePreviewImage(resource.website);
+                  const domain = getDisplayDomain(resource.website);
+                  const faviconUrl = getFaviconUrl(resource.website);
+
+                  return (
+                    <Card key={`featured-${resource.id}`} className={`overflow-hidden border-2 ${selectedCategory.borderColor}`}>
+                      <div className="grid gap-0 md:grid-cols-[220px_1fr]">
+                        <div className="relative min-h-[160px] bg-muted/30">
+                          {previewImage ? (
+                            <img
+                              src={previewImage}
+                              alt={`${resource.name} logo`}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center">
+                              <Building className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="absolute left-2 top-2">
+                            <Badge variant="secondary" className="capitalize">
+                              {resource.type}
+                            </Badge>
+                          </div>
+                        </div>
+                        <CardContent className="p-5">
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <h3 className="text-lg font-bold text-foreground">{resource.name}</h3>
+                            {resource.isVerified === 1 ? (
+                              <Badge variant="outline" className="border-primary/60 text-primary">
+                                Verified
+                              </Badge>
+                            ) : null}
+                          </div>
+
+                          {resource.description ? (
+                            <p className="mb-4 text-sm text-muted-foreground">{resource.description}</p>
+                          ) : null}
+
+                          <div className="grid gap-2 text-sm">
+                            {resource.address ? (
+                              <div className="flex items-start gap-2">
+                                <MapPin className="mt-0.5 h-4 w-4 text-primary shrink-0" />
+                                <span>{resource.address}</span>
+                              </div>
+                            ) : null}
+                            {resource.phone ? (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-primary shrink-0" />
+                                <a href={`tel:${resource.phone}`} className="hover:text-primary transition-colors">
+                                  {resource.phone}
+                                </a>
+                              </div>
+                            ) : null}
+                            {websiteUrl ? (
+                              <div className="flex items-center gap-2">
+                                {faviconUrl ? (
+                                  <img
+                                    src={faviconUrl}
+                                    alt=""
+                                    className="h-5 w-5 rounded-sm border border-border object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : (
+                                  <ExternalLink className="h-4 w-4 text-primary shrink-0" />
+                                )}
+                                <a
+                                  href={websiteUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-primary transition-colors hover:underline"
+                                >
+                                  {domain ? `Visit ${domain}` : "Visit website"}
+                                </a>
+                              </div>
+                            ) : null}
+                            {resource.hours ? (
+                              <div className="flex items-start gap-2">
+                                <span className="font-medium text-foreground">Hours:</span>
+                                <span className="text-muted-foreground">{resource.hours}</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
           <div className="mb-6 flex flex-wrap gap-2">
             {resourceCategories
               .filter(cat => cat.type !== selectedType)
@@ -218,7 +332,7 @@ export default function Resources() {
 
           {searchQuery || zipCodeFilter ? (
             <div className="mb-4 text-sm text-muted-foreground">
-              Showing {filteredResources.length} of {resources.length} resources
+              Showing {filteredResources.length} of {resources.length - featuredResources.length} standard resources
               {searchQuery && ` matching "${searchQuery}"`}
               {zipCodeFilter && ` in zip ${zipCodeFilter}`}
             </div>

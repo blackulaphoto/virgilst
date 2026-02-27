@@ -194,12 +194,14 @@ export const resources = pgTable("resources", {
   latitude: real("latitude"),
   longitude: real("longitude"),
   isVerified: integer("isVerified").default(0).notNull(),
+  isFeatured: integer("isFeatured").default(0).notNull(),
   lastVerifiedAt: integer("lastVerifiedAt"),
   createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
   updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   typeIdx: index("resources_type_idx").on(table.type),
   zipIdx: index("resources_zip_idx").on(table.zipCode),
+  featuredIdx: index("resources_featured_idx").on(table.isFeatured),
 }));
 
 export type Resource = typeof resources.$inferSelect;

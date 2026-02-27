@@ -31,3 +31,9 @@ export function getDisplayDomain(rawUrl?: string | null): string | null {
     return null;
   }
 }
+
+export function getWebsitePreviewImage(rawUrl?: string | null): string | null {
+  const domain = getDisplayDomain(rawUrl);
+  if (!domain) return null;
+  return `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+}

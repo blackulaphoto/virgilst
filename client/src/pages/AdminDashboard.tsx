@@ -1,5 +1,6 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+﻿import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,8 @@ import {
   PinOff,
   UserCog,
   Inbox,
-  HeartHandshake
+  HeartHandshake,
+  Star,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -162,6 +164,17 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast.error("Failed to add resource");
+    },
+  });
+
+  const setResourceFeaturedMutation = trpc.resources.setFeatured.useMutation({
+    onSuccess: () => {
+      utils.resources.list.invalidate();
+      utils.resources.featured.invalidate();
+      toast.success("Resource featured status updated");
+    },
+    onError: () => {
+      toast.error("Failed to update featured status");
     },
   });
 
@@ -445,7 +458,7 @@ export default function AdminDashboard() {
                         <div>
                           <h3 className="font-semibold text-card-foreground">{article.title}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {article.category} • {article.viewCount} views
+                            {article.category} â€¢ {article.viewCount} views
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -491,8 +504,8 @@ export default function AdminDashboard() {
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {request.email}
-                              {request.phone ? ` • ${request.phone}` : ""}
-                              {request.organization ? ` • ${request.organization}` : ""}
+                              {request.phone ? ` â€¢ ${request.phone}` : ""}
+                              {request.organization ? ` â€¢ ${request.organization}` : ""}
                             </p>
                             {request.message && (
                               <p className="text-sm text-muted-foreground">{request.message}</p>
@@ -572,8 +585,8 @@ export default function AdminDashboard() {
                                 <p className="text-sm text-muted-foreground">{submission.description}</p>
                               )}
                               <div className="text-xs text-muted-foreground">
-                                Contact: {submission.submitterName || "Unknown"} • {submission.submitterEmail || "No email"}
-                                {submission.submitterPhone ? ` • ${submission.submitterPhone}` : ""}
+                                Contact: {submission.submitterName || "Unknown"} â€¢ {submission.submitterEmail || "No email"}
+                                {submission.submitterPhone ? ` â€¢ ${submission.submitterPhone}` : ""}
                               </div>
                               {(submission.address || submission.city || submission.zipCode) && (
                                 <div className="text-xs text-muted-foreground">
@@ -648,7 +661,7 @@ export default function AdminDashboard() {
                         <div className="flex-1">
                           <h3 className="font-semibold text-card-foreground">{video.title}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {video.category} • YouTube ID: {video.youtubeId} • {video.viewCount} views
+                            {video.category} â€¢ YouTube ID: {video.youtubeId} â€¢ {video.viewCount} views
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -716,11 +729,32 @@ export default function AdminDashboard() {
                         className="flex items-center justify-between rounded-lg border border-border p-4"
                       >
                         <div>
-                          <h3 className="font-semibold text-card-foreground">{resource.name}</h3>
+                          <h3 className="flex items-center gap-2 font-semibold text-card-foreground">
+                            {resource.name}
+                            {resource.isFeatured === 1 ? (
+                              <Badge variant="outline" className="border-amber-500/40 text-amber-600">
+                                Featured
+                              </Badge>
+                            ) : null}
+                          </h3>
                           <p className="text-sm text-muted-foreground">
                             {resource.type} • {resource.address || "No address"}
                           </p>
                         </div>
+                        <Button
+                          size="sm"
+                          variant={resource.isFeatured === 1 ? "default" : "outline"}
+                          onClick={() =>
+                            setResourceFeaturedMutation.mutate({
+                              id: resource.id,
+                              isFeatured: resource.isFeatured !== 1,
+                            })
+                          }
+                          disabled={setResourceFeaturedMutation.isPending}
+                        >
+                          <Star className="mr-2 h-4 w-4" />
+                          {resource.isFeatured === 1 ? "Unfeature" : "Feature"}
+                        </Button>
                       </div>
                     ))
                   ) : (
@@ -812,10 +846,10 @@ export default function AdminDashboard() {
                             <h3 className="font-semibold text-card-foreground">{post.title}</h3>
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
-                            {post.category} • {post.viewCount} views • {post.replyCount} replies • {post.upvotes} upvotes
+                            {post.category} â€¢ {post.viewCount} views â€¢ {post.replyCount} replies â€¢ {post.upvotes} upvotes
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            By: {post.isAnonymous ? "Anonymous" : post.authorName || post.authorEmail || "Unknown"} •{" "}
+                            By: {post.isAnonymous ? "Anonymous" : post.authorName || post.authorEmail || "Unknown"} â€¢{" "}
                             {new Date((post.createdAt || 0) * 1000).toLocaleDateString()}
                           </p>
                           {post.content && (
@@ -1381,3 +1415,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+

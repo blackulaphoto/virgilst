@@ -927,11 +927,26 @@ export const appRouter = router({
         type: z.string().optional(),
         zipCode: z.string().optional(),
         search: z.string().optional(),
+        featuredOnly: z.boolean().optional(),
         limit: z.number().optional(),
         offset: z.number().optional(),
       }))
       .query(async ({ input }) => {
         return await db.getResources(input);
+      }),
+
+    featured: publicProcedure
+      .input(z.object({
+        type: z.string().optional(),
+        limit: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getResources({
+          type: input?.type,
+          featuredOnly: true,
+          limit: input?.limit ?? 8,
+          offset: 0,
+        });
       }),
 
     create: adminProcedure
@@ -949,6 +964,16 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const resource = await db.createResource(input);
         return resource;
+      }),
+
+    setFeatured: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        isFeatured: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.setResourceFeatured(input.id, input.isFeatured);
+        return { success: true };
       }),
   }),
 
