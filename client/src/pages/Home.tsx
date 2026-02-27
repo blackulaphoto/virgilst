@@ -27,6 +27,7 @@ import {
   HeartHandshake,
   HandHeart,
   Users,
+  Shield,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -47,6 +48,14 @@ export default function Home() {
 
   const authActions = isAuthenticated ? (
     <>
+      {user?.role === "admin" ? (
+        <Link href="/admin">
+          <Button variant="secondary" size="sm">
+            <Shield className="mr-2 h-4 w-4" />
+            Admin Mode
+          </Button>
+        </Link>
+      ) : null}
       <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
         <User className="h-4 w-4" />
         <span>{user?.name || "User"}</span>

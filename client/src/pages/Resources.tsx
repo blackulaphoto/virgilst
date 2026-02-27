@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import {
   Users,
   Baby,
   Sparkles,
+  Star,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
@@ -132,6 +134,9 @@ const resourceCategories = [
 ];
 
 export default function Resources() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const utils = trpc.useUtils();
   const { category } = useParams<{ category?: string }>();
   const isValidCategory = !!category && resourceCategories.some(cat => cat.type === category);
   const [selectedType, setSelectedType] = useState<string | null>(isValidCategory ? category! : null);
@@ -148,6 +153,12 @@ export default function Resources() {
   const { data: featuredResources = [] } = trpc.resources.featured.useQuery(
     selectedType ? { type: selectedType, limit: 8 } : { limit: 8 }
   );
+  const setFeaturedMutation = trpc.resources.setFeatured.useMutation({
+    onSuccess: () => {
+      utils.resources.list.invalidate();
+      utils.resources.featured.invalidate();
+    },
+  });
 
   const selectedCategory = resourceCategories.find(cat => cat.type === selectedType);
 
@@ -231,11 +242,29 @@ export default function Resources() {
                         <CardContent className="p-5">
                           <div className="mb-3 flex items-start justify-between gap-3">
                             <h3 className="text-lg font-bold text-foreground">{resource.name}</h3>
-                            {resource.isVerified === 1 ? (
-                              <Badge variant="outline" className="border-primary/60 text-primary">
-                                Verified
-                              </Badge>
-                            ) : null}
+                            <div className="flex items-center gap-2">
+                              {resource.isVerified === 1 ? (
+                                <Badge variant="outline" className="border-primary/60 text-primary">
+                                  Verified
+                                </Badge>
+                              ) : null}
+                              {isAdmin ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    setFeaturedMutation.mutate({
+                                      id: resource.id,
+                                      isFeatured: false,
+                                    })
+                                  }
+                                  disabled={setFeaturedMutation.isPending}
+                                >
+                                  <Star className="mr-2 h-4 w-4" />
+                                  Unfeature
+                                </Button>
+                              ) : null}
+                            </div>
                           </div>
 
                           {resource.description ? (
@@ -376,16 +405,33 @@ export default function Resources() {
               {filteredResources.map(resource => (
                 <Card key={resource.id} className={`surface-card border ${selectedCategory.borderColor}`}>
                   <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2 flex items-center gap-2 text-foreground">
-                          {resource.name}
-                          {resource.isVerified === 1 && (
-                            <Badge variant="outline" className="border-primary/60 text-primary text-xs">
-                              Verified
-                            </Badge>
-                          )}
-                        </CardTitle>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <CardTitle className="mb-2 flex items-center gap-2 text-foreground">
+                            {resource.name}
+                            {resource.isVerified === 1 && (
+                              <Badge variant="outline" className="border-primary/60 text-primary text-xs">
+                                Verified
+                              </Badge>
+                            )}
+                            {isAdmin ? (
+                              <Button
+                                size="sm"
+                                variant={resource.isFeatured === 1 ? "default" : "outline"}
+                                className="ml-2 h-7 px-2 text-xs"
+                                onClick={() =>
+                                  setFeaturedMutation.mutate({
+                                    id: resource.id,
+                                    isFeatured: resource.isFeatured !== 1,
+                                  })
+                                }
+                                disabled={setFeaturedMutation.isPending}
+                              >
+                                <Star className="mr-1 h-3 w-3" />
+                                {resource.isFeatured === 1 ? "Unfeature" : "Feature"}
+                              </Button>
+                            ) : null}
+                          </CardTitle>
                         {resource.description && (
                           <CardDescription className="mb-4 text-muted-foreground">
                             {resource.description}

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Heart,
   MessageSquare,
@@ -17,6 +18,7 @@ import {
   CalendarDays,
   Star,
   PlusCircle,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,7 +72,7 @@ const mapModules = [
   { href: "/submit-service", label: "Submit a Service", icon: PlusCircle },
 ];
 
-function MobileMenu() {
+function MobileMenu({ isAdmin }: { isAdmin: boolean }) {
   const [location] = useLocation();
 
   return (
@@ -104,6 +106,14 @@ function MobileMenu() {
                 </Link>
               );
             })}
+            {isAdmin ? (
+              <Link href="/admin">
+                <Button variant={location === "/admin" ? "secondary" : "ghost"} className="w-full justify-start gap-2">
+                  <Shield className="h-4 w-4" />
+                  Admin Mode
+                </Button>
+              </Link>
+            ) : null}
           </div>
 
           <div className="space-y-1">
@@ -158,6 +168,8 @@ function MobileMenu() {
 
 export default function PublicLayout({ title, subtitle, actions, children }: PublicLayoutProps) {
   const [location, navigate] = useLocation();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -190,6 +202,18 @@ export default function PublicLayout({ title, subtitle, actions, children }: Pub
                 </Link>
               );
             })}
+            {isAdmin ? (
+              <Link href="/admin">
+                <Button
+                  variant={location === "/admin" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Mode
+                </Button>
+              </Link>
+            ) : null}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -239,7 +263,7 @@ export default function PublicLayout({ title, subtitle, actions, children }: Pub
 
           <div className="flex items-center gap-2">
             {actions}
-            <MobileMenu />
+            <MobileMenu isAdmin={isAdmin} />
           </div>
         </div>
       </header>
