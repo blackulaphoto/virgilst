@@ -138,11 +138,12 @@ async function buildForcedResourceContext(query: string): Promise<ForcedContext>
     treatmentFilters.servesPopulation = ['men', 'coed'];
   }
 
-  const [treatmentCenters, resources, mediCalProviders, googleResults] =
+  const [treatmentCenters, resources, mediCalProviders, globalMatches, googleResults] =
     await Promise.all([
       db.searchTreatmentCentersWithFilters(query, treatmentFilters),
       db.searchResources(query, 40),
       db.searchMediCalProviders(query, undefined, undefined, 40, 0),
+      db.globalSearch(query, 12, 0),
       searchGoogle(`${localityHint} California`, 5),
     ]);
 
@@ -225,6 +226,139 @@ async function buildForcedResourceContext(query: string): Promise<ForcedContext>
       ...top.map(p => ({
         title: p.providerName,
         category: "medi_cal_provider",
+      }))
+    );
+  }
+
+  if (globalMatches.meetings.length > 0) {
+    const top = globalMatches.meetings.slice(0, 8);
+    sections.push(
+      "Internal recovery meetings:\n" +
+        top
+          .map(
+            m =>
+              `- ${m.name}${m.type ? ` (${m.type.toUpperCase()})` : ""}${m.city ? ` | ${m.city}` : ""}${m.time ? ` | ${m.time}` : ""}${m.meetingMode ? ` | ${m.meetingMode}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(m => ({
+        title: m.name,
+        category: "meeting",
+      }))
+    );
+  }
+
+  if (globalMatches.events.length > 0) {
+    const top = globalMatches.events.slice(0, 8);
+    sections.push(
+      "Internal community events:\n" +
+        top
+          .map(
+            e =>
+              `- ${e.title}${e.eventType ? ` (${e.eventType})` : ""}${e.city ? ` | ${e.city}` : ""}${e.startDate ? ` | start: ${e.startDate}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(e => ({
+        title: e.title,
+        category: "community_event",
+      }))
+    );
+  }
+
+  if (globalMatches.mapPins.length > 0) {
+    const top = globalMatches.mapPins.slice(0, 8);
+    sections.push(
+      "Internal map pins:\n" +
+        top
+          .map(
+            p =>
+              `- ${p.title}${p.type ? ` (${p.type})` : ""}${p.description ? ` | ${p.description}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(p => ({
+        title: p.title,
+        category: "map_pin",
+      }))
+    );
+  }
+
+  if (globalMatches.articles.length > 0) {
+    const top = globalMatches.articles.slice(0, 8);
+    sections.push(
+      "Internal articles:\n" +
+        top
+          .map(
+            a =>
+              `- ${a.title}${a.category ? ` (${a.category})` : ""}${a.slug ? ` | slug: ${a.slug}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(a => ({
+        title: a.title,
+        category: "article",
+      }))
+    );
+  }
+
+  if (globalMatches.forumPosts.length > 0) {
+    const top = globalMatches.forumPosts.slice(0, 8);
+    sections.push(
+      "Internal forum posts:\n" +
+        top
+          .map(
+            f =>
+              `- ${f.title}${f.category ? ` (${f.category})` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(f => ({
+        title: f.title,
+        category: "forum_post",
+      }))
+    );
+  }
+
+  if (globalMatches.videos.length > 0) {
+    const top = globalMatches.videos.slice(0, 6);
+    sections.push(
+      "Internal videos:\n" +
+        top
+          .map(
+            v =>
+              `- ${v.title}${v.category ? ` (${v.category})` : ""}${v.youtubeId ? ` | https://www.youtube.com/watch?v=${v.youtubeId}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(v => ({
+        title: v.title,
+        category: "video",
+      }))
+    );
+  }
+
+  if (globalMatches.jobs.length > 0) {
+    const top = globalMatches.jobs.slice(0, 8);
+    sections.push(
+      "Internal jobs:\n" +
+        top
+          .map(
+            j =>
+              `- ${j.title}${j.company ? ` | ${j.company}` : ""}${j.location ? ` | ${j.location}` : ""}${j.applyLink ? ` | ${j.applyLink}` : ""}`
+          )
+          .join("\n")
+    );
+    sources.push(
+      ...top.map(j => ({
+        title: j.title,
+        category: "job",
       }))
     );
   }

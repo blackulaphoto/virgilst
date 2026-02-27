@@ -741,18 +741,70 @@ export async function createChatMessage(message: InsertChatMessage) {
 
 export async function globalSearch(query: string, limit: number = 100, offset: number = 0) {
   const db = await getDb();
-  if (!db) return { articles: [], forumPosts: [], resources: [] };
+  if (!db) {
+    return {
+      articles: [],
+      forumPosts: [],
+      resources: [],
+      treatmentCenters: [],
+      mediCalProviders: [],
+      meetings: [],
+      events: [],
+      mapPins: [],
+      videos: [],
+      jobs: [],
+    };
+  }
 
   const searchPattern = `%${query}%`;
+  const safeJobsSearch = async () => {
+    try {
+      const { jobs } = await import("../drizzle/schema");
+      const jobsResults = await db
+        .select()
+        .from(jobs)
+        .where(
+          and(
+            eq(jobs.isActive, true),
+            or(
+              ilike(jobs.title, searchPattern),
+              ilike(jobs.company, searchPattern),
+              ilike(jobs.location, searchPattern),
+              ilike(jobs.description, searchPattern),
+              ilike(jobs.category, searchPattern)
+            )
+          )
+        )
+        .orderBy(desc(jobs.createdAt))
+        .limit(limit)
+        .offset(offset);
+      return jobsResults;
+    } catch {
+      return [];
+    }
+  };
 
-  const [articleResults, forumResults, resourceResults] = await Promise.all([
+  const [
+    articleResults,
+    forumResults,
+    resourceResults,
+    treatmentResults,
+    providerResults,
+    meetingResults,
+    eventResults,
+    mapPinResults,
+    videoResults,
+    jobResults,
+  ] = await Promise.all([
     db.select().from(articles)
       .where(
         and(
           eq(articles.isPublished, 1),
           or(
             like(articles.title, searchPattern),
-            like(articles.content, searchPattern)
+            like(articles.content, searchPattern),
+            like(articles.summary, searchPattern),
+            like(articles.tags, searchPattern)
           )
         )
       )
@@ -762,7 +814,8 @@ export async function globalSearch(query: string, limit: number = 100, offset: n
       .where(
         or(
           like(forumPosts.title, searchPattern),
-          like(forumPosts.content, searchPattern)
+          like(forumPosts.content, searchPattern),
+          like(forumPosts.category, searchPattern)
         )
       )
       .limit(limit)
@@ -771,17 +824,111 @@ export async function globalSearch(query: string, limit: number = 100, offset: n
       .where(
         or(
           like(resources.name, searchPattern),
-          like(resources.description, searchPattern)
+          like(resources.description, searchPattern),
+          like(resources.type, searchPattern),
+          like(resources.filters, searchPattern),
+          like(resources.address, searchPattern)
         )
       )
       .limit(limit)
-      .offset(offset)
+      .offset(offset),
+    db.select().from(treatmentCenters)
+      .where(
+        and(
+          eq(treatmentCenters.isPublished, 1),
+          or(
+            like(treatmentCenters.name, searchPattern),
+            like(treatmentCenters.description, searchPattern),
+            like(treatmentCenters.type, searchPattern),
+            like(treatmentCenters.city, searchPattern),
+            like(treatmentCenters.servicesOffered, searchPattern)
+          )
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    db.select().from(mediCalProviders)
+      .where(
+        or(
+          like(mediCalProviders.providerName, searchPattern),
+          like(mediCalProviders.facilityName, searchPattern),
+          like(mediCalProviders.city, searchPattern),
+          like(mediCalProviders.specialties, searchPattern),
+          like(mediCalProviders.searchTerms, searchPattern)
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    db.select().from(meetings)
+      .where(
+        and(
+          eq(meetings.isPublished, 1),
+          or(
+            like(meetings.name, searchPattern),
+            like(meetings.description, searchPattern),
+            like(meetings.venueName, searchPattern),
+            like(meetings.city, searchPattern),
+            like(meetings.tags, searchPattern)
+          )
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    db.select().from(events)
+      .where(
+        and(
+          eq(events.isPublished, 1),
+          or(
+            like(events.title, searchPattern),
+            like(events.description, searchPattern),
+            like(events.eventType, searchPattern),
+            like(events.category, searchPattern),
+            like(events.tags, searchPattern),
+            like(events.servicesOffered, searchPattern),
+            like(events.city, searchPattern)
+          )
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    db.select().from(mapPins)
+      .where(
+        and(
+          eq(mapPins.isApproved, 1),
+          or(
+            like(mapPins.title, searchPattern),
+            like(mapPins.description, searchPattern),
+            like(mapPins.notes, searchPattern),
+            like(mapPins.type, searchPattern)
+          )
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    db.select().from(videos)
+      .where(
+        or(
+          like(videos.title, searchPattern),
+          like(videos.description, searchPattern),
+          like(videos.category, searchPattern)
+        )
+      )
+      .limit(limit)
+      .offset(offset),
+    safeJobsSearch(),
   ]);
 
   return {
     articles: articleResults,
     forumPosts: forumResults,
-    resources: resourceResults
+    resources: resourceResults,
+    treatmentCenters: treatmentResults,
+    mediCalProviders: providerResults,
+    meetings: meetingResults,
+    events: eventResults,
+    mapPins: mapPinResults,
+    videos: videoResults,
+    jobs: jobResults,
   };
 }
 

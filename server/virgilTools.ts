@@ -26,7 +26,7 @@ export const virgilTools = [
     type: "function" as const,
     function: {
       name: "search_local_resources",
-      description: "Search our verified database of LOCAL treatment centers, shelters, food banks, medical providers, and LA County resources. CRITICAL: ALWAYS use this FIRST when users ask about: treatment, rehab, detox, sober living, maternity homes, couples treatment, shelters, housing, food banks, medical care, doctors, clinics, or any LOCAL services/places. Our database includes: treatment centers that accept Medi-Cal, centers that accept COUPLES, maternity homes for pregnant women, and all have VERIFIED phone numbers and addresses. Returns REAL contact info from our internal database.",
+      description: "Search our verified internal database across all site modules: treatment centers, community resources, Medi-Cal providers, recovery meetings, community events, map pins, articles, forum posts, videos, and jobs. CRITICAL: ALWAYS use this FIRST for local service questions. It includes couples treatment, maternity-capable programs, Medi-Cal providers, meeting schedules, events, and verified contact details.",
       parameters: {
         type: "object",
         properties: {
