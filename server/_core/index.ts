@@ -8,6 +8,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeDatabaseIfEmpty } from "./init-db";
 import { registerSeoRoutes } from "../seo";
+import { prewarmJobCache } from "../jobs";
 
 function parseAllowedOrigins(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -103,6 +104,11 @@ async function startServer() {
         console.error("[init-db] Background initialization failed:", error);
       });
     }
+
+    // Pre-warm job search cache in background for instant searches
+    void prewarmJobCache().catch(error => {
+      console.error("[jobs] Cache pre-warm failed:", error);
+    });
   });
 }
 

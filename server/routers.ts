@@ -1930,7 +1930,7 @@ export const appRouter = router({
 
   // ============ JOBS ============
   jobs: router({
-    // Search jobs via SerpAPI with caching
+    // Search jobs via SerpAPI with in-memory + database caching
     search: publicProcedure
       .input(z.object({
         query: z.string(),
@@ -1941,28 +1941,8 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const normalizedLimit = Math.min(Math.max(input.limit ?? 100, 1), 100);
 
-        // Check cache first
-        const cacheKey = JSON.stringify({
-          query: input.query.toLowerCase().trim(),
-          location: input.location?.toLowerCase().trim() || '',
-          employmentType: input.employmentType || '',
-          limit: normalizedLimit,
-        });
-
-        const cached = await db.getJobSearch(cacheKey);
-
-        // If cache exists and hasn't expired, return cached jobs
-        if (cached && new Date(cached.expiresAt) > new Date() && cached.resultCount >= normalizedLimit) {
-          const jobs = await db.getJobs({
-            searchQuery: input.query,
-            location: input.location,
-            employmentType: input.employmentType,
-            limit: normalizedLimit,
-          });
-          return { jobs, fromCache: true };
-        }
-
-        // Fetch fresh results from SerpAPI
+        // searchJobs now handles in-memory caching internally
+        // It will return cached results instantly if available
         const listings = await searchJobs({
           query: input.query,
           location: input.location,
@@ -1984,20 +1964,32 @@ export const appRouter = router({
                    'general',
         }));
 
-        await db.saveJobs(jobsWithSlugs);
+        // Save to database (async, non-blocking)
+        db.saveJobs(jobsWithSlugs).catch(err =>
+          console.error('[Jobs] Failed to save jobs to DB:', err)
+        );
 
-        // Save search to cache
+        // Save search metadata to database cache (async, non-blocking)
+        const cacheKey = JSON.stringify({
+          query: input.query.toLowerCase().trim(),
+          location: input.location?.toLowerCase().trim() || '',
+          employmentType: input.employmentType || '',
+          limit: normalizedLimit,
+        });
+
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
 
-        await db.saveJobSearch({
+        db.saveJobSearch({
           query: input.query,
           location: input.location || undefined,
           employmentType: input.employmentType || undefined,
           cacheKey,
           resultCount: jobsWithSlugs.length,
           expiresAt,
-        });
+        }).catch(err =>
+          console.error('[Jobs] Failed to save search cache:', err)
+        );
 
         return { jobs: jobsWithSlugs, fromCache: false };
       }),
