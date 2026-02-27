@@ -399,7 +399,15 @@ export async function getResources(filters?: {
   const conditions = [];
 
   if (filters?.type) {
-    conditions.push(eq(resources.type, filters.type as any));
+    // Handle legal_aid to also include "legal" type for backwards compatibility
+    if (filters.type === 'legal_aid') {
+      conditions.push(or(
+        eq(resources.type, 'legal_aid' as any),
+        eq(resources.type, 'legal' as any)
+      ));
+    } else {
+      conditions.push(eq(resources.type, filters.type as any));
+    }
   }
   if (filters?.zipCode) {
     conditions.push(eq(resources.zipCode, filters.zipCode));

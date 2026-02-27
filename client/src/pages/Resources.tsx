@@ -20,6 +20,9 @@ import {
   XCircle,
   Search,
   ShieldAlert,
+  Users,
+  Baby,
+  Sparkles,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
@@ -98,6 +101,33 @@ const resourceCategories = [
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
     borderColor: "border-blue-500/40",
+  },
+  {
+    type: "couples_counseling",
+    title: "Couples Counseling",
+    description: "Relationship counseling and couples therapy services",
+    icon: Users,
+    color: "text-pink-500",
+    bgColor: "bg-pink-500/10",
+    borderColor: "border-pink-500/40",
+  },
+  {
+    type: "parenting_classes",
+    title: "Parenting Classes",
+    description: "Parenting support, education, and family programs",
+    icon: Baby,
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/40",
+  },
+  {
+    type: "hygiene",
+    title: "Hygiene Services",
+    description: "Shower facilities, hygiene kits, and personal care",
+    icon: Sparkles,
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500/10",
+    borderColor: "border-cyan-500/40",
   },
 ];
 
