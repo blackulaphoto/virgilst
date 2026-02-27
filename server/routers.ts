@@ -100,36 +100,95 @@ async function buildForcedResourceContext(query: string): Promise<ForcedContext>
   const sources: Array<{ title: string; url?: string; category?: string }> = [];
   const sections: string[] = [];
   const lowerQuery = query.toLowerCase();
+
+  // Parse user intent from query
   const asksMediCal = /\bmedi[-\s]?cal\b|\bmedicaid\b/i.test(query);
+  const asksCouples = /(couple|husband.*wife|wife.*husband|partner|spouse|both of us|together|my wife|my husband|we both|us both)/i.test(query);
+  const asksPregnant = /(pregnant|pregnancy|maternity|expecting|prenatal|baby|with child)/i.test(query);
+  const asksWomen = /(woman|women|female|she|her|wife|mother|girl)/i.test(query);
+  const asksMen = /(man|men|male|he|him|husband|father|boy)/i.test(query) && !asksWomen;
+
   const mentionsKoreatown = lowerQuery.includes("koreatown");
   const mentionsLosAngeles = lowerQuery.includes("los angeles") || /\bla\b/.test(lowerQuery);
   const localityHint = mentionsKoreatown ? "Koreatown Los Angeles" : mentionsLosAngeles ? "Los Angeles" : query;
 
+  // Build smart filters for treatment center search
+  const treatmentFilters: {
+    acceptsMediCal?: number;
+    acceptsCouples?: number;
+    servesPopulation?: string | string[];
+  } = {};
+
+  if (asksMediCal) {
+    treatmentFilters.acceptsMediCal = 1;
+  }
+
+  if (asksCouples) {
+    treatmentFilters.acceptsCouples = 1;
+    // Couples need coed or explicitly couples-accepting facilities
+    treatmentFilters.servesPopulation = 'coed';
+  } else if (asksPregnant) {
+    // Pregnant women need women_with_children or women facilities
+    treatmentFilters.servesPopulation = ['women_with_children', 'women', 'coed'];
+  } else if (asksWomen) {
+    // Women can go to women-only, women_with_children, or coed
+    treatmentFilters.servesPopulation = ['women', 'women_with_children', 'coed'];
+  } else if (asksMen) {
+    // Men can go to men-only or coed
+    treatmentFilters.servesPopulation = ['men', 'coed'];
+  }
+
   const [treatmentCenters, resources, mediCalProviders, googleResults] =
     await Promise.all([
-      db.searchTreatmentCenters(query),
+      db.searchTreatmentCentersWithFilters(query, treatmentFilters),
       db.searchResources(query, 40),
       db.searchMediCalProviders(query, undefined, undefined, 40, 0),
       searchGoogle(`${localityHint} California`, 5),
     ]);
 
   if (treatmentCenters.length > 0) {
-    const top = treatmentCenters.slice(0, 12);
-    sections.push(
-      "Internal treatment centers:\n" +
-        top
-          .map(
-            c =>
-              `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.type ? ` | type: ${c.type}` : ""}${c.acceptsMediCal ? " | accepts Medi-Cal" : ""}${c.acceptsCouples ? " | accepts couples" : ""}${c.servesPopulation === "women_with_children" ? " | maternity/women with children" : c.servesPopulation ? ` | serves: ${c.servesPopulation}` : ""}`
-          )
-          .join("\n")
-    );
-    sources.push(
-      ...top.map(c => ({
-        title: c.name,
-        category: "treatment_center",
-      }))
-    );
+    // Extra safety: post-filter to ensure no inappropriate facilities slip through
+    let filtered = treatmentCenters;
+
+    if (asksCouples) {
+      // For couples, MUST accept couples AND be coed
+      filtered = filtered.filter(c => c.acceptsCouples === 1 && c.servesPopulation === 'coed');
+    } else if (asksPregnant) {
+      // For pregnant women, MUST be women_with_children, women, or coed (no men-only!)
+      filtered = filtered.filter(c =>
+        c.servesPopulation === 'women_with_children' ||
+        c.servesPopulation === 'women' ||
+        c.servesPopulation === 'coed'
+      );
+    } else if (asksWomen) {
+      // For women, exclude men-only facilities
+      filtered = filtered.filter(c => c.servesPopulation !== 'men');
+    } else if (asksMen) {
+      // For men, exclude women-only and women_with_children
+      filtered = filtered.filter(c =>
+        c.servesPopulation === 'men' || c.servesPopulation === 'coed'
+      );
+    }
+
+    const top = filtered.slice(0, 12);
+
+    if (top.length > 0) {
+      sections.push(
+        "Internal treatment centers:\n" +
+          top
+            .map(
+              c =>
+                `- ${c.name}${c.city ? ` (${c.city})` : ""}${c.phone ? ` | ${c.phone}` : ""}${c.type ? ` | type: ${c.type}` : ""}${c.acceptsMediCal ? " | accepts Medi-Cal" : ""}${c.acceptsCouples ? " | accepts couples" : ""}${c.servesPopulation === "women_with_children" ? " | maternity/women with children" : c.servesPopulation ? ` | serves: ${c.servesPopulation}` : ""}`
+            )
+            .join("\n")
+      );
+      sources.push(
+        ...top.map(c => ({
+          title: c.name,
+          category: "treatment_center",
+        }))
+      );
+    }
   }
 
   if (resources.length > 0) {

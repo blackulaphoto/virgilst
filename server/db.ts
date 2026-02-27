@@ -1341,6 +1341,17 @@ export async function deleteEvent(id: number): Promise<void> {
 }
 
 export async function searchTreatmentCenters(query: string): Promise<TreatmentCenter[]> {
+  return searchTreatmentCentersWithFilters(query, {});
+}
+
+export async function searchTreatmentCentersWithFilters(
+  query: string,
+  filters: {
+    acceptsMediCal?: number;
+    acceptsCouples?: number;
+    servesPopulation?: string | string[];
+  }
+): Promise<TreatmentCenter[]> {
   const db = await getDb();
   if (!db) return [];
 
@@ -1375,8 +1386,28 @@ export async function searchTreatmentCenters(query: string): Promise<TreatmentCe
         );
 
   const conditions = [eq(treatmentCenters.isPublished, 1), textMatcher];
-  if (wantsMediCal) {
-    conditions.push(eq(treatmentCenters.acceptsMediCal, 1));
+
+  // Add Medi-Cal filter from query or explicit filter
+  if (wantsMediCal || filters.acceptsMediCal !== undefined) {
+    conditions.push(eq(treatmentCenters.acceptsMediCal, filters.acceptsMediCal ?? 1));
+  }
+
+  // Add couples filter
+  if (filters.acceptsCouples !== undefined) {
+    conditions.push(eq(treatmentCenters.acceptsCouples, filters.acceptsCouples));
+  }
+
+  // Add population filter (can be array or single value)
+  if (filters.servesPopulation) {
+    if (Array.isArray(filters.servesPopulation)) {
+      conditions.push(
+        or(...filters.servesPopulation.map(pop =>
+          eq(treatmentCenters.servesPopulation, pop)
+        ))
+      );
+    } else {
+      conditions.push(eq(treatmentCenters.servesPopulation, filters.servesPopulation));
+    }
   }
 
   const results = await db
