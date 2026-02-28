@@ -580,6 +580,7 @@ export const treatmentCenters = pgTable("treatment_centers", {
 
   // Admin fields
   isVerified: integer("isVerified").default(0).notNull(),
+  isFeatured: integer("isFeatured").default(0).notNull(),
   isPublished: integer("isPublished").default(1).notNull(),
   addedBy: integer("addedBy").references(() => users.id),
   createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
@@ -589,6 +590,7 @@ export const treatmentCenters = pgTable("treatment_centers", {
   cityIdx: index("treatmentCenters_city_idx").on(table.city),
   mediCalIdx: index("treatmentCenters_medicaid_idx").on(table.acceptsMediCal),
   couplesIdx: index("treatmentCenters_couples_idx").on(table.acceptsCouples),
+  featuredIdx: index("treatmentCenters_featured_idx").on(table.isFeatured),
   publishedIdx: index("treatmentCenters_published_idx").on(table.isPublished),
 }));
 

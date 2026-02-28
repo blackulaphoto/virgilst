@@ -66,6 +66,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 let _serviceSubmissionsEnsured = false;
 let _communitySupportRequestsEnsured = false;
 let _resourcesFeaturedEnsured = false;
+let _treatmentFeaturedEnsured = false;
 
 function normalizeEpochSeconds(value: unknown): number | undefined {
   if (value === undefined || value === null) return undefined;
@@ -255,6 +256,20 @@ async function ensureResourcesFeaturedColumn(): Promise<void> {
   await db.execute(sql`CREATE INDEX IF NOT EXISTS "resources_featured_idx" ON resources ("isFeatured")`);
 
   _resourcesFeaturedEnsured = true;
+}
+
+async function ensureTreatmentFeaturedColumn(): Promise<void> {
+  if (_treatmentFeaturedEnsured) return;
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(sql`
+    ALTER TABLE treatment_centers
+    ADD COLUMN IF NOT EXISTS "isFeatured" INTEGER NOT NULL DEFAULT 0
+  `);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS "treatmentCenters_featured_idx" ON treatment_centers ("isFeatured")`);
+
+  _treatmentFeaturedEnsured = true;
 }
 
 // ============ USER HELPERS ============
@@ -1266,9 +1281,11 @@ export async function getAllTreatmentCenters(filters?: {
   acceptsPrivateInsurance?: boolean;
   acceptsCouples?: boolean;
   servesPopulation?: string;
+  featuredOnly?: boolean;
 }): Promise<TreatmentCenter[]> {
   const db = await getDb();
   if (!db) return [];
+  await ensureTreatmentFeaturedColumn();
 
   const conditions = [eq(treatmentCenters.isPublished, 1)];
 
@@ -1290,6 +1307,9 @@ export async function getAllTreatmentCenters(filters?: {
   }
   if (filters?.servesPopulation) {
     conditions.push(eq(treatmentCenters.servesPopulation, filters.servesPopulation as any));
+  }
+  if (filters?.featuredOnly) {
+    conditions.push(eq(treatmentCenters.isFeatured, 1));
   }
 
   const results = await db
@@ -1317,6 +1337,7 @@ export async function getTreatmentCenterById(id: number): Promise<TreatmentCente
 export async function createTreatmentCenter(center: InsertTreatmentCenter): Promise<TreatmentCenter> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  await ensureTreatmentFeaturedColumn();
 
   const result = await db.insert(treatmentCenters).values(center).returning();
   return result[0];
@@ -1325,10 +1346,25 @@ export async function createTreatmentCenter(center: InsertTreatmentCenter): Prom
 export async function updateTreatmentCenter(id: number, updates: Partial<InsertTreatmentCenter>): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  await ensureTreatmentFeaturedColumn();
 
   await db
     .update(treatmentCenters)
     .set(updates)
+    .where(eq(treatmentCenters.id, id));
+}
+
+export async function setTreatmentCenterFeatured(id: number, isFeatured: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await ensureTreatmentFeaturedColumn();
+
+  await db
+    .update(treatmentCenters)
+    .set({
+      isFeatured: isFeatured ? 1 : 0,
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
     .where(eq(treatmentCenters.id, id));
 }
 

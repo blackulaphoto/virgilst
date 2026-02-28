@@ -33,7 +33,7 @@ import {
   HeartHandshake,
   Star,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -102,6 +102,7 @@ export default function AdminDashboard() {
   const { data: allArticles } = trpc.articles.list.useQuery({});
   const { data: allVideos } = trpc.videos.list.useQuery({});
   const { data: allResources } = trpc.resources.list.useQuery({});
+  const { data: allTreatmentCenters } = trpc.treatmentCenters.list.useQuery({});
   const { data: forumPosts } = trpc.admin.forum.posts.useQuery({});
   const { data: allUsers } = trpc.admin.users.list.useQuery({});
   const { data: pendingSubmissions } = trpc.admin.submissions.list.useQuery({ status: "pending", limit: 200 });
@@ -177,6 +178,38 @@ export default function AdminDashboard() {
       toast.error("Failed to update featured status");
     },
   });
+
+  const setTreatmentFeaturedMutation = trpc.treatmentCenters.setFeatured.useMutation({
+    onSuccess: () => {
+      utils.treatmentCenters.list.invalidate();
+      toast.success("Treatment center featured status updated");
+    },
+    onError: () => {
+      toast.error("Failed to update treatment center featured status");
+    },
+  });
+
+  const resourcesByType = useMemo(() => {
+    const grouped = new Map<string, any[]>();
+    (allResources || []).forEach((resource) => {
+      const key = String(resource.type || "other");
+      const current = grouped.get(key) || [];
+      current.push(resource);
+      grouped.set(key, current);
+    });
+    return Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [allResources]);
+
+  const treatmentByType = useMemo(() => {
+    const grouped = new Map<string, any[]>();
+    (allTreatmentCenters || []).forEach((center) => {
+      const key = String(center.type || "other");
+      const current = grouped.get(key) || [];
+      current.push(center);
+      grouped.set(key, current);
+    });
+    return Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [allTreatmentCenters]);
 
   const approvePinMutation = trpc.mapPins.approve.useMutation({
     onSuccess: () => {
@@ -712,7 +745,7 @@ export default function AdminDashboard() {
                 <div>
                   <CardTitle>Resource Links Management</CardTitle>
                   <CardDescription>
-                    Add and verify resource links for shelters, services, and support
+                    Add and feature resources and treatment centers by category.
                   </CardDescription>
                 </div>
                 <Button onClick={() => setShowResourceDialog(true)}>
@@ -721,47 +754,110 @@ export default function AdminDashboard() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {allResources && allResources.length > 0 ? (
-                    allResources.map((resource) => (
-                      <div
-                        key={resource.id}
-                        className="flex items-center justify-between rounded-lg border border-border p-4"
-                      >
-                        <div>
-                          <h3 className="flex items-center gap-2 font-semibold text-card-foreground">
-                            {resource.name}
-                            {resource.isFeatured === 1 ? (
-                              <Badge variant="outline" className="border-amber-500/40 text-amber-600">
-                                Featured
-                              </Badge>
-                            ) : null}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {resource.type} • {resource.address || "No address"}
-                          </p>
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <h3 className="text-base font-semibold text-card-foreground">Resources by category</h3>
+                    {resourcesByType.length > 0 ? (
+                      resourcesByType.map(([type, entries]) => (
+                        <div key={`resource-group-${type}`} className="rounded-lg border border-border p-4">
+                          <div className="mb-3 flex items-center justify-between">
+                            <Badge variant="secondary" className="capitalize">
+                              {type.replaceAll("_", " ")}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">{entries.length} items</span>
+                          </div>
+                          <div className="space-y-3">
+                            {entries.map((resource) => (
+                              <div
+                                key={resource.id}
+                                className="flex items-center justify-between rounded-lg border border-border p-3"
+                              >
+                                <div>
+                                  <h4 className="flex items-center gap-2 font-medium text-card-foreground">
+                                    {resource.name}
+                                    {resource.isFeatured === 1 ? (
+                                      <Badge variant="outline" className="border-amber-500/40 text-amber-600">
+                                        Featured
+                                      </Badge>
+                                    ) : null}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground">{resource.address || "No address"}</p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant={resource.isFeatured === 1 ? "default" : "outline"}
+                                  onClick={() =>
+                                    setResourceFeaturedMutation.mutate({
+                                      id: resource.id,
+                                      isFeatured: resource.isFeatured !== 1,
+                                    })
+                                  }
+                                  disabled={setResourceFeaturedMutation.isPending}
+                                >
+                                  <Star className="mr-2 h-4 w-4" />
+                                  {resource.isFeatured === 1 ? "Unfeature" : "Feature"}
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant={resource.isFeatured === 1 ? "default" : "outline"}
-                          onClick={() =>
-                            setResourceFeaturedMutation.mutate({
-                              id: resource.id,
-                              isFeatured: resource.isFeatured !== 1,
-                            })
-                          }
-                          disabled={setResourceFeaturedMutation.isPending}
-                        >
-                          <Star className="mr-2 h-4 w-4" />
-                          {resource.isFeatured === 1 ? "Unfeature" : "Feature"}
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="py-8 text-center text-sm text-muted-foreground">
-                      No resources yet. Add your first one!
-                    </p>
-                  )}
+                      ))
+                    ) : (
+                      <p className="py-4 text-sm text-muted-foreground">No resources yet.</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-base font-semibold text-card-foreground">Treatment centers and sober living by category</h3>
+                    {treatmentByType.length > 0 ? (
+                      treatmentByType.map(([type, entries]) => (
+                        <div key={`treatment-group-${type}`} className="rounded-lg border border-border p-4">
+                          <div className="mb-3 flex items-center justify-between">
+                            <Badge variant="secondary" className="capitalize">
+                              {type.replaceAll("_", " ")}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">{entries.length} items</span>
+                          </div>
+                          <div className="space-y-3">
+                            {entries.map((center) => (
+                              <div
+                                key={center.id}
+                                className="flex items-center justify-between rounded-lg border border-border p-3"
+                              >
+                                <div>
+                                  <h4 className="flex items-center gap-2 font-medium text-card-foreground">
+                                    {center.name}
+                                    {center.isFeatured === 1 ? (
+                                      <Badge variant="outline" className="border-amber-500/40 text-amber-600">
+                                        Featured
+                                      </Badge>
+                                    ) : null}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground">{center.city || "Unknown city"}</p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant={center.isFeatured === 1 ? "default" : "outline"}
+                                  onClick={() =>
+                                    setTreatmentFeaturedMutation.mutate({
+                                      id: center.id,
+                                      isFeatured: center.isFeatured !== 1,
+                                    })
+                                  }
+                                  disabled={setTreatmentFeaturedMutation.isPending}
+                                >
+                                  <Star className="mr-2 h-4 w-4" />
+                                  {center.isFeatured === 1 ? "Unfeature" : "Feature"}
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="py-4 text-sm text-muted-foreground">No treatment centers yet.</p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

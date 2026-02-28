@@ -1666,6 +1666,7 @@ export const appRouter = router({
         acceptsPrivateInsurance: z.boolean().optional(),
         acceptsCouples: z.boolean().optional(),
         servesPopulation: z.enum(["men", "women", "coed", "lgbtq", "women_with_children"]).optional(),
+        featuredOnly: z.boolean().optional(),
       }).optional())
       .query(async ({ input }) => {
         return await db.getAllTreatmentCenters(input || {});
@@ -1681,6 +1682,17 @@ export const appRouter = router({
       .input(z.object({ query: z.string() }))
       .query(async ({ input }) => {
         return await db.searchTreatmentCenters(input.query);
+      }),
+
+    featured: publicProcedure
+      .input(z.object({
+        type: z.enum(["sober_living", "detox", "residential", "outpatient", "iop_php", "dual_diagnosis"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getAllTreatmentCenters({
+          type: input?.type,
+          featuredOnly: true,
+        });
       }),
 
     getRecommendations: publicProcedure
@@ -1773,6 +1785,19 @@ export const appRouter = router({
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
         }
         await db.deleteTreatmentCenter(input.id);
+        return { success: true };
+      }),
+
+    setFeatured: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        isFeatured: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        await db.setTreatmentCenterFeatured(input.id, input.isFeatured);
         return { success: true };
       }),
    }),

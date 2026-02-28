@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Phone, ExternalLink, DollarSign, Users, CheckCircle2, Building2, Search } from "lucide-react";
+import { MapPin, Phone, ExternalLink, DollarSign, Users, CheckCircle2, Building2, Search, Star } from "lucide-react";
 import { Link, useParams } from "wouter";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
 
 export default function Treatment() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const utils = trpc.useUtils();
   const { program } = useParams<{ program?: string }>();
   const initialSearchQuery = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "";
   const initialInsurance = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("insurance") || "" : "";
@@ -84,6 +88,18 @@ export default function Treatment() {
       return false;
     }
     return true;
+  });
+
+  const featuredSoberLiving = filteredSoberLiving?.filter(center => center.isFeatured === 1) || [];
+  const standardSoberLiving = filteredSoberLiving?.filter(center => center.isFeatured !== 1) || [];
+  const featuredTreatmentCenters = filteredTreatmentCenters?.filter(center => center.isFeatured === 1) || [];
+  const standardTreatmentCenters = filteredTreatmentCenters?.filter(center => center.isFeatured !== 1) || [];
+
+  const setTreatmentFeaturedMutation = trpc.treatmentCenters.setFeatured.useMutation({
+    onSuccess: () => {
+      utils.treatmentCenters.list.invalidate();
+      utils.treatmentCenters.featured.invalidate();
+    },
   });
 
   const typeLabels: Record<string, string> = {
@@ -180,6 +196,7 @@ export default function Treatment() {
                 </Badge>
               )}
               {center.isJointCommission && <Badge variant="outline">Joint Commission</Badge>}
+              {center.isFeatured === 1 && <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40">Featured</Badge>}
             </div>
             <div className="mb-2 flex flex-wrap gap-2">
               <Badge variant="secondary">{typeLabels[center.type]}</Badge>
@@ -190,6 +207,22 @@ export default function Treatment() {
               {center.acceptsCouples && <Badge variant="outline">Accepts Couples</Badge>}
             </div>
           </div>
+          {isAdmin ? (
+            <Button
+              size="sm"
+              variant={center.isFeatured === 1 ? "default" : "outline"}
+              onClick={() =>
+                setTreatmentFeaturedMutation.mutate({
+                  id: center.id,
+                  isFeatured: center.isFeatured !== 1,
+                })
+              }
+              disabled={setTreatmentFeaturedMutation.isPending}
+            >
+              <Star className="mr-2 h-4 w-4" />
+              {center.isFeatured === 1 ? "Unfeature" : "Feature"}
+            </Button>
+          ) : null}
         </div>
         {center.description && <CardDescription>{center.description}</CardDescription>}
       </CardHeader>
@@ -273,14 +306,22 @@ export default function Treatment() {
 
           <TabsContent value="sober_living" className="space-y-6">
             {renderSearchFilters(false)}
+            {featuredSoberLiving.length > 0 ? (
+              <div className="space-y-3">
+                <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40">Featured sober living</Badge>
+                <div className="grid grid-cols-1 gap-6">
+                  {featuredSoberLiving.map(renderCenterCard)}
+                </div>
+              </div>
+            ) : null}
             <div className="text-sm text-muted-foreground">
               {isLoadingSL ? "Loading..." : `${filteredSoberLiving?.length || 0} sober living facilities found`}
             </div>
             {isLoadingSL ? (
               <div className="py-12 text-center text-muted-foreground">Loading sober living facilities...</div>
-            ) : filteredSoberLiving && filteredSoberLiving.length > 0 ? (
+            ) : standardSoberLiving && standardSoberLiving.length > 0 ? (
               <div className="grid grid-cols-1 gap-6">
-                {filteredSoberLiving.map(renderCenterCard)}
+                {standardSoberLiving.map(renderCenterCard)}
               </div>
             ) : (
               <Card className="surface-card">
@@ -295,14 +336,22 @@ export default function Treatment() {
 
           <TabsContent value="treatment" className="space-y-6">
             {renderSearchFilters(true)}
+            {featuredTreatmentCenters.length > 0 ? (
+              <div className="space-y-3">
+                <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40">Featured treatment centers</Badge>
+                <div className="grid grid-cols-1 gap-6">
+                  {featuredTreatmentCenters.map(renderCenterCard)}
+                </div>
+              </div>
+            ) : null}
             <div className="text-sm text-muted-foreground">
               {isLoadingTC ? "Loading..." : `${filteredTreatmentCenters?.length || 0} treatment centers found`}
             </div>
             {isLoadingTC ? (
               <div className="py-12 text-center text-muted-foreground">Loading treatment centers...</div>
-            ) : filteredTreatmentCenters && filteredTreatmentCenters.length > 0 ? (
+            ) : standardTreatmentCenters && standardTreatmentCenters.length > 0 ? (
               <div className="grid grid-cols-1 gap-6">
-                {filteredTreatmentCenters.map(renderCenterCard)}
+                {standardTreatmentCenters.map(renderCenterCard)}
               </div>
             ) : (
               <Card className="surface-card">
