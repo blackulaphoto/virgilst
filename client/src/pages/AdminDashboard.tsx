@@ -745,7 +745,7 @@ export default function AdminDashboard() {
                 <div>
                   <CardTitle>Resource Links Management</CardTitle>
                   <CardDescription>
-                    Add and feature resources and treatment centers by category.
+                    Manage resources and treatment centers by category.
                   </CardDescription>
                 </div>
                 <Button onClick={() => setShowResourceDialog(true)}>
@@ -754,8 +754,13 @@ export default function AdminDashboard() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-8">
-                  <div className="space-y-4">
+                <Tabs defaultValue="resource-links" className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="resource-links">Resource Links</TabsTrigger>
+                    <TabsTrigger value="treatment-sober-living">Treatment and Sober Living</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="resource-links" className="space-y-4">
                     <h3 className="text-base font-semibold text-card-foreground">Resources by category</h3>
                     {resourcesByType.length > 0 ? (
                       resourcesByType.map(([type, entries]) => (
@@ -805,10 +810,13 @@ export default function AdminDashboard() {
                     ) : (
                       <p className="py-4 text-sm text-muted-foreground">No resources yet.</p>
                     )}
-                  </div>
+                  </TabsContent>
 
-                  <div className="space-y-4">
-                    <h3 className="text-base font-semibold text-card-foreground">Treatment centers and sober living by category</h3>
+                  <TabsContent value="treatment-sober-living" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-semibold text-card-foreground">Treatment centers and sober living by category</h3>
+                      <Badge variant="outline">{allTreatmentCenters?.length || 0} total</Badge>
+                    </div>
                     {treatmentByType.length > 0 ? (
                       treatmentByType.map(([type, entries]) => (
                         <div key={`treatment-group-${type}`} className="rounded-lg border border-border p-4">
@@ -857,8 +865,8 @@ export default function AdminDashboard() {
                     ) : (
                       <p className="py-4 text-sm text-muted-foreground">No treatment centers yet.</p>
                     )}
-                  </div>
-                </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>
