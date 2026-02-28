@@ -212,9 +212,9 @@ export default function Resources() {
               <div className="space-y-4">
                 {featuredResources.map((resource) => {
                   const websiteUrl = normalizeExternalUrl(resource.website);
-                  const previewImage = getWebsitePreviewImage(resource.website);
+                  const previewImage = resource.websiteImage || getWebsitePreviewImage(resource.website);
                   const domain = getDisplayDomain(resource.website);
-                  const faviconUrl = getFaviconUrl(resource.website);
+                  const faviconUrl = resource.websiteFavicon || getFaviconUrl(resource.website);
 
                   return (
                     <Card key={`featured-${resource.id}`} className={`overflow-hidden border-2 ${selectedCategory.borderColor}`}>
@@ -267,8 +267,8 @@ export default function Resources() {
                             </div>
                           </div>
 
-                          {resource.description ? (
-                            <p className="mb-4 text-sm text-muted-foreground">{resource.description}</p>
+                          {resource.description || resource.websiteDescription ? (
+                            <p className="mb-4 text-sm text-muted-foreground">{resource.description || resource.websiteDescription}</p>
                           ) : null}
 
                           <div className="grid gap-2 text-sm">
@@ -305,7 +305,7 @@ export default function Resources() {
                                   rel="noopener noreferrer"
                                   className="hover:text-primary transition-colors hover:underline"
                                 >
-                                  {domain ? `Visit ${domain}` : "Visit website"}
+                                  {resource.websiteTitle ? `Visit ${resource.websiteTitle}` : (domain ? `Visit ${domain}` : "Visit website")}
                                 </a>
                               </div>
                             ) : null}
@@ -457,7 +457,7 @@ export default function Resources() {
 
                           {(() => {
                             const websiteUrl = normalizeExternalUrl(resource.website);
-                            const faviconUrl = getFaviconUrl(resource.website);
+                            const faviconUrl = resource.websiteFavicon || getFaviconUrl(resource.website);
                             const domain = getDisplayDomain(resource.website);
 
                             if (!websiteUrl) return null;

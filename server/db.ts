@@ -54,6 +54,7 @@ import {
   type InsertChatMessage,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { scrapeWebsiteMetadata } from "./webScraper";
 import {
   MEDI_CAL_CATEGORY_DEFS,
   type MediCalCategoryKey,
@@ -67,6 +68,8 @@ let _serviceSubmissionsEnsured = false;
 let _communitySupportRequestsEnsured = false;
 let _resourcesFeaturedEnsured = false;
 let _treatmentFeaturedEnsured = false;
+let _resourcesWebsiteMetadataEnsured = false;
+let _treatmentWebsiteMetadataEnsured = false;
 
 function normalizeEpochSeconds(value: unknown): number | undefined {
   if (value === undefined || value === null) return undefined;
@@ -258,6 +261,19 @@ async function ensureResourcesFeaturedColumn(): Promise<void> {
   _resourcesFeaturedEnsured = true;
 }
 
+async function ensureResourcesWebsiteMetadataColumns(): Promise<void> {
+  if (_resourcesWebsiteMetadataEnsured) return;
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS "websiteTitle" TEXT`);
+  await db.execute(sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS "websiteDescription" TEXT`);
+  await db.execute(sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS "websiteImage" TEXT`);
+  await db.execute(sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS "websiteFavicon" TEXT`);
+
+  _resourcesWebsiteMetadataEnsured = true;
+}
+
 async function ensureTreatmentFeaturedColumn(): Promise<void> {
   if (_treatmentFeaturedEnsured) return;
   const db = await getDb();
@@ -270,6 +286,77 @@ async function ensureTreatmentFeaturedColumn(): Promise<void> {
   await db.execute(sql`CREATE INDEX IF NOT EXISTS "treatmentCenters_featured_idx" ON treatment_centers ("isFeatured")`);
 
   _treatmentFeaturedEnsured = true;
+}
+
+async function ensureTreatmentWebsiteMetadataColumns(): Promise<void> {
+  if (_treatmentWebsiteMetadataEnsured) return;
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(sql`ALTER TABLE treatment_centers ADD COLUMN IF NOT EXISTS "websiteTitle" TEXT`);
+  await db.execute(sql`ALTER TABLE treatment_centers ADD COLUMN IF NOT EXISTS "websiteDescription" TEXT`);
+  await db.execute(sql`ALTER TABLE treatment_centers ADD COLUMN IF NOT EXISTS "websiteImage" TEXT`);
+  await db.execute(sql`ALTER TABLE treatment_centers ADD COLUMN IF NOT EXISTS "websiteFavicon" TEXT`);
+
+  _treatmentWebsiteMetadataEnsured = true;
+}
+
+async function refreshResourceWebsiteMetadata(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await ensureResourcesWebsiteMetadataColumns();
+
+  const row = await db
+    .select({ id: resources.id, website: resources.website })
+    .from(resources)
+    .where(eq(resources.id, id))
+    .limit(1);
+
+  const website = row[0]?.website;
+  if (!website) return;
+  const normalizedUrl = /^https?:\/\//i.test(website) ? website : `https://${website}`;
+  const metadata = await scrapeWebsiteMetadata(normalizedUrl);
+  if (!metadata.success) return;
+
+  await db
+    .update(resources)
+    .set({
+      websiteTitle: metadata.title,
+      websiteDescription: metadata.description,
+      websiteImage: metadata.imageUrl,
+      websiteFavicon: metadata.faviconUrl,
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
+    .where(eq(resources.id, id));
+}
+
+async function refreshTreatmentWebsiteMetadata(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await ensureTreatmentWebsiteMetadataColumns();
+
+  const row = await db
+    .select({ id: treatmentCenters.id, website: treatmentCenters.website })
+    .from(treatmentCenters)
+    .where(eq(treatmentCenters.id, id))
+    .limit(1);
+
+  const website = row[0]?.website;
+  if (!website) return;
+  const normalizedUrl = /^https?:\/\//i.test(website) ? website : `https://${website}`;
+  const metadata = await scrapeWebsiteMetadata(normalizedUrl);
+  if (!metadata.success) return;
+
+  await db
+    .update(treatmentCenters)
+    .set({
+      websiteTitle: metadata.title,
+      websiteDescription: metadata.description,
+      websiteImage: metadata.imageUrl,
+      websiteFavicon: metadata.faviconUrl,
+      updatedAt: Math.floor(Date.now() / 1000),
+    })
+    .where(eq(treatmentCenters.id, id));
 }
 
 // ============ USER HELPERS ============
@@ -426,6 +513,7 @@ export async function getResources(filters?: {
   const db = await getDb();
   if (!db) return [];
   await ensureResourcesFeaturedColumn();
+  await ensureResourcesWebsiteMetadataColumns();
 
   let query = db.select().from(resources);
   const conditions = [];
@@ -477,6 +565,7 @@ export async function createResource(resource: InsertResource) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await ensureResourcesFeaturedColumn();
+  await ensureResourcesWebsiteMetadataColumns();
 
   const result = await db.insert(resources).values(resource).returning();
   return result[0];
@@ -486,6 +575,7 @@ export async function setResourceFeatured(id: number, isFeatured: boolean): Prom
   const db = await getDb();
   if (!db) return;
   await ensureResourcesFeaturedColumn();
+  await ensureResourcesWebsiteMetadataColumns();
 
   await db
     .update(resources)
@@ -494,6 +584,10 @@ export async function setResourceFeatured(id: number, isFeatured: boolean): Prom
       updatedAt: Math.floor(Date.now() / 1000),
     })
     .where(eq(resources.id, id));
+
+  if (isFeatured) {
+    await refreshResourceWebsiteMetadata(id);
+  }
 }
 
 // ============ MAP PIN HELPERS ============
@@ -1286,6 +1380,7 @@ export async function getAllTreatmentCenters(filters?: {
   const db = await getDb();
   if (!db) return [];
   await ensureTreatmentFeaturedColumn();
+  await ensureTreatmentWebsiteMetadataColumns();
 
   const conditions = [eq(treatmentCenters.isPublished, 1)];
 
@@ -1338,6 +1433,7 @@ export async function createTreatmentCenter(center: InsertTreatmentCenter): Prom
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await ensureTreatmentFeaturedColumn();
+  await ensureTreatmentWebsiteMetadataColumns();
 
   const result = await db.insert(treatmentCenters).values(center).returning();
   return result[0];
@@ -1347,6 +1443,7 @@ export async function updateTreatmentCenter(id: number, updates: Partial<InsertT
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await ensureTreatmentFeaturedColumn();
+  await ensureTreatmentWebsiteMetadataColumns();
 
   await db
     .update(treatmentCenters)
@@ -1358,6 +1455,7 @@ export async function setTreatmentCenterFeatured(id: number, isFeatured: boolean
   const db = await getDb();
   if (!db) return;
   await ensureTreatmentFeaturedColumn();
+  await ensureTreatmentWebsiteMetadataColumns();
 
   await db
     .update(treatmentCenters)
@@ -1366,6 +1464,10 @@ export async function setTreatmentCenterFeatured(id: number, isFeatured: boolean
       updatedAt: Math.floor(Date.now() / 1000),
     })
     .where(eq(treatmentCenters.id, id));
+
+  if (isFeatured) {
+    await refreshTreatmentWebsiteMetadata(id);
+  }
 }
 
 export async function deleteTreatmentCenter(id: number): Promise<void> {

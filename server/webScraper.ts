@@ -10,6 +10,16 @@ export interface ScrapedContent {
   error?: string;
 }
 
+export interface WebsiteMetadata {
+  url: string;
+  title: string | null;
+  description: string | null;
+  imageUrl: string | null;
+  faviconUrl: string | null;
+  success: boolean;
+  error?: string;
+}
+
 /**
  * Extract main content from HTML using cheerio
  */
@@ -106,4 +116,73 @@ export async function scrapeUrl(url: string): Promise<ScrapedContent> {
 export async function scrapeUrls(urls: string[]): Promise<ScrapedContent[]> {
   const promises = urls.map((url) => scrapeUrl(url));
   return Promise.all(promises);
+}
+
+function resolveUrl(rawUrl: string | undefined, baseUrl: string): string | null {
+  if (!rawUrl) return null;
+  try {
+    return new URL(rawUrl, baseUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch lightweight page metadata for cards/previews.
+ */
+export async function scrapeWebsiteMetadata(url: string): Promise<WebsiteMetadata> {
+  try {
+    const response = await axios.get(url, {
+      timeout: 10000,
+      maxRedirects: 5,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      },
+    });
+
+    const finalUrl = response.request?.res?.responseUrl || url;
+    const $ = cheerio.load(response.data);
+    const title =
+      $('meta[property="og:title"]').attr("content") ||
+      $('meta[name="twitter:title"]').attr("content") ||
+      $("title").first().text() ||
+      null;
+    const description =
+      $('meta[property="og:description"]').attr("content") ||
+      $('meta[name="twitter:description"]').attr("content") ||
+      $('meta[name="description"]').attr("content") ||
+      null;
+    const imageUrl = resolveUrl(
+      $('meta[property="og:image"]').attr("content") ||
+        $('meta[name="twitter:image"]').attr("content") ||
+        $('meta[property="og:image:url"]').attr("content"),
+      finalUrl
+    );
+    const faviconUrl = resolveUrl(
+      $('link[rel="icon"]').attr("href") ||
+        $('link[rel="shortcut icon"]').attr("href") ||
+        $('link[rel="apple-touch-icon"]').attr("href"),
+      finalUrl
+    );
+
+    return {
+      url: finalUrl,
+      title: title?.trim() || null,
+      description: description?.trim() || null,
+      imageUrl,
+      faviconUrl,
+      success: true,
+    };
+  } catch (error) {
+    return {
+      url,
+      title: null,
+      description: null,
+      imageUrl: null,
+      faviconUrl: null,
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }

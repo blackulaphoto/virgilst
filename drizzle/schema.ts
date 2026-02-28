@@ -187,6 +187,10 @@ export const resources = pgTable("resources", {
   address: text("address"),
   phone: text("phone"),
   website: text("website"),
+  websiteTitle: text("websiteTitle"),
+  websiteDescription: text("websiteDescription"),
+  websiteImage: text("websiteImage"),
+  websiteFavicon: text("websiteFavicon"),
   hours: text("hours"),
   // Filter tags stored as JSON
   filters: text("filters"), // {lgbtqSafe, acceptsPets, acceptsEBT, noIdRequired, wheelchairAccessible}
@@ -553,6 +557,10 @@ export const treatmentCenters = pgTable("treatment_centers", {
   zipCode: text("zipCode"),
   phone: text("phone"),
   website: text("website"),
+  websiteTitle: text("websiteTitle"),
+  websiteDescription: text("websiteDescription"),
+  websiteImage: text("websiteImage"),
+  websiteFavicon: text("websiteFavicon"),
   description: text("description"),
 
   // Population served

@@ -10,7 +10,7 @@ import { MapPin, Phone, ExternalLink, DollarSign, Users, CheckCircle2, Building2
 import { Link, useParams } from "wouter";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
-import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
+import { getDisplayDomain, getFaviconUrl, getWebsitePreviewImage, normalizeExternalUrl } from "@/lib/externalMedia";
 
 export default function Treatment() {
   const { user } = useAuth();
@@ -184,6 +184,23 @@ export default function Treatment() {
 
   const renderCenterCard = (center: any) => (
     <Card key={center.id} className="surface-card">
+      {center.isFeatured === 1 ? (
+        <div className="relative h-40 overflow-hidden border-b border-border bg-muted/20">
+          {(center.websiteImage || getWebsitePreviewImage(center.website)) ? (
+            <img
+              src={center.websiteImage || getWebsitePreviewImage(center.website) || ""}
+              alt={`${center.name} website preview`}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <Building2 className="h-10 w-10 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+      ) : null}
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -224,7 +241,9 @@ export default function Treatment() {
             </Button>
           ) : null}
         </div>
-        {center.description && <CardDescription>{center.description}</CardDescription>}
+        {(center.description || center.websiteDescription) && (
+          <CardDescription>{center.description || center.websiteDescription}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {center.address && (
@@ -247,7 +266,7 @@ export default function Treatment() {
         )}
         {(() => {
           const websiteUrl = normalizeExternalUrl(center.website);
-          const faviconUrl = getFaviconUrl(center.website);
+          const faviconUrl = center.websiteFavicon || getFaviconUrl(center.website);
           const domain = getDisplayDomain(center.website);
 
           if (!websiteUrl) return null;
@@ -266,7 +285,7 @@ export default function Treatment() {
                 <ExternalLink className="h-4 w-4 text-primary" />
               )}
               <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                {domain ? `Visit ${domain}` : "Visit website"}
+                {center.websiteTitle ? `Visit ${center.websiteTitle}` : (domain ? `Visit ${domain}` : "Visit website")}
               </a>
             </div>
           );
