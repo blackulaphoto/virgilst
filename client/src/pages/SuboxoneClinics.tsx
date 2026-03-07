@@ -18,9 +18,9 @@ function matchesSuboxoneTerms(center: any) {
   const blob = [
     center.name,
     center.description,
-    center.servicesOffered,
     center.type,
-    center.city,
+    center.address,
+    center.websiteDescription,
   ]
     .map(normalize)
     .join(" ");
@@ -36,22 +36,11 @@ function matchesSuboxoneTerms(center: any) {
 export default function SuboxoneClinics() {
   const [search, setSearch] = useState("");
 
-  const { data: suboxoneMatches = [], isLoading: loadingSuboxone } = trpc.treatmentCenters.search.useQuery({
-    query: "suboxone",
-  });
-  const { data: sublocadeMatches = [], isLoading: loadingSublocade } = trpc.treatmentCenters.search.useQuery({
-    query: "sublocade",
+  const { data: medicalResources = [], isLoading } = trpc.resources.list.useQuery({
+    type: "medical",
   });
 
-  const isLoading = loadingSuboxone || loadingSublocade;
-
-  const clinics = useMemo(() => {
-    const byId = new Map<number, any>();
-    [...suboxoneMatches, ...sublocadeMatches].forEach((center) => {
-      if (!byId.has(center.id)) byId.set(center.id, center);
-    });
-    return Array.from(byId.values()).filter(matchesSuboxoneTerms);
-  }, [suboxoneMatches, sublocadeMatches]);
+  const clinics = useMemo(() => medicalResources.filter(matchesSuboxoneTerms), [medicalResources]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -59,10 +48,9 @@ export default function SuboxoneClinics() {
     return clinics.filter((center) => {
       const blob = [
         center.name,
-        center.city,
         center.description,
-        center.servicesOffered,
         center.phone,
+        center.address,
       ]
         .map(normalize)
         .join(" ");
@@ -97,7 +85,7 @@ export default function SuboxoneClinics() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by clinic name, city, services, or phone..."
+              placeholder="Search by clinic name, address, description, or phone..."
               className="pl-9"
             />
           </div>
@@ -116,13 +104,6 @@ export default function SuboxoneClinics() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {filtered.map((center) => {
-              let services: string[] = [];
-              try {
-                services = JSON.parse(center.servicesOffered || "[]");
-              } catch {
-                services = [];
-              }
-
               const websiteUrl = normalizeExternalUrl(center.website);
               const faviconUrl = getFaviconUrl(center.website);
               const domain = getDisplayDomain(center.website);
@@ -136,7 +117,7 @@ export default function SuboxoneClinics() {
                       {normalize(center.description).includes("sublocade") && (
                         <Badge variant="outline">Sublocade</Badge>
                       )}
-                      {normalize(center.city) === "telehealth" && (
+                      {normalize(`${center.name} ${center.description} ${center.address}`).includes("telehealth") && (
                         <Badge variant="secondary">Telehealth</Badge>
                       )}
                     </div>
@@ -145,10 +126,10 @@ export default function SuboxoneClinics() {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {center.city && (
+                    {center.address && (
                       <div className="flex items-center gap-2 text-sm text-foreground">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{center.city}{center.zipCode ? ` ${center.zipCode}` : ""}</span>
+                        <span>{center.address}{center.zipCode ? ` ${center.zipCode}` : ""}</span>
                       </div>
                     )}
                     {center.phone && (
@@ -179,11 +160,7 @@ export default function SuboxoneClinics() {
                     )}
 
                     <div className="flex flex-wrap gap-2 border-t border-border pt-2">
-                      {services.slice(0, 6).map((service, idx) => (
-                        <Badge key={`${center.id}-${idx}`} variant="outline">{service}</Badge>
-                      ))}
-                      {center.acceptsMediCal ? <Badge>Medi-Cal</Badge> : null}
-                      {center.acceptsPrivateInsurance ? <Badge variant="secondary">Private Insurance</Badge> : null}
+                      <Badge variant="secondary">Medical</Badge>
                     </div>
                   </CardContent>
                 </Card>
