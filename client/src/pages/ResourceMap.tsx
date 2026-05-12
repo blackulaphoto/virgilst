@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { MapView } from "@/components/Map";
+import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, MapPin, Navigation, X } from "lucide-react";
 import { Link } from "wouter";
 import { getDisplayDomain, getFaviconUrl, normalizeExternalUrl } from "@/lib/externalMedia";
+import { LeafletMap, createCustomIcon, L } from "@/components/LeafletMap";
+import { Marker, Popup } from "react-leaflet";
 
 const RESOURCE_TYPES = [
   { value: "all", label: "All Resources", color: "#0E5E6F" },
@@ -25,60 +26,34 @@ export default function ResourceMap() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(["all"]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
 
   const { data: allResources = [] } = trpc.resources.list.useQuery({});
 
-  const resources = allResources.filter((r) => {
-    if (!r.latitude || !r.longitude) return false;
-    if (selectedTypes.includes("all")) return true;
-    return selectedTypes.includes(r.type);
-  });
+  const resources = useMemo(
+    () =>
+      allResources
+        .map((resource) => {
+          const lat = Number(resource.latitude);
+          const lng = Number(resource.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+          return { ...resource, lat, lng };
+        })
+        .filter((resource): resource is NonNullable<typeof resource> => {
+          if (!resource) return false;
+          if (selectedTypes.includes("all")) return true;
+          return selectedTypes.includes(resource.type);
+        }),
+    [allResources, selectedTypes]
+  );
 
-  const handleMapReady = (map: google.maps.Map) => {
-    resources.forEach((resource) => {
-      const lat = parseFloat(resource.latitude as string);
-      const lng = parseFloat(resource.longitude as string);
-
-      if (isNaN(lat) || isNaN(lng)) return;
-
-      const typeConfig = RESOURCE_TYPES.find((t) => t.value === resource.type) || RESOURCE_TYPES[0];
-
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map,
-        title: resource.name,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: typeConfig.color,
-          fillOpacity: 0.9,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-        },
-      });
-
-      marker.addListener("click", () => {
-        setSelectedResource(resource);
-        map.panTo({ lat, lng });
-      });
-    });
-
-    if (userLocation) {
-      new google.maps.Marker({
-        position: userLocation,
-        map,
-        title: "Your Location",
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#0E5E6F",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 3,
-        },
-      });
-    }
-  };
+  useEffect(() => {
+    if (!map) return;
+    map.setView(
+      userLocation ? [userLocation.lat, userLocation.lng] : [34.0522, -118.2437],
+      userLocation ? 13 : 10
+    );
+  }, [map, userLocation]);
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
@@ -156,12 +131,46 @@ export default function ResourceMap() {
       </div>
 
       <div className="relative" style={{ height: "calc(100vh - 204px)" }}>
-        <MapView
-          key={`${selectedTypes.join(",")}-${userLocation?.lat || 0}`}
-          initialCenter={mapCenter}
-          initialZoom={userLocation ? 13 : 10}
-          onMapReady={handleMapReady}
-        />
+        <LeafletMap
+          center={[mapCenter.lat, mapCenter.lng]}
+          zoom={userLocation ? 13 : 10}
+          onMapReady={setMap}
+          className="h-full w-full"
+        >
+          {resources.map((resource) => {
+            const typeConfig = RESOURCE_TYPES.find((t) => t.value === resource.type) || RESOURCE_TYPES[0];
+            const icon = createCustomIcon(typeConfig.color);
+            return (
+              <Marker
+                key={resource.id}
+                position={[resource.lat, resource.lng]}
+                icon={icon}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedResource(resource);
+                    map?.flyTo([resource.lat, resource.lng], Math.max(map.getZoom(), 14), { duration: 0.8 });
+                  },
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <strong>{resource.name}</strong>
+                    {resource.description ? <p className="mt-1 text-xs">{resource.description}</p> : null}
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          {userLocation ? (
+            <Marker
+              position={[userLocation.lat, userLocation.lng]}
+              icon={createCustomIcon("#0E5E6F")}
+            >
+              <Popup>Your location</Popup>
+            </Marker>
+          ) : null}
+        </LeafletMap>
 
         {selectedResource && (
           <Card className="surface-card absolute left-4 right-4 top-4 p-4 shadow-md md:left-auto md:w-96">
