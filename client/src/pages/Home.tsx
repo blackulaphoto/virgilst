@@ -96,6 +96,11 @@ export default function Home() {
                   Explore Resources
                 </Button>
               </Link>
+              <Link href="/case-manager">
+                <Button size="lg" variant="outline">
+                  Work with an AI Case Manager
+                </Button>
+              </Link>
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />

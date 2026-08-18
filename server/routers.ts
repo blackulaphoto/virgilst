@@ -11,6 +11,7 @@ import { searchGoogle, formatSearchResults as formatGoogleResults } from "./serp
 import { getUserProfile, updateUserProfile, getUserActivity, needsProfileSetup } from "./userProfile";
 import * as calendar from "./calendar";
 import * as legalCases from "./legalCases";
+import { caseManagerRouter } from "./caseManager/router";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { ingestKnowledgeUpload, MAX_KNOWLEDGE_UPLOAD_BYTES } from "./knowledgeIngestion";
@@ -574,6 +575,8 @@ const serviceSubmissionInputSchema = z.discriminatedUnion("category", [
 
 export const appRouter = router({
   system: systemRouter,
+
+  caseManager: caseManagerRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -20,6 +20,9 @@ import Videos from "./pages/Videos";
 import Search from "./pages/Search";
 import Treatment from "./pages/Treatment";
 import TreatmentWizard from "./pages/TreatmentWizard";
+import CaseManager from "./pages/CaseManager";
+import CaseManagerAssessment from "./pages/CaseManagerAssessment";
+import CaseManagerDashboard from "./pages/CaseManagerDashboard";
 import Meetings from "./pages/Meetings";
 import Events from "./pages/Events";
 import Resources from "./pages/Resources";
@@ -59,6 +62,9 @@ function Router() {
       <Route path="/treatment" component={Treatment} />
       <Route path="/treatment/wizard" component={TreatmentWizard} />
       <Route path="/treatment/:program" component={Treatment} />
+      <Route path="/case-manager" component={CaseManager} />
+      <Route path="/case-manager/assessment" component={CaseManagerAssessment} />
+      <Route path="/case-manager/dashboard" component={CaseManagerDashboard} />
       <Route path="/meetings/:program" component={Meetings} />
       <Route path="/meetings" component={Meetings} />
       <Route path="/events" component={Events} />

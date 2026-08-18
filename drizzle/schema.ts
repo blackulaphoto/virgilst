@@ -369,10 +369,13 @@ export const chatConversations = pgTable("chat_conversations", {
   id: serial("id").primaryKey(),
   userId: integer("userId").references(() => users.id),
   title: text("title"),
+  // null = general Virgil assistant, "case_assessment" = AI Case Manager interview
+  contextType: text("contextType"),
   lastMessageAt: integer("lastMessageAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
   createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
 }, (table) => ({
   userIdx: index("chatConversations_user_idx").on(table.userId),
+  contextTypeIdx: index("chatConversations_context_type_idx").on(table.contextType),
 }));
 
 export type ChatConversation = typeof chatConversations.$inferSelect;
@@ -884,3 +887,121 @@ export const jobApplications = pgTable("job_applications", {
 
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type InsertJobApplication = typeof jobApplications.$inferInsert;
+
+/**
+ * AI Case Manager — needs assessments
+ * Conversational interview (transcript lives in chat_conversations/chat_messages,
+ * linked via conversationId) that produces a structured needs profile.
+ */
+export const needsAssessments = pgTable("needs_assessments", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().references(() => users.id),
+  conversationId: integer("conversationId").references(() => chatConversations.id),
+  // in_progress, actionable (enough to start helping), completed, paused
+  status: text("status").default("in_progress").notNull(),
+  // Raw answers keyed by topic area (JSON)
+  responses: text("responses"),
+  // { needs: [{id, category, description, priorityTier, rationale}], barriers: [],
+  //   strengths: [], preferences: [], risks: [], existingConnections: [] } (JSON)
+  needsProfile: text("needsProfile"),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  userIdx: index("needsAssessments_user_idx").on(table.userId),
+  statusIdx: index("needsAssessments_status_idx").on(table.status),
+}));
+
+export type NeedsAssessment = typeof needsAssessments.$inferSelect;
+export type InsertNeedsAssessment = typeof needsAssessments.$inferInsert;
+
+/**
+ * AI Case Manager — case plans (one per generated plan; assessment -> plan is 1:many for history)
+ */
+export const carePlans = pgTable("care_plans", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().references(() => users.id),
+  assessmentId: integer("assessmentId").notNull().references(() => needsAssessments.id),
+  status: text("status").default("active").notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  userIdx: index("carePlans_user_idx").on(table.userId),
+  assessmentIdx: index("carePlans_assessment_idx").on(table.assessmentId),
+}));
+
+export type CarePlan = typeof carePlans.$inferSelect;
+export type InsertCarePlan = typeof carePlans.$inferInsert;
+
+/**
+ * AI Case Manager — goals (one per major need area, e.g. Housing, Mental Health)
+ */
+export const carePlanGoals = pgTable("care_plan_goals", {
+  id: serial("id").primaryKey(),
+  carePlanId: integer("carePlanId").notNull().references(() => carePlans.id, { onDelete: "cascade" }),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
+  // immediate, high, medium, long_term
+  priorityTier: text("priorityTier").notNull(),
+  rationale: text("rationale"),
+  // ids from needsAssessments.needsProfile.needs[].id that produced this goal (JSON array)
+  sourceNeedIds: text("sourceNeedIds"),
+  // not_started, in_progress, completed, blocked
+  status: text("status").default("not_started").notNull(),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  carePlanIdx: index("carePlanGoals_care_plan_idx").on(table.carePlanId),
+  statusIdx: index("carePlanGoals_status_idx").on(table.status),
+  sortOrderIdx: index("carePlanGoals_sort_order_idx").on(table.sortOrder),
+}));
+
+export type CarePlanGoal = typeof carePlanGoals.$inferSelect;
+export type InsertCarePlanGoal = typeof carePlanGoals.$inferInsert;
+
+/**
+ * AI Case Manager — objectives (actionable steps under a goal)
+ */
+export const carePlanObjectives = pgTable("care_plan_objectives", {
+  id: serial("id").primaryKey(),
+  goalId: integer("goalId").notNull().references(() => carePlanGoals.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  // not_started, in_progress, completed, blocked
+  status: text("status").default("not_started").notNull(),
+  // ids of other carePlanObjectives that must complete first (JSON array)
+  blockedByObjectiveIds: text("blockedByObjectiveIds"),
+  scheduledAt: integer("scheduledAt"),
+  // cached on-demand output: { beforeYouLeave, whereToGo, gettingThere, whenYouArrive,
+  //   possibleProblem, backupPlan } (JSON)
+  navigationGuidance: text("navigationGuidance"),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+  updatedAt: integer("updatedAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  goalIdx: index("carePlanObjectives_goal_idx").on(table.goalId),
+  statusIdx: index("carePlanObjectives_status_idx").on(table.status),
+  sortOrderIdx: index("carePlanObjectives_sort_order_idx").on(table.sortOrder),
+}));
+
+export type CarePlanObjective = typeof carePlanObjectives.$inferSelect;
+export type InsertCarePlanObjective = typeof carePlanObjectives.$inferInsert;
+
+/**
+ * AI Case Manager — resource recommendations attached to a goal
+ */
+export const carePlanResourceRecommendations = pgTable("care_plan_resource_recommendations", {
+  id: serial("id").primaryKey(),
+  goalId: integer("goalId").notNull().references(() => carePlanGoals.id, { onDelete: "cascade" }),
+  // resource, treatmentCenter, mediCalProvider, meeting, job, event
+  resourceType: text("resourceType").notNull(),
+  resourceId: integer("resourceId").notNull(),
+  rationale: text("rationale"),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  createdAt: integer("createdAt").default(sql`EXTRACT(EPOCH FROM NOW())::INTEGER`).notNull(),
+}, (table) => ({
+  goalIdx: index("carePlanResourceRecommendations_goal_idx").on(table.goalId),
+  resourceIdx: index("carePlanResourceRecommendations_resource_idx").on(table.resourceType, table.resourceId),
+}));
+
+export type CarePlanResourceRecommendation = typeof carePlanResourceRecommendations.$inferSelect;
+export type InsertCarePlanResourceRecommendation = typeof carePlanResourceRecommendations.$inferInsert;
