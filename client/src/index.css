@@ -42,6 +42,21 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-cta: var(--cta);
   --color-cta-foreground: var(--cta-foreground);
+
+  /* Premium dark chrome — fixed brand tokens for Header/Footer/Hero/
+     product-showcase surfaces. Intentionally NOT wired to the light/dark
+     toggle above; they stay constant so the rest of the site's light
+     content areas are unaffected. */
+  --color-vst-bg: var(--vst-bg);
+  --color-vst-bg-elevated: var(--vst-bg-elevated);
+  --color-vst-teal: var(--vst-teal);
+  --color-vst-violet: var(--vst-violet);
+  --color-vst-coral: var(--vst-coral);
+  --color-vst-cta-bg: var(--vst-cta-bg);
+  --color-vst-cta-text: var(--vst-cta-text);
+  --color-vst-text: var(--vst-text);
+  --color-vst-text-muted: var(--vst-text-muted);
+  --color-vst-border: var(--vst-border);
 }
 
 :root {
@@ -80,6 +95,18 @@
   --cta: #ff6b57;
   --cta-foreground: #ffffff;
   --radius: 0.875rem;
+
+  /* Premium dark chrome palette (Header/Footer/Hero/product showcase) */
+  --vst-bg: #06111f;
+  --vst-bg-elevated: #0d1c33;
+  --vst-teal: #22e7e0;
+  --vst-violet: #7c5cfc;
+  --vst-coral: #ff6b4a;
+  --vst-cta-bg: #1fd8d1;
+  --vst-cta-text: #04141f;
+  --vst-text: #f7fbff;
+  --vst-text-muted: #9fb2c7;
+  --vst-border: #1c3a5e;
 }
 
 .dark {
