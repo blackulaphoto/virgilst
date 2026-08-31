@@ -18,6 +18,10 @@ type TreatmentLike = ResourceLike & {
   isVerified?: number | boolean | null;
 };
 
+function isDatabaseTrue(value: unknown): boolean {
+  return value === true || value === 1 || value === "1";
+}
+
 function baseIssues(item: ResourceLike): QualityIssue[] {
   const issues: QualityIssue[] = [];
   const name = item.name?.trim() || "(missing name)";
@@ -52,7 +56,7 @@ export function auditTreatmentRecords(records: TreatmentLike[]): QualityIssue[] 
     if (record.priceRange && normalizeTreatmentPrice(record.priceRange) === null) {
       recordIssues.push({ id: record.id, name: record.name || "(missing name)", field: "priceRange", value: record.priceRange, reason: "malformed or implausibly low price" });
     }
-    if (record.acceptsPrivateInsurance && !record.isVerified) {
+    if (isDatabaseTrue(record.acceptsPrivateInsurance) && !isDatabaseTrue(record.isVerified)) {
       recordIssues.push({ id: record.id, name: record.name || "(missing name)", field: "acceptsPrivateInsurance", value: record.acceptsPrivateInsurance, reason: "unverified insurance claim" });
     }
     return recordIssues;
@@ -66,6 +70,6 @@ export function auditTreatmentRecords(records: TreatmentLike[]): QualityIssue[] 
 }
 
 export function summarizePrivateInsurance(records: TreatmentLike[]) {
-  const claimed = records.filter(record => Boolean(record.acceptsPrivateInsurance)).length;
+  const claimed = records.filter(record => isDatabaseTrue(record.acceptsPrivateInsurance)).length;
   return { total: records.length, claimed, share: records.length ? claimed / records.length : 0 };
 }
