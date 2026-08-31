@@ -1,287 +1,133 @@
-/**
- * AI Case Manager — resource matcher.
- * Reuses Virgil's existing search functions (server/db.ts) rather than
- * reimplementing search. Two conceptual phases per goal:
- *   1. screenEligibility — hard-exclude candidates that clearly don't fit
- *      (stubbed as a no-op pass-through for the vertical slice; filled in
- *      once barrier/preference-aware screening lands).
- *   2. rankRelevance — order survivors by how well they match the goal.
- */
+/** Deterministic, verified resource matching for AI care-plan goals. */
 import { eq, inArray } from "drizzle-orm";
 import * as db from "../db";
-import {
-  carePlanGoals,
-  carePlans,
-  needsAssessments,
-  carePlanResourceRecommendations,
-  resources,
-  treatmentCenters,
-  mediCalProviders,
-  jobs,
-  type CarePlanGoal,
-  type CarePlanResourceRecommendation,
-} from "../../drizzle/schema";
+import { carePlanGoals, carePlans, needsAssessments, carePlanResourceRecommendations, resources, treatmentCenters, type CarePlanGoal, type CarePlanResourceRecommendation } from "../../drizzle/schema";
+import { classifyResourceGeography, type ResourceGeography } from "../../shared/resourceGeography";
+import { isDatabaseTrue } from "../../shared/treatmentPresentation";
 import type { NeedsProfile } from "./assessmentEngine";
+import { safePhone } from "./safety";
 
+export type ServiceCapability = "emergency_shelter" | "housing" | "sober_living" | "food" | "hygiene" | "transportation" | "outpatient" | "residential" | "benefits" | "identification" | "medical" | "none";
 export type ResourceCandidate = {
-  resourceType: "resource" | "treatmentCenter" | "mediCalProvider" | "meeting" | "job" | "event";
+  resourceType: "resource" | "treatmentCenter";
   resourceId: number;
   name: string;
+  capability: ServiceCapability;
+  geography: ResourceGeography;
+  verified: boolean;
   description?: string;
   phone?: string;
   address?: string;
+  website?: string;
 };
-
 export type ResourceRecommendation = ResourceCandidate & { rationale: string };
-
 const RESOURCE_LIMIT = 5;
 
-function buildQuery(goal: CarePlanGoal): string {
-  return `${goal.title} ${goal.category.replace(/_/g, " ")}`;
+export function inferGoalCapability(goal: Pick<CarePlanGoal, "category" | "title">): ServiceCapability {
+  const text = `${goal.title} ${goal.category}`.toLowerCase();
+  if (/sober (?:housing|living)|recovery residence/.test(text)) return "sober_living";
+  if (/outpatient|iop|php/.test(text)) return "outpatient";
+  if (/residential treatment|detox/.test(text)) return "residential";
+  if (goal.category === "housing") return /shelter|sleep tonight|immediate/.test(text) ? "emergency_shelter" : "housing";
+  if (goal.category === "food") return "food";
+  if (goal.category === "transportation") return "transportation";
+  if (goal.category === "identification") return "identification";
+  if (goal.category === "benefits" || goal.category === "income" || goal.category === "insurance") return "benefits";
+  if (goal.category === "primary_care" || goal.category === "dental_care" || goal.category === "vision_care") return "medical";
+  if (goal.category === "substance_use") return "outpatient";
+  return "none";
 }
+
+export function selectGroundedCandidates(candidates: ResourceCandidate[], capability: ServiceCapability, losAngelesRequest = true): ResourceCandidate[] {
+  if (["none", "benefits", "identification", "medical"].includes(capability)) return [];
+  const rank: Record<ResourceGeography, number> = { los_angeles: 0, statewide: 1, unknown: 2, outside_los_angeles: 3 };
+  return candidates
+    .filter(candidate => candidate.verified && candidate.capability === capability)
+    .filter(candidate => !losAngelesRequest || candidate.geography === "los_angeles" || candidate.geography === "statewide")
+    .sort((a, b) => rank[a.geography] - rank[b.geography] || a.resourceId - b.resourceId)
+    .slice(0, RESOURCE_LIMIT);
+}
+
+const RESOURCE_TYPES: Partial<Record<ServiceCapability, string[]>> = {
+  emergency_shelter: ["shelter"], housing: ["housing", "shelter"], food: ["food"], hygiene: ["hygiene"], transportation: ["transportation"],
+};
 
 async function searchCandidates(goal: CarePlanGoal): Promise<ResourceCandidate[]> {
-  const query = buildQuery(goal);
+  const capability = inferGoalCapability(goal);
   const candidates: ResourceCandidate[] = [];
-
-  const generalResources = await db.searchResources(query, 10);
-  candidates.push(
-    ...generalResources.map(r => ({
-      resourceType: "resource" as const,
-      resourceId: r.id,
-      name: r.name,
-      description: r.description ?? undefined,
-      phone: r.phone ?? undefined,
-      address: r.address ?? undefined,
-    }))
-  );
-
-  if (goal.category === "mental_health" || goal.category === "substance_use") {
-    const centers = await db.searchTreatmentCentersWithFilters(query, {});
-    candidates.push(
-      ...centers.slice(0, 10).map(c => ({
-        resourceType: "treatmentCenter" as const,
-        resourceId: c.id,
-        name: c.name,
-        description: c.description ?? undefined,
-        phone: c.phone ?? undefined,
-        address: c.address ?? undefined,
-      }))
-    );
+  for (const type of RESOURCE_TYPES[capability] ?? []) {
+    const rows = await db.getResources({ type, limit: 100 });
+    candidates.push(...rows.map(row => ({ resourceType: "resource" as const, resourceId: row.id, name: row.name, capability, geography: classifyResourceGeography(row), verified: isDatabaseTrue(row.isVerified), description: row.description ?? undefined, phone: safePhone(row.phone), address: row.address ?? undefined, website: row.website ?? undefined })));
   }
-
-  if (
-    goal.category === "insurance" ||
-    goal.category === "primary_care" ||
-    goal.category === "dental_care" ||
-    goal.category === "vision_care"
-  ) {
-    const providers = await db.searchMediCalProviders(query, undefined, undefined, 10, 0);
-    candidates.push(
-      ...providers.map(p => ({
-        resourceType: "mediCalProvider" as const,
-        resourceId: p.id,
-        name: p.facilityName || p.providerName || "Medi-Cal provider",
-        address: p.address ?? undefined,
-      }))
-    );
+  const treatmentType = capability === "sober_living" ? "sober_living" : capability === "outpatient" ? "outpatient" : capability === "residential" ? "residential" : null;
+  if (treatmentType) {
+    const rows = await db.getAllTreatmentCenters({ type: treatmentType });
+    candidates.push(...rows.map(row => ({ resourceType: "treatmentCenter" as const, resourceId: row.id, name: row.name, capability, geography: classifyResourceGeography({ ...row, address: [row.address, row.city, row.zipCode].filter(Boolean).join(", ") }), verified: isDatabaseTrue(row.isVerified), description: row.description ?? undefined, phone: safePhone(row.phone), address: row.address ?? row.city ?? undefined, website: row.website ?? undefined })));
   }
-
-  if (goal.category === "employment" || goal.category === "income") {
-    const global = await db.globalSearch(query, 10);
-    candidates.push(
-      ...global.jobs.slice(0, 10).map((j: any) => ({
-        resourceType: "job" as const,
-        resourceId: j.id,
-        name: `${j.title} at ${j.company}`,
-        description: j.location ?? undefined,
-      }))
-    );
-  }
-
-  // Dedupe by (type, id) since general + category-specific searches can overlap.
   const seen = new Set<string>();
-  return candidates.filter(c => {
-    const key = `${c.resourceType}:${c.resourceId}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  return candidates.filter(candidate => { const key = `${candidate.resourceType}:${candidate.resourceId}`; if (seen.has(key)) return false; seen.add(key); return true; });
 }
 
-/**
- * Phase 1: hard eligibility screening. No-op for the vertical slice —
- * every candidate passes through untouched. Barrier/preference-aware
- * exclusion (women-only vs. male client, no-pets vs. has a pet, etc.)
- * lands here once the intelligence-layer phase begins.
- */
-function screenEligibility(candidates: ResourceCandidate[], _profile: NeedsProfile): ResourceCandidate[] {
-  return candidates;
-}
-
-/**
- * Phase 2: relevance ranking + deterministic "why selected" rationale.
- * Keeps the search functions' own relevance ordering and just caps the count.
- */
-function rankRelevance(candidates: ResourceCandidate[], goal: CarePlanGoal): ResourceRecommendation[] {
-  return candidates.slice(0, RESOURCE_LIMIT).map(c => ({
-    ...c,
-    rationale: `Matches your "${goal.title}" goal (${goal.category.replace(/_/g, " ")}).`,
-  }));
-}
-
-async function getGoalAndProfile(
-  goalId: number
-): Promise<{ goal: CarePlanGoal; profile: NeedsProfile } | null> {
+async function getGoalAndProfile(goalId: number): Promise<{ goal: CarePlanGoal; profile: NeedsProfile } | null> {
   const database = await db.getDb();
   if (!database) throw new Error("Database not available");
-
   const [goal] = await database.select().from(carePlanGoals).where(eq(carePlanGoals.id, goalId)).limit(1);
   if (!goal) return null;
-
   const [plan] = await database.select().from(carePlans).where(eq(carePlans.id, goal.carePlanId)).limit(1);
   if (!plan) return null;
-
-  const [assessment] = await database
-    .select()
-    .from(needsAssessments)
-    .where(eq(needsAssessments.id, plan.assessmentId))
-    .limit(1);
-
-  let profile: NeedsProfile = { needs: [], barriers: [], strengths: [], preferences: [], risks: [], existingConnections: [] };
-  if (assessment?.needsProfile) {
-    try {
-      profile = JSON.parse(assessment.needsProfile);
-    } catch {
-      // keep empty profile
-    }
-  }
-
-  return { goal, profile };
+  const [assessment] = await database.select().from(needsAssessments).where(eq(needsAssessments.id, plan.assessmentId)).limit(1);
+  const empty: NeedsProfile = { needs: [], barriers: [], strengths: [], preferences: [], risks: [], existingConnections: [] };
+  if (!assessment?.needsProfile) return { goal, profile: empty };
+  try { return { goal, profile: { ...empty, ...JSON.parse(assessment.needsProfile) } }; } catch { return { goal, profile: empty }; }
 }
 
-export async function matchAndPersistForGoal(goalId: number): Promise<{
-  recommended: ResourceRecommendation[];
-  excludedCount: number;
-  screeningNotes: string;
-}> {
+export async function matchAndPersistForGoal(goalId: number) {
   const database = await db.getDb();
   if (!database) throw new Error("Database not available");
-
   const context = await getGoalAndProfile(goalId);
   if (!context) throw new Error("Goal not found");
-
+  const capability = inferGoalCapability(context.goal);
   const candidates = await searchCandidates(context.goal);
-  const survivors = screenEligibility(candidates, context.profile);
-  const recommended = rankRelevance(survivors, context.goal);
-  const excludedCount = candidates.length - survivors.length;
-
+  const selected = selectGroundedCandidates(candidates, capability, true);
+  const recommended: ResourceRecommendation[] = selected.map(candidate => ({ ...candidate, rationale: candidate.geography === "statewide" ? `Verified statewide ${capability.replace(/_/g, " ")} listing relevant to this goal.` : `Verified Los Angeles-area ${capability.replace(/_/g, " ")} listing relevant to this goal.` }));
   await database.delete(carePlanResourceRecommendations).where(eq(carePlanResourceRecommendations.goalId, goalId));
-
   for (let index = 0; index < recommended.length; index++) {
     const rec = recommended[index];
-    await database.insert(carePlanResourceRecommendations).values({
-      goalId,
-      resourceType: rec.resourceType,
-      resourceId: rec.resourceId,
-      rationale: rec.rationale,
-      sortOrder: index,
-    });
+    await database.insert(carePlanResourceRecommendations).values({ goalId, resourceType: rec.resourceType, resourceId: rec.resourceId, rationale: rec.rationale, sortOrder: index });
   }
-
-  return {
-    recommended,
-    excludedCount,
-    screeningNotes:
-      excludedCount > 0
-        ? `Found ${candidates.length}, excluded ${excludedCount} that don't fit your situation.`
-        : `Found ${candidates.length} matching resources.`,
-  };
+  return { recommended, excludedCount: candidates.length - selected.length, screeningNotes: recommended.length ? `Attached ${recommended.length} verified matching resources.` : "No verified matching resource found yet." };
 }
 
 export async function matchAndPersistForPlan(carePlanId: number): Promise<void> {
   const database = await db.getDb();
   if (!database) throw new Error("Database not available");
-
   const goals = await database.select().from(carePlanGoals).where(eq(carePlanGoals.carePlanId, carePlanId));
-  for (const goal of goals) {
-    await matchAndPersistForGoal(goal.id);
-  }
+  for (const goal of goals) await matchAndPersistForGoal(goal.id);
 }
 
-type HydratedRecommendation = CarePlanResourceRecommendation & {
-  name: string;
-  address?: string;
-  phone?: string;
-};
-
-/**
- * Recommendation rows only store {resourceType, resourceId} — this hydrates
- * display fields (name/address/phone) by looking each one up in its source
- * table, batched per type, rather than denormalizing data that could go stale.
- */
-async function hydrateRecommendations(
-  rows: CarePlanResourceRecommendation[]
-): Promise<HydratedRecommendation[]> {
+type HydratedRecommendation = CarePlanResourceRecommendation & { name: string; address?: string; phone?: string };
+async function hydrateRecommendations(rows: CarePlanResourceRecommendation[]): Promise<HydratedRecommendation[]> {
   const database = await db.getDb();
   if (!database) throw new Error("Database not available");
-
   const idsByType = new Map<string, number[]>();
-  for (const row of rows) {
-    const ids = idsByType.get(row.resourceType) ?? [];
-    ids.push(row.resourceId);
-    idsByType.set(row.resourceType, ids);
-  }
-
+  for (const row of rows) idsByType.set(row.resourceType, [...(idsByType.get(row.resourceType) ?? []), row.resourceId]);
   const details = new Map<string, { name: string; address?: string; phone?: string }>();
-
-  const resourceIds = idsByType.get("resource");
-  if (resourceIds && resourceIds.length > 0) {
-    const resourceRows = await database.select().from(resources).where(inArray(resources.id, resourceIds));
-    for (const r of resourceRows) {
-      details.set(`resource:${r.id}`, { name: r.name, address: r.address ?? undefined, phone: r.phone ?? undefined });
-    }
+  const resourceIds = idsByType.get("resource") ?? [];
+  if (resourceIds.length) {
+    const sourceRows = await database.select().from(resources).where(inArray(resources.id, resourceIds));
+    for (const row of sourceRows) if (isDatabaseTrue(row.isVerified)) details.set(`resource:${row.id}`, { name: row.name, address: row.address ?? undefined, phone: safePhone(row.phone) });
   }
-
-  const centerIds = idsByType.get("treatmentCenter");
-  if (centerIds && centerIds.length > 0) {
-    const centerRows = await database.select().from(treatmentCenters).where(inArray(treatmentCenters.id, centerIds));
-    for (const c of centerRows) {
-      details.set(`treatmentCenter:${c.id}`, { name: c.name, address: c.address ?? undefined, phone: c.phone ?? undefined });
-    }
+  const centerIds = idsByType.get("treatmentCenter") ?? [];
+  if (centerIds.length) {
+    const sourceRows = await database.select().from(treatmentCenters).where(inArray(treatmentCenters.id, centerIds));
+    for (const row of sourceRows) if (isDatabaseTrue(row.isVerified)) details.set(`treatmentCenter:${row.id}`, { name: row.name, address: row.address ?? row.city ?? undefined, phone: safePhone(row.phone) });
   }
-
-  const providerIds = idsByType.get("mediCalProvider");
-  if (providerIds && providerIds.length > 0) {
-    const providerRows = await database.select().from(mediCalProviders).where(inArray(mediCalProviders.id, providerIds));
-    for (const p of providerRows) {
-      details.set(`mediCalProvider:${p.id}`, { name: p.facilityName || p.providerName || "Medi-Cal provider", address: p.address ?? undefined });
-    }
-  }
-
-  const jobIds = idsByType.get("job");
-  if (jobIds && jobIds.length > 0) {
-    const jobRows = await database.select().from(jobs).where(inArray(jobs.id, jobIds));
-    for (const j of jobRows) {
-      details.set(`job:${j.id}`, { name: `${j.title} at ${j.company}`, address: j.location ?? undefined });
-    }
-  }
-
-  return rows.map(row => ({
-    ...row,
-    ...(details.get(`${row.resourceType}:${row.resourceId}`) ?? { name: `${row.resourceType} #${row.resourceId}` }),
-  }));
+  return rows.flatMap(row => { const detail = details.get(`${row.resourceType}:${row.resourceId}`); return detail ? [{ ...row, ...detail }] : []; });
 }
 
 export async function getResourceRecommendationsForGoal(goalId: number): Promise<HydratedRecommendation[]> {
   const database = await db.getDb();
   if (!database) throw new Error("Database not available");
-
-  const rows = await database
-    .select()
-    .from(carePlanResourceRecommendations)
-    .where(eq(carePlanResourceRecommendations.goalId, goalId))
-    .orderBy(carePlanResourceRecommendations.sortOrder);
-
-  return await hydrateRecommendations(rows);
+  const rows = await database.select().from(carePlanResourceRecommendations).where(eq(carePlanResourceRecommendations.goalId, goalId)).orderBy(carePlanResourceRecommendations.sortOrder);
+  return hydrateRecommendations(rows);
 }
