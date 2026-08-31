@@ -80,7 +80,7 @@ describe("Treatment Centers", () => {
     expect(centers).toBeDefined();
     expect(Array.isArray(centers)).toBe(true);
     if (centers.length > 0) {
-      expect(centers[0]?.acceptsMediCal).toBe(true);
+      expect(Boolean(centers[0]?.acceptsMediCal)).toBe(true);
     }
   });
 

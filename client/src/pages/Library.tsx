@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import PublicLayout from "@/components/PublicLayout";
+import { formatDate } from "@/lib/dateTime";
 import SectionBlock from "@/components/SectionBlock";
 
 const CATEGORIES = [
@@ -123,7 +124,7 @@ export default function Library() {
                       <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>{article.viewCount} views</span>
                         <span>•</span>
-                        <span>{new Date(article.createdAt).toLocaleDateString()}</span>
+                        <span>{formatDate(article.createdAt)}</span>
                       </div>
                     </CardContent>
                   </Card>

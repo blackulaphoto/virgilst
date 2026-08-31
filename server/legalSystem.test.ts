@@ -169,7 +169,7 @@ describe("Legal Case Management System", () => {
       });
 
       const updated = await calendar.getCalendarEventById(eventId, testUserId);
-      expect(updated?.isCompleted).toBe(true);
+      expect(Boolean(updated?.isCompleted)).toBe(true);
     });
 
     it("should get upcoming reminders", async () => {

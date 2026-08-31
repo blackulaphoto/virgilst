@@ -8,6 +8,7 @@ import { Users, Eye, MessageCircle, Pin, User, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
 import PublicLayout from "@/components/PublicLayout";
+import { formatDate } from "@/lib/dateTime";
 import SectionBlock from "@/components/SectionBlock";
 
 const CATEGORIES = [
@@ -142,7 +143,7 @@ export default function Forum() {
                               <span>{post.replyCount}</span>
                             </div>
                             <span>•</span>
-                            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                            <span>{formatDate(post.createdAt)}</span>
                           </div>
                         </div>
                       </div>

@@ -43,14 +43,14 @@ export function MapLiveFeed({ onPinClick }: LiveFeedProps) {
   const [commentText, setCommentText] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  const { data: recentActivity, refetch } = trpc.map.recentActivity.useQuery(
+  const { data: recentActivity, refetch } = trpc.mapPins.recentActivity.useQuery(
     { limit: 50 },
     {
       refetchInterval: 10000, // Refresh every 10 seconds for real-time feel
     }
   );
 
-  const addCommentMutation = trpc.map.addComment.useMutation({
+  const addCommentMutation = trpc.mapPins.addComment.useMutation({
     onSuccess: () => {
       setCommentText("");
       setSelectedPinForComment(null);

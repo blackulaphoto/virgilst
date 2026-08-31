@@ -17,7 +17,7 @@ export interface UserProfile {
   location: string | null;
   avatarUrl: string | null;
   role: string;
-  createdAt: Date;
+  createdAt: number;
   stats: {
     postsCreated: number;
     repliesMade: number;
@@ -85,7 +85,7 @@ export async function updateUserProfile(userId: number, input: UpdateProfileInpu
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const updateData: any = {};
+  const updateData: Partial<typeof users.$inferInsert> = {};
 
   if (input.displayName !== undefined) {
     updateData.displayName = input.displayName;
@@ -102,7 +102,7 @@ export async function updateUserProfile(userId: number, input: UpdateProfileInpu
 
   // Mark profile as complete if displayName is set
   if (input.displayName) {
-    updateData.profileComplete = true;
+    updateData.profileComplete = 1;
   }
 
   await db.update(users).set(updateData).where(eq(users.id, userId));

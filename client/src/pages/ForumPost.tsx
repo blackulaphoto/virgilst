@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { useSeo } from "@/lib/seo";
 import PublicLayout from "@/components/PublicLayout";
+import { formatDate, toIsoDate } from "@/lib/dateTime";
 import SectionBlock from "@/components/SectionBlock";
 
 const BASE_URL = "https://www.virgilst.com";
@@ -44,10 +45,10 @@ interface Reply {
   parentReplyId: number | null;
   content: string;
   authorId: number | null;
-  isAnonymous: boolean;
+  isAnonymous: number;
   upvotes: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   authorName: string | null;
   authorDisplayName: string | null;
   authorAvatar: string | null;
@@ -102,7 +103,7 @@ function ReplyItem({ reply, onReply }: { reply: Reply; onReply: (replyId: number
             <span>User</span>
           )}
           <span>•</span>
-          <span>{new Date(reply.createdAt).toLocaleDateString()}</span>
+          <span>{formatDate(reply.createdAt)}</span>
         </div>
         <div className="mb-3 text-sm text-card-foreground">
           <Streamdown>{reply.content}</Streamdown>
@@ -242,8 +243,8 @@ export default function ForumPost() {
             headline: post.title,
             articleBody: postDescription,
             url: canonical,
-            datePublished: new Date(post.createdAt).toISOString(),
-            dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+            datePublished: toIsoDate(post.createdAt),
+            dateModified: toIsoDate(post.updatedAt || post.createdAt),
             author: {
               "@type": "Person",
               name: post.isAnonymous ? "Anonymous" : post.authorDisplayName || post.authorName || "Community Member",
@@ -343,7 +344,7 @@ export default function ForumPost() {
                     </div>
                   </Link>
                   <span>•</span>
-                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                  <span>{formatDate(post.createdAt)}</span>
                 </div>
               )}
 
@@ -373,7 +374,7 @@ export default function ForumPost() {
                   <span>{post.replyCount}</span>
                 </div>
                 <span>•</span>
-                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                <span>{formatDate(post.createdAt)}</span>
               </div>
             </CardContent>
           </Card>

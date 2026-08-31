@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { formatDate } from "@/lib/dateTime";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -142,7 +143,7 @@ export default function Profile() {
                   </Button>
                 ))}
 
-                <p className="mt-4 text-xs text-muted-foreground">Member since {new Date(profile.createdAt).toLocaleDateString()}</p>
+                <p className="mt-4 text-xs text-muted-foreground">Member since {formatDate(profile.createdAt)}</p>
               </div>
             </Card>
 

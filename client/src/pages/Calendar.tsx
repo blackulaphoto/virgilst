@@ -27,7 +27,9 @@ import { getLoginUrl } from "@/const";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 
-const eventTypeColors = {
+type CalendarEventType = "court_date" | "deadline" | "appointment" | "reminder" | "other";
+
+const eventTypeColors: Record<CalendarEventType, string> = {
   court_date: "bg-red-500",
   deadline: "bg-orange-500",
   appointment: "bg-blue-500",
@@ -35,7 +37,7 @@ const eventTypeColors = {
   other: "bg-gray-500",
 };
 
-const eventTypeLabels = {
+const eventTypeLabels: Record<CalendarEventType, string> = {
   court_date: "Court Date",
   deadline: "Deadline",
   appointment: "Appointment",
@@ -169,7 +171,7 @@ export default function Calendar() {
                 <div className="flex items-start gap-4">
                   <div
                     className={`w-3 h-3 rounded-full mt-1.5 ${
-                      eventTypeColors[event.eventType]
+                      eventTypeColors[event.eventType as CalendarEventType] ?? eventTypeColors.other
                     }`}
                   />
                   <div className="flex-1">
@@ -177,7 +179,7 @@ export default function Calendar() {
                       <div>
                         <h3 className="font-semibold text-lg">{event.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {eventTypeLabels[event.eventType]}
+                          {eventTypeLabels[event.eventType as CalendarEventType] ?? eventTypeLabels.other}
                           {event.caseTitle && ` • ${event.caseTitle}`}
                         </p>
                       </div>
@@ -197,7 +199,7 @@ export default function Calendar() {
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {new Date(event.startTime).toLocaleString()}
+                        {new Date(event.startTime * 1000).toLocaleString()}
                       </div>
                       {event.location && (
                         <div className="flex items-center gap-1">

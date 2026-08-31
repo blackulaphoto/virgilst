@@ -9,6 +9,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { useSeo } from "@/lib/seo";
 import PublicLayout from "@/components/PublicLayout";
+import { formatDate, toIsoDate } from "@/lib/dateTime";
 import SectionBlock from "@/components/SectionBlock";
 
 const BASE_URL = "https://www.virgilst.com";
@@ -97,8 +98,8 @@ export default function ArticleDetail() {
             headline: article.title,
             description,
             url: canonical,
-            datePublished: new Date(article.createdAt).toISOString(),
-            dateModified: new Date(article.updatedAt || article.createdAt).toISOString(),
+            datePublished: toIsoDate(article.createdAt),
+            dateModified: toIsoDate(article.updatedAt || article.createdAt),
             author: { "@type": "Organization", name: "Virgil St" },
             publisher: { "@type": "Organization", name: "Virgil St" },
           },
@@ -206,7 +207,7 @@ export default function ArticleDetail() {
               <span>•</span>
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(article.createdAt).toLocaleDateString()}</span>
+                <span>{formatDate(article.createdAt)}</span>
               </div>
             </div>
           </div>

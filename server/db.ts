@@ -53,6 +53,7 @@ import {
   type InsertChatConversation,
   type InsertChatMessage,
 } from "../drizzle/schema";
+import { sortResourcesForLosAngeles } from "../shared/resourceGeography";
 import { ENV } from './_core/env';
 import { scrapeWebsiteMetadata } from "./webScraper";
 import {
@@ -558,7 +559,7 @@ export async function getResources(filters?: {
     query = query.offset(filters.offset) as any;
   }
 
-  return await query;
+  return sortResourcesForLosAngeles(await query);
 }
 
 export async function createResource(resource: InsertResource) {
@@ -2705,13 +2706,9 @@ export async function getUserJobApplications(userId: number, status?: string) {
 
   const { jobApplications } = await import("../drizzle/schema");
 
-  let query = db.select().from(jobApplications).where(eq(jobApplications.userId, userId));
-
-  if (status) {
-    query = query.where(eq(jobApplications.status, status)) as any;
-  }
-
-  return await query.orderBy(desc(jobApplications.appliedDate));
+  const conditions = [eq(jobApplications.userId, userId)];
+  if (status) conditions.push(eq(jobApplications.status, status));
+  return await db.select().from(jobApplications).where(and(...conditions)).orderBy(desc(jobApplications.appliedDate));
 }
 
 /**

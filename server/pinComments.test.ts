@@ -174,7 +174,7 @@ describe("Pin Comments", () => {
         const comments = await caller.mapPins.comments({ pinId });
         const anonymousComment = comments.find((c) => c.content === "Anonymous test");
 
-        expect(anonymousComment?.isAnonymous).toBe(true);
+        expect(Boolean(anonymousComment?.isAnonymous)).toBe(true);
       }
     });
   });

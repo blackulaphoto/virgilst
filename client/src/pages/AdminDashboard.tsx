@@ -708,11 +708,14 @@ export default function AdminDashboard() {
                             size="sm"
                             onClick={() => {
                               setEditingVideo(video);
+                              const validCategory = ["how_to_guides", "legal_help", "recovery_motivation", "street_hacks", "mental_health"].includes(video.category)
+                                ? video.category as typeof videoForm.category
+                                : "";
                               setVideoForm({
                                 title: video.title,
                                 description: video.description || "",
                                 youtubeId: video.youtubeId,
-                                category: video.category,
+                                category: validCategory,
                               });
                             }}
                           >

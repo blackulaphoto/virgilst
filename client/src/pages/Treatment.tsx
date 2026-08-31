@@ -11,6 +11,7 @@ import { Link, useParams } from "wouter";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, getWebsitePreviewImage, normalizeExternalUrl } from "@/lib/externalMedia";
+import { formatTreatmentPrice, shouldShowInsuranceClaim } from "@shared/treatmentPresentation";
 
 export default function Treatment() {
   const { user } = useAuth();
@@ -258,12 +259,10 @@ export default function Treatment() {
             <a href={`tel:${center.phone}`} className="hover:text-primary">{center.phone}</a>
           </div>
         )}
-        {center.priceRange && (
-          <div className="flex items-center gap-2 text-foreground">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span>{center.priceRange === "Free" ? "Free" : `${center.priceRange}/month`}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-foreground">
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <span>{formatTreatmentPrice(center.priceRange)}</span>
+        </div>
         {(() => {
           const websiteUrl = normalizeExternalUrl(center.website);
           const faviconUrl = center.websiteFavicon || getFaviconUrl(center.website);
@@ -291,10 +290,11 @@ export default function Treatment() {
           );
         })()}
         <div className="flex flex-wrap gap-2 border-t border-border pt-2">
-          {center.acceptsMediCal && <Badge className="bg-primary/15 text-primary">Medi-Cal</Badge>}
-          {center.acceptsMedicare && <Badge variant="outline">Medicare</Badge>}
-          {center.acceptsPrivateInsurance && <Badge variant="outline">Private Insurance</Badge>}
-          {center.acceptsRBH && <Badge variant="outline">RBH</Badge>}
+          {shouldShowInsuranceClaim(center.acceptsMediCal, center.isVerified) && <Badge className="bg-primary/15 text-primary">Medi-Cal</Badge>}
+          {shouldShowInsuranceClaim(center.acceptsMedicare, center.isVerified) && <Badge variant="outline">Medicare</Badge>}
+          {shouldShowInsuranceClaim(center.acceptsPrivateInsurance, center.isVerified) && <Badge variant="outline">Private Insurance</Badge>}
+          {shouldShowInsuranceClaim(center.acceptsRBH, center.isVerified) && <Badge variant="outline">RBH</Badge>}
+          {!center.isVerified && <span className="text-xs text-muted-foreground">Contact the provider to verify insurance.</span>}
         </div>
       </CardContent>
     </Card>

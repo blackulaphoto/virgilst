@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Marker, Popup } from "react-leaflet";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { formatDate } from "@/lib/dateTime";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,12 +62,12 @@ interface MapPin {
   title: string;
   description: string | null;
   type: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   notes: string | null;
   submittedBy: number | null;
-  isApproved: boolean;
-  createdAt: Date;
+  isApproved: number;
+  createdAt: number;
   commentCount?: number;
   submitter?: {
     id: number;
@@ -80,8 +81,8 @@ interface PinComment {
   pinId: number;
   authorId: number | null;
   content: string;
-  isAnonymous: boolean;
-  createdAt: Date;
+  isAnonymous: number;
+  createdAt: number;
   author?: {
     id: number;
     displayName: string | null;
@@ -398,7 +399,7 @@ export default function Map() {
             return (
               <Marker
                 key={pin.id}
-                position={[parseFloat(pin.latitude), parseFloat(pin.longitude)]}
+                position={[pin.latitude, pin.longitude]}
                 icon={icon}
                 eventHandlers={{
                   click: () => {
@@ -600,7 +601,7 @@ export default function Map() {
                     Submitted by {selectedPin.submitter?.displayName || "Community Member"}
                   </span>
                   <span>•</span>
-                  <span>{new Date(selectedPin.createdAt).toLocaleDateString()}</span>
+                  <span>{formatDate(selectedPin.createdAt)}</span>
                 </div>
               </div>
 
@@ -683,7 +684,7 @@ export default function Map() {
                           </span>
                           <span className="text-xs text-muted-foreground">•</span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(comment.createdAt).toLocaleDateString()}
+                            {formatDate(comment.createdAt)}
                           </span>
                         </div>
                         <p className="text-sm text-card-foreground">{comment.content}</p>
