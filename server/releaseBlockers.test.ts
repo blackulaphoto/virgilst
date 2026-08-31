@@ -4,7 +4,7 @@ import path from "node:path";
 import { formatDate, toIsoDate, toValidDate } from "../client/src/lib/dateTime";
 import { classifyResourceGeography, sortResourcesForLosAngeles } from "../shared/resourceGeography";
 import { auditTreatmentRecords, summarizePrivateInsurance } from "../shared/resourceQuality";
-import { formatTreatmentPrice, normalizeTreatmentPrice, shouldShowInsuranceClaim } from "../shared/treatmentPresentation";
+import { formatTreatmentPrice, isDatabaseTrue, normalizeTreatmentPrice, shouldShowInsuranceClaim } from "../shared/treatmentPresentation";
 
 describe("release blocker regressions", () => {
   it("does not restore unverified personalized housing claims", () => {
@@ -24,6 +24,8 @@ describe("release blocker regressions", () => {
     expect(formatTreatmentPrice(null)).toBe("Contact for pricing");
     expect(shouldShowInsuranceClaim(1, 0)).toBe(false);
     expect(shouldShowInsuranceClaim(1, 1)).toBe(true);
+    expect(isDatabaseTrue("0")).toBe(false);
+    expect(shouldShowInsuranceClaim("1", "0")).toBe(false);
   });
 
   it("flags the old treatment corruption without rewriting records", () => {

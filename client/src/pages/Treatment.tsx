@@ -11,7 +11,7 @@ import { Link, useParams } from "wouter";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, getWebsitePreviewImage, normalizeExternalUrl } from "@/lib/externalMedia";
-import { formatTreatmentPrice, shouldShowInsuranceClaim } from "@shared/treatmentPresentation";
+import { formatTreatmentPrice, isDatabaseTrue, shouldShowInsuranceClaim } from "@shared/treatmentPresentation";
 
 export default function Treatment() {
   const { user } = useAuth();
@@ -207,13 +207,13 @@ export default function Treatment() {
           <div className="flex-1">
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <CardTitle className="text-xl">{center.name}</CardTitle>
-              {center.isVerified && (
+              {isDatabaseTrue(center.isVerified) && (
                 <Badge className="bg-primary/15 text-primary border-primary/40">
                   <CheckCircle2 className="mr-1 h-3 w-3" />
                   Verified
                 </Badge>
               )}
-              {center.isJointCommission && <Badge variant="outline">Joint Commission</Badge>}
+              {isDatabaseTrue(center.isJointCommission) && <Badge variant="outline">Joint Commission</Badge>}
               {center.isFeatured === 1 && <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40">Featured</Badge>}
             </div>
             <div className="mb-2 flex flex-wrap gap-2">
@@ -222,7 +222,7 @@ export default function Treatment() {
                 <Users className="mr-1 h-3 w-3" />
                 {populationLabels[center.servesPopulation]}
               </Badge>
-              {center.acceptsCouples && <Badge variant="outline">Accepts Couples</Badge>}
+              {isDatabaseTrue(center.acceptsCouples) && <Badge variant="outline">Accepts Couples</Badge>}
             </div>
           </div>
           {isAdmin ? (
@@ -294,7 +294,7 @@ export default function Treatment() {
           {shouldShowInsuranceClaim(center.acceptsMedicare, center.isVerified) && <Badge variant="outline">Medicare</Badge>}
           {shouldShowInsuranceClaim(center.acceptsPrivateInsurance, center.isVerified) && <Badge variant="outline">Private Insurance</Badge>}
           {shouldShowInsuranceClaim(center.acceptsRBH, center.isVerified) && <Badge variant="outline">RBH</Badge>}
-          {!center.isVerified && <span className="text-xs text-muted-foreground">Contact the provider to verify insurance.</span>}
+          {!isDatabaseTrue(center.isVerified) && <span className="text-xs text-muted-foreground">Contact the provider to verify insurance.</span>}
         </div>
       </CardContent>
     </Card>

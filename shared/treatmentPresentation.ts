@@ -20,6 +20,10 @@ export function formatTreatmentPrice(value: string | number | null | undefined):
   return normalized === "Free" ? normalized : `${normalized}/month`;
 }
 
-export function shouldShowInsuranceClaim(value: number | boolean | null | undefined, isVerified: number | boolean | null | undefined): boolean {
-  return Boolean(value) && Boolean(isVerified);
+export function isDatabaseTrue(value: number | string | boolean | null | undefined): boolean {
+  return value === true || value === 1 || value === "1";
+}
+
+export function shouldShowInsuranceClaim(value: number | string | boolean | null | undefined, isVerified: number | string | boolean | null | undefined): boolean {
+  return isDatabaseTrue(value) && isDatabaseTrue(isVerified);
 }
