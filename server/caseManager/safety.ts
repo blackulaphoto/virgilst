@@ -43,6 +43,26 @@ export function deterministicActionGuidance(message: string): DeterministicGuida
   if (crisis) return crisis;
   const text = message.toLowerCase();
 
+  if (/\b(residential treatment|sober housing|sober living)\b/.test(text)) {
+    return {
+      category: "substance_use",
+      needId: "recovery_continuity",
+      priorityTier: "high",
+      response:
+        "Separate this into four tracks: (1) confirm a sober-living placement and price directly with an LA-area provider—do not assume a bed or insurance coverage; (2) ask your discharge team or Medi-Cal plan for an outpatient assessment; (3) use Virgil's meetings directory for a meeting today; and (4) start or update Medi-Cal through BenefitsCal.com or LA County DPSS at 866-613-3777. If you may lose a safe place tonight, call 211 LA now. What LA neighborhood are you trying to stay near?",
+    };
+  }
+
+  if (/\b(no income|unemployed|no money)\b/.test(text) && /\b(no health insurance|uninsured|medi[- ]?cal)\b/.test(text) && /\b(no id|lost.*id|missing.*id)\b/.test(text)) {
+    return {
+      category: "benefits",
+      needId: "la_new_arrival_benefits",
+      priorityTier: "high",
+      response:
+        "First, start one LA County benefits application through BenefitsCal.com or by calling DPSS at 866-613-3777; ask to be screened for General Relief, CalFresh, and Medi-Cal. Do not wait for replacement ID before filing—submit what you have and ask DPSS which alternative identity documents it will accept. In parallel, begin the California DMV replacement-ID process and tell DPSS about the document barrier. If you need food or a safe place tonight, call 211 LA at 2-1-1. Do you have any identity document, photo, case number, or mail with your name on it?",
+    };
+  }
+
   if (/\b(denied|rejected)\b.*\bcalfresh\b|\bcalfresh\b.*\b(denied|rejected)\b/.test(text)) {
     return {
       category: "benefits",
@@ -92,16 +112,6 @@ export function deterministicActionGuidance(message: string): DeterministicGuida
       priorityTier: "immediate",
       response:
         "Call 211 LA by dialing 2-1-1 and ask for a currently open day center near you with meals, showers, and phone charging. Hours and availability change, so confirm before traveling. If your battery is low, ask 211 to prioritize the closest option and any transportation help. What neighborhood or nearest cross street are you in?",
-    };
-  }
-
-  if (/\b(residential treatment|sober housing|sober living)\b/.test(text)) {
-    return {
-      category: "substance_use",
-      needId: "recovery_continuity",
-      priorityTier: "high",
-      response:
-        "Separate this into four tracks: (1) confirm a sober-living placement and price directly with an LA-area provider—do not assume a bed or insurance coverage; (2) ask your discharge team or Medi-Cal plan for an outpatient assessment; (3) use Virgil's meetings directory for a meeting today; and (4) start or update Medi-Cal through BenefitsCal.com or LA County DPSS at 866-613-3777. If you may lose a safe place tonight, call 211 LA now. What LA neighborhood are you trying to stay near?",
     };
   }
 

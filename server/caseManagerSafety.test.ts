@@ -56,6 +56,12 @@ describe("AI Case Manager safety and grounding", () => {
     const tonight = deterministicActionGuidance("I'm homeless tonight, hungry, and my phone battery is low")?.response ?? "";
     expect(tonight).toMatch(/Tonight:/);
     expect(tonight).toMatch(/Tomorrow:/);
+    const newArrival = deterministicActionGuidance("I just got to LA, I have no income, no health insurance, and no ID. What should I do first?")?.response ?? "";
+    expect(newArrival).toMatch(/General Relief.*CalFresh.*Medi-Cal/);
+    expect(newArrival).toMatch(/Do not wait for replacement ID/i);
+    const recovery = deterministicActionGuidance("I finished residential treatment yesterday. I need sober housing, outpatient treatment, meetings, and help getting Medi-Cal.")?.response ?? "";
+    expect(recovery).toMatch(/four tracks/i);
+    expect(recovery).toMatch(/sober-living.*outpatient.*meetings.*Medi-Cal/i);
   });
 
   it("rejects malformed contacts and never creates a phone value", () => {
