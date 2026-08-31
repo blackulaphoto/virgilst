@@ -45,7 +45,7 @@ describe("Map Pins", () => {
 
       expect(Array.isArray(pins)).toBe(true);
       pins.forEach((pin) => {
-        expect(pin.isApproved).toBe(true);
+        expect(Boolean(pin.isApproved)).toBe(true);
       });
     });
 
@@ -116,7 +116,7 @@ describe("Map Pins", () => {
 
       expect(Array.isArray(pins)).toBe(true);
       pins.forEach((pin) => {
-        expect(pin.isApproved).toBe(false);
+        expect(Boolean(pin.isApproved)).toBe(false);
       });
     });
 

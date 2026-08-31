@@ -27,7 +27,7 @@ describe("Articles Router", () => {
     expect(Array.isArray(articles)).toBe(true);
     // Should only return published articles
     articles.forEach((article) => {
-      expect(article.isPublished).toBe(true);
+      expect(Boolean(article.isPublished)).toBe(true);
     });
   });
 
@@ -50,7 +50,7 @@ describe("Articles Router", () => {
 
     if (article) {
       expect(article.slug).toBe("how-to-apply-for-general-relief");
-      expect(article.isPublished).toBe(true);
+      expect(Boolean(article.isPublished)).toBe(true);
     }
   });
 });
@@ -158,7 +158,7 @@ describe("Map Pins Router", () => {
     const pins = await caller.mapPins.list({});
 
     pins.forEach((pin) => {
-      expect(pin.isApproved).toBe(true);
+      expect(Boolean(pin.isApproved)).toBe(true);
     });
   });
 

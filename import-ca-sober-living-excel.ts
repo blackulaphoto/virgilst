@@ -4,6 +4,7 @@ import { createClient } from "@libsql/client";
 import { treatmentCenters } from "./drizzle/schema";
 import XLSX from "xlsx";
 import * as fs from "fs";
+import { normalizeTreatmentPrice } from "./shared/treatmentPresentation";
 
 const client = createClient({
   url: "file:./virgil_st_dev.db"
@@ -11,9 +12,8 @@ const client = createClient({
 
 const db = drizzle(client);
 
-function parsePrice(priceStr: string): string {
-  if (!priceStr) return "Varies";
-  return priceStr.toString().trim();
+export function parsePrice(priceValue: unknown): string | null {
+  return normalizeTreatmentPrice(priceValue as string | number | null | undefined);
 }
 
 function parseGender(gender: string, serves: string): string {
@@ -86,7 +86,7 @@ async function importExcelData() {
         acceptsCouples: acceptsCouples,
         acceptsMediCal: 0, // Not specified in this data
         acceptsMedicare: 0,
-        acceptsPrivateInsurance: 1, // Assume private pay
+        acceptsPrivateInsurance: 0, // The source lists prices, not insurance acceptance.
         acceptsRBH: 0,
         priceRange: price,
         servicesOffered: JSON.stringify(["Sober living", serves]),

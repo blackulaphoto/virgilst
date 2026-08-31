@@ -41,15 +41,15 @@ export async function createLegalCase(input: CreateLegalCaseInput) {
     caseNumber: input.caseNumber,
     targetCompletionDate: input.targetCompletionDate ? Math.floor(input.targetCompletionDate.getTime() / 1000) : undefined,
     startedAt: Math.floor(Date.now() / 1000),
-  });
+  }).returning({ id: legalCases.id });
 
   // Initialize default milestones based on case type
-  await initializeCaseMilestones(legalCase.insertId, input.caseType);
+  await initializeCaseMilestones(legalCase.id, input.caseType);
   
   // Initialize default documents based on case type
-  await initializeCaseDocuments(legalCase.insertId, input.caseType);
+  await initializeCaseDocuments(legalCase.id, input.caseType);
 
-  return legalCase.insertId;
+  return legalCase.id;
 }
 
 /**
@@ -399,9 +399,9 @@ export async function updateCaseDocument(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const updateData: any = { ...input };
+  const updateData: Partial<typeof caseDocuments.$inferInsert> = { ...input };
   if (input.fileUrl) {
-    updateData.uploadedAt = new Date();
+    updateData.uploadedAt = Math.floor(Date.now() / 1000);
   }
 
   await db
@@ -423,9 +423,9 @@ export async function updateCaseMilestone(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const updateData: any = { ...input };
+  const updateData: Partial<typeof caseMilestones.$inferInsert> = { ...input };
   if (input.status === "completed") {
-    updateData.completedAt = new Date();
+    updateData.completedAt = Math.floor(Date.now() / 1000);
   }
 
   await db

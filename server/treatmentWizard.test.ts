@@ -31,7 +31,7 @@ describe("treatmentCenters.getRecommendations", () => {
 
     // Verify all results match the criteria
     recommendations.forEach((facility) => {
-      expect(facility.acceptsMediCal).toBe(true);
+      expect(Boolean(facility.acceptsMediCal)).toBe(true);
       expect(facility.type).toBe("residential");
     });
   });
@@ -58,7 +58,7 @@ describe("treatmentCenters.getRecommendations", () => {
 
     expect(recommendations).toBeDefined();
     recommendations.forEach((facility) => {
-      expect(facility.acceptsCouples).toBe(true);
+      expect(Boolean(facility.acceptsCouples)).toBe(true);
     });
   });
 

@@ -29,6 +29,8 @@ export interface UpdateCalendarEventInput {
   notes?: string;
 }
 
+const epochSeconds = (value: Date | undefined) => value ? Math.floor(value.getTime() / 1000) : undefined;
+
 /**
  * Create a new calendar event
  */
@@ -42,15 +44,15 @@ export async function createCalendarEvent(input: CreateCalendarEventInput) {
     title: input.title,
     description: input.description,
     eventType: input.eventType,
-    startTime: input.startTime,
-    endTime: input.endTime,
+    startTime: epochSeconds(input.startTime)!,
+    endTime: epochSeconds(input.endTime),
     location: input.location,
-    reminderEnabled: input.reminderEnabled ?? true,
-    reminderTime: input.reminderTime,
+    reminderEnabled: input.reminderEnabled === false ? 0 : 1,
+    reminderTime: epochSeconds(input.reminderTime),
     notes: input.notes,
-  });
+  }).returning();
 
-  return event;
+  return { ...event, insertId: event.id };
 }
 
 /**
@@ -68,12 +70,12 @@ export async function getCalendarEvents(
   const conditions = [eq(calendarEvents.userId, userId)];
   
   if (startDate && endDate) {
-    conditions.push(gte(calendarEvents.startTime, startDate));
-    conditions.push(lte(calendarEvents.startTime, endDate));
+    conditions.push(gte(calendarEvents.startTime, epochSeconds(startDate)!));
+    conditions.push(lte(calendarEvents.startTime, epochSeconds(endDate)!));
   } else if (startDate) {
-    conditions.push(gte(calendarEvents.startTime, startDate));
+    conditions.push(gte(calendarEvents.startTime, epochSeconds(startDate)!));
   } else if (endDate) {
-    conditions.push(lte(calendarEvents.startTime, endDate));
+    conditions.push(lte(calendarEvents.startTime, epochSeconds(endDate)!));
   }
 
   const events = await db
@@ -136,9 +138,17 @@ export async function updateCalendarEvent(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const updates = {
+    ...input,
+    startTime: epochSeconds(input.startTime),
+    endTime: epochSeconds(input.endTime),
+    reminderTime: epochSeconds(input.reminderTime),
+    reminderEnabled: input.reminderEnabled === undefined ? undefined : input.reminderEnabled ? 1 : 0,
+    isCompleted: input.isCompleted === undefined ? undefined : input.isCompleted ? 1 : 0,
+  };
   await db
     .update(calendarEvents)
-    .set(input)
+    .set(updates)
     .where(
       and(
         eq(calendarEvents.id, eventId),
@@ -180,10 +190,10 @@ export async function getUpcomingReminders(userId: number) {
     .where(
       and(
         eq(calendarEvents.userId, userId),
-        eq(calendarEvents.reminderEnabled, true),
-        eq(calendarEvents.reminderSent, false),
-        gte(calendarEvents.startTime, now),
-        lte(calendarEvents.startTime, next24Hours)
+        eq(calendarEvents.reminderEnabled, 1),
+        eq(calendarEvents.reminderSent, 0),
+        gte(calendarEvents.startTime, epochSeconds(now)!),
+        lte(calendarEvents.startTime, epochSeconds(next24Hours)!)
       )
     )
     .orderBy(calendarEvents.startTime);
@@ -200,6 +210,6 @@ export async function markReminderSent(eventId: number) {
 
   await db
     .update(calendarEvents)
-    .set({ reminderSent: true })
+    .set({ reminderSent: 1 })
     .where(eq(calendarEvents.id, eventId));
 }

@@ -125,7 +125,7 @@ export async function ingestKnowledgeUpload(input: KnowledgeUploadInput): Promis
   const chunks = chunkText(trimmedContent, 500);
   const category = input.category ?? categorizeKnowledgeFilename(input.filename);
 
-  const insertResult = await db.insert(knowledgeDocuments).values({
+  const [insertResult] = await db.insert(knowledgeDocuments).values({
     title,
     filename: input.filename,
     filepath: `uploaded://${input.filename}`,
@@ -134,8 +134,8 @@ export async function ingestKnowledgeUpload(input: KnowledgeUploadInput): Promis
     summary: trimmedContent.slice(0, 500),
     wordCount: countWords(trimmedContent),
     chunkCount: 0,
-  });
-  const documentId = Number(insertResult[0].insertId);
+  }).returning({ id: knowledgeDocuments.id });
+  const documentId = insertResult.id;
 
   let chunksWithoutEmbeddings = 0;
   for (let i = 0; i < chunks.length; i++) {

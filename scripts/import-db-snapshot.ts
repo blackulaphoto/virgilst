@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import postgres from "postgres";
+import XLSX from "xlsx";
+import { normalizeTreatmentPrice } from "../shared/treatmentPresentation";
 
 type SnapshotTable = {
   name: string;
@@ -78,6 +80,21 @@ function normalizeValueForInsert(column: string, value: unknown): unknown {
   return value;
 }
 
+function repairKnownSoberLivingImportCorruption(snapshot: SnapshotFile) {
+  const sourcePath = path.resolve(process.cwd(), "CA_Sober_Living_Directory.xlsx");
+  const workbook = XLSX.readFile(sourcePath);
+  const sourceRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(workbook.Sheets[workbook.SheetNames[0]]);
+  const prices = new Map(sourceRows.map(row => [String(row.Name ?? "").trim(), normalizeTreatmentPrice(row.Price as string | number | null)]));
+  const table = snapshot.tables.find(entry => entry.name === "treatment_centers");
+  if (!table) return;
+  for (const row of table.rows) {
+    if (row.type !== "sober_living") continue;
+    const name = String(row.name ?? "").trim();
+    if (prices.has(name)) row.priceRange = prices.get(name) ?? null;
+    if (!row.isVerified) row.acceptsPrivateInsurance = 0;
+  }
+}
+
 async function tableExists(client: ReturnType<typeof postgres>, tableName: string) {
   const result = await client`SELECT 1 FROM information_schema.tables WHERE table_name = ${tableName} LIMIT 1`;
   return result.length > 0;
@@ -135,6 +152,7 @@ async function repairSerialSequences(client: ReturnType<typeof postgres>) {
 async function main() {
   const raw = await fs.readFile(snapshotPath, "utf8");
   const snapshot = JSON.parse(raw) as SnapshotFile;
+  repairKnownSoberLivingImportCorruption(snapshot);
 
   if (snapshot.version !== 1) {
     throw new Error(`Unsupported snapshot version: ${snapshot.version}`);

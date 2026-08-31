@@ -30,6 +30,7 @@ import { trpc } from "@/lib/trpc";
 import PublicLayout from "@/components/PublicLayout";
 import SectionBlock from "@/components/SectionBlock";
 import { getDisplayDomain, getFaviconUrl, getWebsitePreviewImage, normalizeExternalUrl } from "@/lib/externalMedia";
+import { resourceGeographyLabel } from "@shared/resourceGeography";
 
 const resourceCategories = [
   {
@@ -251,7 +252,12 @@ export default function Resources() {
                         <CardContent className="p-5">
                           <div className="mb-3 flex items-start justify-between gap-3">
                             <h3 className="text-lg font-bold text-foreground">{resource.name}</h3>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {resourceGeographyLabel(resource) ? (
+                                <Badge variant="outline" className="text-xs">
+                                  {resourceGeographyLabel(resource)}
+                                </Badge>
+                              ) : null}
                               {resource.isVerified === 1 ? (
                                 <Badge variant="outline" className="border-primary/60 text-primary">
                                   Verified
@@ -416,8 +422,13 @@ export default function Resources() {
                   <CardHeader>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <CardTitle className="mb-2 flex items-center gap-2 text-foreground">
+                          <CardTitle className="mb-2 flex flex-wrap items-center gap-2 text-foreground">
                             {resource.name}
+                            {resourceGeographyLabel(resource) ? (
+                              <Badge variant="outline" className="text-xs font-normal">
+                                {resourceGeographyLabel(resource)}
+                              </Badge>
+                            ) : null}
                             {resource.isVerified === 1 && (
                               <Badge variant="outline" className="border-primary/60 text-primary text-xs">
                                 Verified
