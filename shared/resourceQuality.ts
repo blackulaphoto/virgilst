@@ -1,4 +1,4 @@
-import { normalizeTreatmentPrice } from "./treatmentPresentation";
+import { isDatabaseTrue, normalizeTreatmentPrice } from "./treatmentPresentation";
 
 export type QualityIssue = { id: number | string; name: string; field: string; value: unknown; reason: string };
 
@@ -17,10 +17,6 @@ type TreatmentLike = ResourceLike & {
   acceptsPrivateInsurance?: number | boolean | null;
   isVerified?: number | boolean | null;
 };
-
-function isDatabaseTrue(value: unknown): boolean {
-  return value === true || value === 1 || value === "1";
-}
 
 function baseIssues(item: ResourceLike): QualityIssue[] {
   const issues: QualityIssue[] = [];
