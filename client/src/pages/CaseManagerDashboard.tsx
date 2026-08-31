@@ -24,7 +24,14 @@ const PRIORITY_VARIANT: Record<string, "destructive" | "default" | "secondary" |
 
 function GoalResources({ goalId }: { goalId: number }) {
   const { data } = trpc.caseManager.goals.resourceRecommendations.useQuery({ goalId });
-  if (!data || data.length === 0) return null;
+  if (!data) return null;
+  if (data.length === 0) {
+    return (
+      <div className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+        No verified matching resource found yet.
+      </div>
+    );
+  }
 
   return (
     <div className="mt-3 space-y-2 border-t border-border pt-3">
