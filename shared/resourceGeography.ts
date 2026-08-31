@@ -26,6 +26,7 @@ export function classifyResourceGeography(resource: ResourceLocation): ResourceG
     return "statewide";
   }
 
+  if (/\b(?!los angeles\b)[a-z .'-]+ county\b/.test(text)) return "outside_los_angeles";
   if (resource.address || zip) return "outside_los_angeles";
   return "unknown";
 }

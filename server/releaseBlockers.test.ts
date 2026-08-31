@@ -52,9 +52,11 @@ describe("release blocker regressions", () => {
 
   it("ranks Los Angeles and statewide resources ahead of out-of-area entries", () => {
     const sacramento = { name: "211 Sacramento", address: "Sacramento, CA 95814" };
+    const sacramentoCounty = { name: "211 Sacramento", description: "Emergency shelter referrals in Sacramento County." };
     const statewide = { name: "California Benefits", description: "California statewide information" };
     const losAngeles = { name: "LA service", address: "630 W Fifth St, Los Angeles, CA 90071" };
     expect(classifyResourceGeography(sacramento)).toBe("outside_los_angeles");
+    expect(classifyResourceGeography(sacramentoCounty)).toBe("outside_los_angeles");
     expect(sortResourcesForLosAngeles([sacramento, statewide, losAngeles])).toEqual([losAngeles, statewide, sacramento]);
   });
 });
