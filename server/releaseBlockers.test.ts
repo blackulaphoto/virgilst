@@ -34,6 +34,7 @@ describe("release blocker regressions", () => {
     const issues = auditTreatmentRecords(records);
     expect(issues.map(issue => issue.reason)).toEqual(expect.arrayContaining(["malformed or implausibly low price", "unverified insurance claim"]));
     expect(summarizePrivateInsurance(records)).toEqual({ total: 2, claimed: 2, share: 1 });
+    expect(summarizePrivateInsurance([{ id: 3, acceptsPrivateInsurance: "0" as any }, { id: 4, acceptsPrivateInsurance: "1" as any }])).toEqual({ total: 2, claimed: 1, share: 0.5 });
     expect(records[0].priceRange).toBe("$2");
   });
 
